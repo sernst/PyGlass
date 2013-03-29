@@ -7,6 +7,7 @@ import ConfigParser
 from collections import namedtuple
 
 try:
+    # Alembic functionality is optional. Availability is determined during module imports.
     import alembic.config as alembicConfig
     import alembic.command as alembicCmd
     import alembic.script as alembicScript
@@ -24,7 +25,7 @@ from pyglass.sqlalchemy.PyGlassModelUtils import PyGlassModelUtils
 
 #___________________________________________________________________________________________________ AlembicUtils
 class AlembicUtils(object):
-    """A class for..."""
+    """A utility class for Alembic migration management within PyGlass applications."""
 
 #===================================================================================================
 #                                                                                       C L A S S
@@ -37,6 +38,7 @@ class AlembicUtils(object):
 #___________________________________________________________________________________________________ GS: hasAlembic
     @ClassGetter
     def hasAlembic(cls):
+        """Specifies whether or not the Alembic package is available for use."""
         global ALEMBIC_SUPPORTED
         return ALEMBIC_SUPPORTED
 

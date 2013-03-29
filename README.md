@@ -9,6 +9,7 @@ key features are:
  * SQLAlchemy integration with Alembic migration capabilities
  * Streamlined widget classes for easier custom styling
  * Designed for application compilation using py2exe and py2app
+ * Simplified multi-threading
 
 Resource Management
 -------------------
