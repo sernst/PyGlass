@@ -76,14 +76,16 @@ class PyGlassWindow(QtGui.QMainWindow):
             self._centerWidget = None
 
         self._widgetClasses = ArgsUtils.get('widgets', dict(), kwargs)
-        if 'loading' not in self._widgetClasses:
+        if self._widgetClasses and 'loading' not in self._widgetClasses:
             self._widgetClasses['loading'] = LoadingWidget
 
         self._widgetParent  = PyGlassBackgroundParent(proxy=self)
         self._widgets       = dict()
         self._lastWidgetID  = None
-        self._widgetFlags   = ArgsUtils.get('widgetFlags', 0, kwargs)
-        self.setActiveWidget(ArgsUtils.get('widgetID', 'loading', kwargs))
+        self._widgetFlags   = ArgsUtils.get('widgetFlags', None, kwargs)
+
+        if self._widgetClasses:
+            self.setActiveWidget(ArgsUtils.get('widgetID', 'loading', kwargs))
 
         if not self._windowFile:
             self.setWindowTitle(ArgsUtils.get('title', self._createTitleFromClass(), kwargs))
