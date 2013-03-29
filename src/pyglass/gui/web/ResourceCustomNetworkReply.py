@@ -11,6 +11,9 @@ from PySide import QtNetwork
 from pyaid.enum.MimeTypeEnum import MIME_TYPES
 from pyaid.file.FileUtils import FileUtils
 
+from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
+from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
+
 #___________________________________________________________________________________________________ ResourceCustomNetworkReply
 class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
 
@@ -27,7 +30,8 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
         self.offset = 0
 
         if scheme == 'https':
-            self._buildHttpsReply(parent, request, url, operation, data)
+            self._buildHttpsReply(parent, request, url, operation, data, page)
+            self._finalize(url)
             return
 
         path = url.path()
@@ -107,38 +111,37 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
 #___________________________________________________________________________________________________ _finalize
     def _finalize(self, url):
         self.setHeader(QtNetwork.QNetworkRequest.ContentLengthHeader, len(self.content))
-        QtCore.QTimer.singleShot(0, self, QtCore.SIGNAL("readyRead()"))
-        QtCore.QTimer.singleShot(0, self, QtCore.SIGNAL("finished()"))
         self.open(self.ReadOnly | self.Unbuffered)
         self.setUrl(url)
+        QtCore.QTimer.singleShot(0, self, QtCore.SIGNAL("readyRead()"))
+        QtCore.QTimer.singleShot(0, self, QtCore.SIGNAL("finished()"))
 
 #___________________________________________________________________________________________________
-    def _buildHttpsReply(self, parent, request, url, operation, data):
+    def _buildHttpsReply(self, parent, request, url, operation, data, page):
         headers = dict()
         for header in request.rawHeaderList():
             headers[unicode(header)] = unicode(request.rawHeader(header))
 
         if operation == QtNetwork.QNetworkAccessManager.PostOperation:
-            headers['X-Requested-With'] = 'XMLHttpRequest'
             if data:
                 data = data.readAll()
             result = requests.post(
                 url.toString(),
                 data=data,
-                verify=parent.mainWindow.requestsCABundle,
+                verify=PyGlassEnvironment.requestsCABundle,
                 headers=headers
             )
         else:
             result = requests.get(
                 url.toString(),
-                verify=parent.mainWindow.requestsCABundle,
+                verify=PyGlassEnvironment.requestsCABundle,
                 headers=headers
             )
 
-        print 'URL:', url
-        print 'RESULT:', result
         self.content = result.content
         for headerName, headerValue in result.headers.iteritems():
+            if headerName in ['content-length', 'connection', 'content-encoding']:
+                continue
             self.setRawHeader(headerName, headerValue)
 
         self._finalize(url)

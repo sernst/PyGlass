@@ -84,7 +84,10 @@ class PyGlassWindow(QtGui.QMainWindow):
 
             if 'loading' not in self._widgetClasses:
                 self._widgetClasses['loading'] = LoadingWidget
-            self.setActiveWidget(ArgsUtils.get('widgetID', 'loading', kwargs))
+
+            activeWidgetID = ArgsUtils.get('widgetID', None, kwargs)
+            if activeWidgetID:
+                self.setActiveWidget(activeWidgetID)
         else:
             self._widgetParent = None
             self._widgets      = None
