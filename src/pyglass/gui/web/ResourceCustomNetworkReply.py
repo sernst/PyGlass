@@ -3,7 +3,6 @@
 # Scott Ernst
 
 import os
-import requests
 
 from PySide import QtCore
 from PySide import QtNetwork
@@ -11,8 +10,7 @@ from PySide import QtNetwork
 from pyaid.enum.MimeTypeEnum import MIME_TYPES
 from pyaid.file.FileUtils import FileUtils
 
-from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
-from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
+from pyglass.gui.web.HttpsRemoteExecutionThread import HttpsRemoteExecutionThread
 
 #___________________________________________________________________________________________________ ResourceCustomNetworkReply
 class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
@@ -23,15 +21,17 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, parent, request, operation, data, page):
         QtNetwork.QNetworkReply.__init__(self, parent)
-        mainWindow = page.mainWindow
-        url        = request.url()
-        scheme     = url.scheme()
-
+        mainWindow  = page.mainWindow
+        url         = request.url()
+        scheme      = url.scheme()
         self.offset = 0
+
+        self.setRequest(request)
+        self.setOperation(operation)
+        self.setUrl(url)
 
         if scheme == 'https':
             self._buildHttpsReply(parent, request, url, operation, data, page)
-            self._finalize(url)
             return
 
         path = url.path()
@@ -83,11 +83,7 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
             print 'WARNING: Resource URL does not exist ->', path
             self.content = ''
 
-        self._finalize(url)
-
-#___________________________________________________________________________________________________ abort
-    def abort(self):
-        pass
+        self._finalize()
 
 #___________________________________________________________________________________________________ bytesAvailable
     def bytesAvailable(self):
@@ -109,10 +105,10 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
 #                                                                               P R O T E C T E D
 
 #___________________________________________________________________________________________________ _finalize
-    def _finalize(self, url):
+    def _finalize(self):
         self.setHeader(QtNetwork.QNetworkRequest.ContentLengthHeader, len(self.content))
+        self.setError(QtNetwork.QNetworkReply.NoError, u'')
         self.open(self.ReadOnly | self.Unbuffered)
-        self.setUrl(url)
         QtCore.QTimer.singleShot(0, self, QtCore.SIGNAL("readyRead()"))
         QtCore.QTimer.singleShot(0, self, QtCore.SIGNAL("finished()"))
 
@@ -121,22 +117,25 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
         headers = dict()
         for header in request.rawHeaderList():
             headers[unicode(header)] = unicode(request.rawHeader(header))
+        if data:
+            data = data.readAll()
 
-        if operation == QtNetwork.QNetworkAccessManager.PostOperation:
-            if data:
-                data = data.readAll()
-            result = requests.post(
-                url.toString(),
-                data=data,
-                verify=PyGlassEnvironment.requestsCABundle,
-                headers=headers
-            )
-        else:
-            result = requests.get(
-                url.toString(),
-                verify=PyGlassEnvironment.requestsCABundle,
-                headers=headers
-            )
+        thread = HttpsRemoteExecutionThread(
+            parent=self,
+            operation=operation,
+            data=data,
+            headers=headers,
+            url=url.toString()
+        )
+        thread.completeSignal.signal.connect(self._handleHttpsResult)
+        thread.start()
+
+#===================================================================================================
+#                                                                                 H A N D L E R S
+
+#___________________________________________________________________________________________________ _handleHttpsResult
+    def _handleHttpsResult(self, threadResult):
+        result = threadResult['output']
 
         self.content = result.content
         for headerName, headerValue in result.headers.iteritems():
@@ -144,6 +143,6 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
                 continue
             self.setRawHeader(headerName, headerValue)
 
-        self._finalize(url)
+        self._finalize()
         return
 
