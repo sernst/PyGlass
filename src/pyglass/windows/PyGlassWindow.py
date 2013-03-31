@@ -75,23 +75,14 @@ class PyGlassWindow(QtGui.QMainWindow):
         else:
             self._centerWidget = None
 
-        self._widgetClasses = ArgsUtils.get('widgets', dict(), kwargs)
         self._lastWidgetID  = None
+        self._widgetParent  = None
+        self._widgets       = None
+        self._widgetFlags   = None
+
+        self._widgetClasses = ArgsUtils.get('widgets', dict(), kwargs)
         if self._widgetClasses:
-            self._widgetParent = PyGlassBackgroundParent(proxy=self)
-            self._widgets      = dict()
-            self._widgetFlags  = ArgsUtils.get('widgetFlags', None, kwargs)
-
-            if 'loading' not in self._widgetClasses:
-                self._widgetClasses['loading'] = LoadingWidget
-
-            activeWidgetID = ArgsUtils.get('widgetID', None, kwargs)
-            if activeWidgetID:
-                self.setActiveWidget(activeWidgetID)
-        else:
-            self._widgetParent = None
-            self._widgets      = None
-            self._widgetFlags  = None
+            self._initializeWidgetChildren()
 
         if not self._windowFile:
             self.setWindowTitle(ArgsUtils.get('title', self._createTitleFromClass(), kwargs))
@@ -335,7 +326,9 @@ class PyGlassWindow(QtGui.QMainWindow):
 #___________________________________________________________________________________________________ addWidget
     def addWidget(self, key, widgetClass, setActive =False):
         self._widgetClasses[key] = widgetClass
-        if setActive:
+        if self._widgets is None:
+            self._initializeWidgetChildren(key if setActive else None)
+        elif setActive:
             return self.setActiveWidget(key)
         return True
 
@@ -444,6 +437,20 @@ class PyGlassWindow(QtGui.QMainWindow):
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _initializeWidgetChildren
+    def _initializeWidgetChildren(self, activeWidgetID =None):
+        if not self._widgetClasses or self._widgets:
+            return False
+
+        self._widgetParent = PyGlassBackgroundParent(proxy=self)
+        self._widgets      = dict()
+
+        if 'loading' not in self._widgetClasses:
+            self._widgetClasses['loading'] = LoadingWidget
+
+        if activeWidgetID:
+            self.setActiveWidget(activeWidgetID)
 
 #___________________________________________________________________________________________________ _preShowImpl
     def _preShowImpl(self, **kwargs):
