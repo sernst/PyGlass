@@ -85,6 +85,10 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
 
         self._finalize()
 
+#___________________________________________________________________________________________________ abort
+    def abort(self, *args, **kwargs):
+        pass
+
 #___________________________________________________________________________________________________ bytesAvailable
     def bytesAvailable(self):
         return len(self.content) - self.offset + QtNetwork.QNetworkReply.bytesAvailable(self)
