@@ -39,6 +39,16 @@ class PyGlassCommunicator(QtCore.QObject):
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
+#___________________________________________________________________________________________________ _parseData
+    def _parseData(self, data):
+        if not data:
+            return None
+
+        try:
+            return JSON.fromString(data)
+        except Exception, err:
+            return data
+
 #___________________________________________________________________________________________________ _createSuccessResult
     def _createSuccessResult(self, payload):
         return JSON.asString(dict(
