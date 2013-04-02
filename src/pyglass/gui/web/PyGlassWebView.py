@@ -118,8 +118,10 @@ class PyGlassWebView(QtWebKit.QWebView):
 
         frame = self._webPage.mainFrame()
         self._comm.frame = frame
-        frame.addToJavaScriptWindowObject('VDESK', self._comm)
-        frame.evaluateJavaScript('try{ window.vdeskInitialize(); } catch (e) {}')
+        frame.addToJavaScriptWindowObject(self._comm.javaScriptID, self._comm)
+        frame.evaluateJavaScript(
+            u'try{ window.initialize%s(); } catch (e) {}' % self._comm.javaScriptID
+        )
 
 #===================================================================================================
 #                                                                               I N T R I N S I C
