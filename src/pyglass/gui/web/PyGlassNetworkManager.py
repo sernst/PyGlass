@@ -9,6 +9,8 @@ from pyglass.gui.web.ResourceCustomNetworkReply import ResourceCustomNetworkRepl
 #___________________________________________________________________________________________________ PyGlassNetworkManager
 class PyGlassNetworkManager(QtNetwork.QNetworkAccessManager):
 
+    HOSTS   = None
+    DOMAIN  = 'localhost.com'
     SCHEMES = ['resource', 'page', 'web', 'sharedweb', 'shared', 'https', 'app']
 
 #___________________________________________________________________________________________________ __init__
@@ -22,10 +24,19 @@ class PyGlassNetworkManager(QtNetwork.QNetworkAccessManager):
         self.setProxy(standardManager.proxy())
         self.setProxyFactory(standardManager.proxyFactory())
 
+        if self.HOSTS is None:
+            out = []
+            for scheme in self.SCHEMES:
+                out.append(scheme + '.' + self.DOMAIN)
+            self.HOSTS = out
+
 #___________________________________________________________________________________________________ createRequest
     def createRequest(self, operation, request, data):
         scheme = request.url().scheme()
-        if scheme not in PyGlassNetworkManager.SCHEMES:
-            return QtNetwork.QNetworkAccessManager.createRequest(self, operation, request, data)
+        host   = request.url().host()
+        if host in self.HOSTS or scheme in self.SCHEMES:
+            return ResourceCustomNetworkReply(self, request, operation, data, self._page)
 
-        return ResourceCustomNetworkReply(self, request, operation, data, self._page)
+        return QtNetwork.QNetworkAccessManager.createRequest(self, operation, request, data)
+
+

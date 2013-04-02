@@ -34,12 +34,20 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
             self._buildHttpsReply(parent, request, url, operation, data, page)
             return
 
+        if scheme == 'http':
+            host = url.host()
+            scheme = host.split('.', 1)[0]
+            pathHost = None
+        else:
+            pathHost = url.host()
+
         path = url.path()
-        if not path:
-            path = [url.host()]
+        if not path and pathHost:
+            path = [pathHost]
         else:
             path = url.path().strip().strip('/').split('/')
-            path.insert(0, url.host())
+            if pathHost:
+                path.insert(0, pathHost)
 
         if path[-1].endswith('.js'):
             contentType = MIME_TYPES.JAVASCRIPT
