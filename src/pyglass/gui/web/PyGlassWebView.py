@@ -57,6 +57,14 @@ class PyGlassWebView(QtWebKit.QWebView):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ GS: pluginsEnabled
+    @property
+    def pluginsEnabled(self):
+        return self.settings().attribute(QtWebKit.QWebSettings.PluginsEnabled)
+    @pluginsEnabled.setter
+    def pluginsEnabled(self, value):
+        self.settings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, value)
+
 #___________________________________________________________________________________________________ GS: communicator
     @property
     def communicator(self):
