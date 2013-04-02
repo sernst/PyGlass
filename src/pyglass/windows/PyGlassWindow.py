@@ -334,7 +334,7 @@ class PyGlassWindow(QtGui.QMainWindow):
 
 #___________________________________________________________________________________________________ setActiveWidget
     def setActiveWidget(self, widgetID, force =False, args =None, doneArgs =None):
-        if widgetID is None or widgetID not in self._widgetClasses:
+        if not self._centerWidget or widgetID is None or widgetID not in self._widgetClasses:
             return False
 
         if not force and self._currentWidget and self._currentWidget.widgetID == widgetID:

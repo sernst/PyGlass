@@ -51,7 +51,11 @@ class PyGlassApplication(QtCore.QObject):
 #___________________________________________________________________________________________________ GS: applicationCodePath
     @property
     def applicationCodePath(self):
-        return os.path.dirname(inspect.getfile(self.__class__))
+        """ Determines the application code path where this file is located. the abspath enforces
+            the absolute path with the correct os.sep to prevent issues with file path format in
+            resources.
+        """
+        return os.path.abspath(os.path.dirname(inspect.getfile(self.__class__)))
 
 #___________________________________________________________________________________________________ GS: debugRootResourcePath
     @property

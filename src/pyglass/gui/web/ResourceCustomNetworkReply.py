@@ -49,6 +49,8 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
             contentType = MIME_TYPES.PNG_IMAGE
         elif path[-1].endswith('.jpg'):
             contentType = MIME_TYPES.JPEG_IMAGE
+        elif path[-1].endswith('.swf'):
+            contentType = MIME_TYPES.SWF
         else:
             contentType = MIME_TYPES.HTML
 
@@ -73,7 +75,7 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
             path = mainWindow.getRootResourcePath(*path, isFile=True)
 
         if os.path.exists(path):
-            if contentType in [MIME_TYPES.JPEG_IMAGE, MIME_TYPES.PNG_IMAGE]:
+            if contentType in [MIME_TYPES.JPEG_IMAGE, MIME_TYPES.PNG_IMAGE, MIME_TYPES.SWF]:
                 f = open(path, 'rb+')
             else:
                 f = open(path, 'r+')
