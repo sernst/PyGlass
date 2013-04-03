@@ -95,3 +95,17 @@ class PyGlassGuiUtils(QObject):
         painter = QtGui.QPainter(target)
         painter.setBrush(brush)
         painter.drawRect(0, 0, w, h)
+
+#___________________________________________________________________________________________________ fillPainter
+    @classmethod
+    def fillPainter(cls, target, size, color):
+        """ This method must be called within a paint event. It will paint a gradient background
+            on the target widget for the specified size.
+        """
+        w     = size.width()
+        h     = size.height()
+        brush = QtGui.QBrush(color)
+
+        painter = QtGui.QPainter(target)
+        painter.setBrush(brush)
+        painter.drawRect(0, 0, w, h)
