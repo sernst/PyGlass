@@ -60,8 +60,8 @@ class PyGlassWindow(QtGui.QMainWindow):
                 self.setWindowIcon(icon)
 
         # Loads the ui file if it exists
-        self._windowFile = ArgsUtils.get('mainWindowFile', False, kwargs)
-        if self._windowFile:
+        hasWindowFile = ArgsUtils.get('mainWindowFile', False, kwargs)
+        if hasWindowFile:
             UiFileLoader.loadWidgetFile(self)
 
         self._styleSheet = ArgsUtils.get('styleSheet', None, kwargs)
@@ -74,19 +74,21 @@ class PyGlassWindow(QtGui.QMainWindow):
             self._centerWidget = getattr(self, centralWidgetName)
         else:
             self._centerWidget = None
+            if ArgsUtils.get('defaultCenterWidget', False, kwargs):
+                self._createCentralWidget()
 
         self._lastWidgetID  = None
         self._widgetParent  = None
         self._widgets       = None
         self._widgetFlags   = None
 
-        self._widgetClasses = ArgsUtils.get('widgets', dict(), kwargs)
+        self._widgetClasses = ArgsUtils.get('widgets', None, kwargs)
         if self._widgetClasses:
             self._initializeWidgetChildren()
+        else:
+            self._widgetClasses = dict()
 
-        if not self._windowFile:
-            self.setWindowTitle(ArgsUtils.get('title', self._createTitleFromClass(), kwargs))
-
+        self.setWindowTitle(ArgsUtils.get('title', self._createTitleFromClass(), kwargs))
         self.updateStatusBar()
 
 #===================================================================================================
@@ -438,6 +440,23 @@ class PyGlassWindow(QtGui.QMainWindow):
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
+#___________________________________________________________________________________________________ _createCentralWidget
+    def _createCentralWidget(self):
+        w1 = self.centralWidget()
+        w2 = self._centerWidget
+        if w1 and w2:
+            return w2
+        elif w1 and not w2:
+            self._centerWidget = w1
+            return w1
+
+        layout = self.layout()
+        w = QtGui.QWidget(self)
+        layout.addWidget(w)
+        self.setCentralWidget(w)
+        self._centerWidget = w
+        return w
+
 #___________________________________________________________________________________________________ _initializeWidgetChildren
     def _initializeWidgetChildren(self, activeWidgetID =None):
         if not self._widgetClasses or self._widgets:
@@ -449,6 +468,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         if 'loading' not in self._widgetClasses:
             self._widgetClasses['loading'] = LoadingWidget
 
+        print 'INI WIDGET CHILDREN:', activeWidgetID, self._widgets, self._widgetClasses
         if activeWidgetID:
             self.setActiveWidget(activeWidgetID)
 

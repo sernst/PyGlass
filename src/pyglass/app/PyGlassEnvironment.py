@@ -20,7 +20,7 @@ class PyGlassEnvironment(object):
 
     BASE_UNIX_TIME         = 1293868800
 
-    _ENV_PATH              = os.path.dirname(os.path.abspath(__file__))
+    _ENV_PATH              = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
     _ENV_SETTINGS          = None
     _GLOBAL_SETTINGS_FILE  = 'environment.vcd'
 
@@ -50,7 +50,7 @@ class PyGlassEnvironment(object):
     @ClassGetter
     def requestsCABundle(cls):
         if cls.isDeployed:
-            return  cls.getResourcePath(
+            return  cls.getRootResourcePath(
                 'pythonRoot',
                 'Lib',
                 'site-packages',
@@ -97,6 +97,7 @@ class PyGlassEnvironment(object):
                 os.environ['LOCALAPPDATA'],
                 application.appGroupID,
                 application.appID,
+                'resources',
                 isDir=True
             )
         else:
@@ -122,7 +123,8 @@ class PyGlassEnvironment(object):
                 os.environ['LOCALAPPDATA'],
                 application.appGroupID,
                 application.appID,
-                'local_resources'
+                'local_resources',
+                isDir=True
             )
         else:
             rootPath = application.debugRootResourcePath
