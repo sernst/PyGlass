@@ -50,7 +50,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self, parent, ArgsUtils.extract('flags', 0, kwargs))
 
         if self._isMainWindow:
-            self._log                 = Logger(self)
+            self._log                 = Logger(self, printOut=True)
             self._config              = ApplicationConfig(self)
             self._commonConfig        = ApplicationConfig(self, common=True)
             self._resourceFolderParts = PyGlassGuiUtils.getResourceFolderParts(self)
