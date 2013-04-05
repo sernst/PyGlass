@@ -23,10 +23,19 @@ class PyGlassElement(QtGui.QWidget):
         self._mainWindow = None
         self._id         = ArgsUtils.get('id', self.__class__.__name__, kwargs)
         self._widgetID   = ArgsUtils.get('widgetID', self._id, kwargs)
+        self._userData   = ArgsUtils.get('userData', None, kwargs)
         self._resourceFolderParts = PyGlassGuiUtils.getResourceFolderParts(self)
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: userData
+    @property
+    def userData(self):
+        return self._userData
+    @userData.setter
+    def userData(self, value):
+        self._userData = value
 
 #___________________________________________________________________________________________________ GS: allowsOwnership
     @property

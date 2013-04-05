@@ -3,6 +3,7 @@
 # Scott Ernst
 
 from PySide import QtCore
+from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
 
@@ -27,24 +28,21 @@ class InteractiveButtonBase(PyGlassElement):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, parent, toggles =False, clickOn =False, **kwargs):
         """Creates a new instance of InteractiveButtonBase."""
+        self._clickCallback = ArgsUtils.extract('callback', None, kwargs)
         PyGlassElement.__init__(self, parent, **kwargs)
+
+        c = QtGui.QCursor()
+        c.setShape(QtCore.Qt.PointingHandCursor)
+        self.setCursor(c)
+
         self._toggles      = toggles
         self._clickOn      = clickOn
-        self._userData     = ArgsUtils.get('userData', None, kwargs)
         self._checked      = False
         self._mode         = InteractiveButtonBase.NORMAL_MODE
         self._mouseEnabled = True
 
 #===================================================================================================
 #                                                                                   G E T / S E T
-
-#___________________________________________________________________________________________________ GS: userData
-    @property
-    def userData(self):
-        return self._userData
-    @userData.setter
-    def userData(self, value):
-        self._userData = value
 
 #___________________________________________________________________________________________________ GS: mouseEnabled
     @property
@@ -56,6 +54,12 @@ class InteractiveButtonBase(PyGlassElement):
         self._mouseEnabled = value
         if wasEnabled != value:
             self._exitInteractivityStates()
+            if wasEnabled:
+                self.unsetCursor()
+            else:
+                c = QtGui.QCursor()
+                c.setShape(QtCore.Qt.PointingHandCursor)
+                self.setCursor(c)
 
 #___________________________________________________________________________________________________ GS: checked
     @property
@@ -100,6 +104,8 @@ class InteractiveButtonBase(PyGlassElement):
             else:
                 self._updateDisplay(InteractiveButtonBase.OVER_MODE)
             self.clicked.emit()
+            if self._clickCallback is not None:
+                self._clickCallback(self)
         else:
             self._updateDisplay(InteractiveButtonBase.NORMAL_MODE)
 
