@@ -22,7 +22,7 @@ class PyGlassElement(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self._mainWindow = None
         self._id         = ArgsUtils.get('id', self.__class__.__name__, kwargs)
-        self._widgetID   = ArgsUtils.get('widgetID', None, kwargs)
+        self._widgetID   = ArgsUtils.get('widgetID', self._id, kwargs)
         self._resourceFolderParts = PyGlassGuiUtils.getResourceFolderParts(self)
 
 #===================================================================================================
@@ -87,6 +87,15 @@ class PyGlassElement(QtGui.QWidget):
 
 #===================================================================================================
 #                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ getAncestor
+    def getAncestor(self, ident):
+        parent = self.parent()
+        while parent:
+            if hasattr(parent, 'id') and parent.id == ident:
+                return parent
+            parent = parent.parent()
+        return None
 
 #___________________________________________________________________________________________________ refreshGui
     def refreshGui(self):
