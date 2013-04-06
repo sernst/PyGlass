@@ -36,6 +36,31 @@ class PyGlassCommunicator(QtCore.QObject):
     def webView(self, value):
         self._webView = value
 
+#___________________________________________________________________________________________________ GS: scriptFrame
+    @property
+    def scriptFrame(self):
+        return self._webView.page().mainFrame()
+
+#===================================================================================================
+#                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ callInitialize
+    def callInitialize(self):
+        self.scriptFrame.addToJavaScriptWindowObject(self.javaScriptID, self)
+        self.callJavascript(u'initialize' + self.javaScriptID)
+
+#___________________________________________________________________________________________________ callUpdate
+    def callUpdate(self):
+        self.callJavascript(u'update' + self.javaScriptID)
+
+#___________________________________________________________________________________________________ callJavascript
+    def callJavascript(self, function, data =None):
+        frame = self._webView.page().mainFrame()
+        frame.addToJavaScriptWindowObject(self.javaScriptID, self)
+        frame.evaluateJavaScript(
+            u'try{ window.%s(%s); } catch (e) {}' % (function, JSON.asString(data) if data else u'')
+        )
+
 #===================================================================================================
 #                                                                               P R O T E C T E D
 

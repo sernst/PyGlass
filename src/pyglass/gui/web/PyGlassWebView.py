@@ -121,15 +121,8 @@ class PyGlassWebView(QtWebKit.QWebView):
 
 #___________________________________________________________________________________________________ _handleLoadFinished
     def _handleLoadFinished(self, result):
-        if not self._comm:
-            return
-
-        frame = self._webPage.mainFrame()
-        self._comm.frame = frame
-        frame.addToJavaScriptWindowObject(self._comm.javaScriptID, self._comm)
-        frame.evaluateJavaScript(
-            u'try{ window.initialize%s(); } catch (e) {}' % self._comm.javaScriptID
-        )
+        if self._comm:
+            self._comm.callInitialize()
 
 #===================================================================================================
 #                                                                               I N T R I N S I C
