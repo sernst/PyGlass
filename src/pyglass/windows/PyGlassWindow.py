@@ -5,11 +5,9 @@
 import sys
 import os
 
-from PySide import QtCore
 from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
-from pyaid.ClassUtils import ClassUtils
 from pyaid.debug.Logger import Logger
 from pyaid.decorators.ClassGetter import ClassGetter
 from pyaid.file.FileUtils import FileUtils
@@ -451,6 +449,9 @@ class PyGlassWindow(QtGui.QMainWindow):
             return w1
 
         layout = self.layout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
         w = QtGui.QWidget(self)
         layout.addWidget(w)
         self.setCentralWidget(w)
@@ -468,7 +469,6 @@ class PyGlassWindow(QtGui.QMainWindow):
         if 'loading' not in self._widgetClasses:
             self._widgetClasses['loading'] = LoadingWidget
 
-        print 'INI WIDGET CHILDREN:', activeWidgetID, self._widgets, self._widgetClasses
         if activeWidgetID:
             self.setActiveWidget(activeWidgetID)
 

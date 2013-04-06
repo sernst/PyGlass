@@ -18,6 +18,9 @@ class PyGlassWidget(PyGlassElement):
 #===================================================================================================
 #                                                                                       C L A S S
 
+    RESOURCE_FOLDER_PREFIX = None
+    RESOURCE_FOLDER_NAME   = None
+
 #___________________________________________________________________________________________________ __init__
     def __init__(self, parent =None, **kwargs):
         """Creates a new instance of PyGlassWidget."""
@@ -30,6 +33,7 @@ class PyGlassWidget(PyGlassElement):
         self._widgetParent  = None
         self._currentWidget = None
         self._widgets       = dict()
+        self._widgetFlags   = ArgsUtils.get('widgetFlags', None, kwargs)
         self._widgetID      = ArgsUtils.get('widgetID', None, kwargs)
 
         widgetFile = ArgsUtils.get('widgetFile', True, kwargs)
@@ -48,9 +52,6 @@ class PyGlassWidget(PyGlassElement):
         if 'loading' not in self._widgetClasses:
             from pyglass.widgets.LoadingWidget import LoadingWidget
             self._widgetClasses['loading'] = LoadingWidget
-
-        self._widgetParent  = PyGlassBackgroundParent(proxy=self)
-        self._widgetFlags   = ArgsUtils.get('widgetFlags', 0, kwargs)
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -72,6 +73,13 @@ class PyGlassWidget(PyGlassElement):
 
 #===================================================================================================
 #                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ addWidgetChild
+    def addWidgetChild(self, key, widgetClass, setActive =False):
+        self._widgetClasses[key] = widgetClass
+        if setActive:
+            return self.setActiveWidget(key)
+        return True
 
 #___________________________________________________________________________________________________ refresh
     def refresh(self, **kwargs):
@@ -122,6 +130,9 @@ class PyGlassWidget(PyGlassElement):
             widgetIdents = self._widgetClasses.keys()
         elif isinstance(widgetIdents, basestring):
             widgetIdents = [widgetIdents]
+
+        if self._widgetParent is None:
+            self._widgetParent = PyGlassBackgroundParent(proxy=self)
 
         for widgetID in widgetIdents:
             if widgetID in self._widgets:

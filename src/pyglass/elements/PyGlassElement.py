@@ -88,11 +88,17 @@ class PyGlassElement(QtGui.QWidget):
     @property
     def id(self):
         return self._id
+    @id.setter
+    def id(self, value):
+        self._id = value
 
 #___________________________________________________________________________________________________ GS: widgetID
     @property
     def widgetID(self):
         return self._widgetID
+    @widgetID.setter
+    def widgetID(self, value):
+        self._widgetID = value
 
 #===================================================================================================
 #                                                                                     P U B L I C
@@ -165,9 +171,15 @@ class PyGlassElement(QtGui.QWidget):
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
+#___________________________________________________________________________________________________ _createElementWidget
+    def _createElementWidget(self, parent, layoutClass =None, add =False):
+        return self._createWidget(parent, layoutClass, add, PyGlassElement)
+
 #___________________________________________________________________________________________________ _createWidget
-    def _createWidget(self, parent, layoutClass =None, add =False):
-        w = QtGui.QWidget(parent)
+    def _createWidget(self, parent, layoutClass =None, add =False, widgetClass =None):
+        if widgetClass is None:
+            widgetClass = QtGui.QWidget
+        w = widgetClass(parent)
 
         if add and parent:
             layout = parent.layout()

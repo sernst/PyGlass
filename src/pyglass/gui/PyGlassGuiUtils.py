@@ -66,9 +66,8 @@ class PyGlassGuiUtils(QObject):
         prefix = ClassUtils.getAttrFromClass(target, cls.RESOURCE_FOLDER_PREFIX, None)
         if prefix:
             out.extend(prefix.split('/') if isinstance(prefix, basestring) else prefix)
-        out.append(ClassUtils.getAttrFromClass(
-            target, cls.RESOURCE_FOLDER_NAME, target.__name__
-        ))
+        resourceName = ClassUtils.getAttrFromClass(target, cls.RESOURCE_FOLDER_NAME, None)
+        out.append(resourceName if resourceName else target.__name__)
         return out
 
 #___________________________________________________________________________________________________ gradientPainter
