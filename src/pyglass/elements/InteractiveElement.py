@@ -26,17 +26,17 @@ class InteractiveElement(PyGlassElement):
     def __init__(self, parent, toggles =False, clickOn =False, **kwargs):
         """Creates a new instance of InteractiveElement."""
         self._clickCallback = ArgsUtils.extract('callback', None, kwargs)
-        PyGlassElement.__init__(self, parent, **kwargs)
-
-        c = QtGui.QCursor()
-        c.setShape(QtCore.Qt.PointingHandCursor)
-        self.setCursor(c)
+        super(InteractiveElement, self).__init__(parent, **kwargs)
 
         self._toggles      = toggles
         self._clickOn      = clickOn
         self._checked      = False
         self._mode         = InteractionStatesEnum.NORMAL_MODE
         self._mouseEnabled = True
+
+        c = QtGui.QCursor()
+        c.setShape(QtCore.Qt.PointingHandCursor)
+        self.setCursor(c)
 
 #===================================================================================================
 #                                                                                   G E T / S E T

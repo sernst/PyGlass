@@ -14,6 +14,6 @@ class InteractiveButtonBase(InteractiveElement):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, parent, toggles =False, clickOn =False, **kwargs):
         """Creates a new instance of InteractiveButtonBase."""
-        super(InteractiveElement, self).__init__(
+        super(InteractiveButtonBase, self).__init__(
             parent=parent, toggles=toggles, clickOn=clickOn, **kwargs
         )
