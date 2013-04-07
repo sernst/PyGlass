@@ -2,6 +2,7 @@
 # (C)2013
 # Scott Ernst
 
+import math
 import inspect
 
 from PySide.QtCore import QObject
@@ -78,15 +79,15 @@ class PyGlassGuiUtils(QObject):
         """
         w     = size.width()
         h     = size.height()
-        halfW = round(float(w)/2.0)
-        halfH = round(float(h)/2.0)
+        halfW = math.ceil(float(w)/2.0)
+        halfH = math.ceil(float(h)/2.0)
 
         matrix = QtGui.QMatrix()
         matrix.translate(halfW, halfH)
 
-        gradient = QtGui.QLinearGradient(halfW, -halfH, halfW, halfH)
-        gradient.setColorAt(0, upperColor)
-        gradient.setColorAt(1, lowerColor)
+        gradient = QtGui.QLinearGradient(halfW, -halfH - 1, halfW, halfH + 1)
+        gradient.setColorAt(0.0, upperColor)
+        gradient.setColorAt(1.0, lowerColor)
 
         brush = QtGui.QBrush(gradient)
         brush.setMatrix(matrix)

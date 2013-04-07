@@ -9,6 +9,8 @@ class ColorSchemes(object):
 #===================================================================================================
 #                                                                                       C L A S S
 
+    #COLOR   = ('PRIMARY TEXT', 'SECONDARY TEXT', 'LIGHT BACK', 'DARK BACK')
+
     #COLOR   = ('#', '#', '#', '#')
 
     RED     = ('#541C1C', '#661E1E', '#FF4747', '#BD2222')

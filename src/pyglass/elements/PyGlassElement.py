@@ -29,6 +29,25 @@ class PyGlassElement(QtGui.QWidget):
 #===================================================================================================
 #                                                                                   G E T / S E T
 
+#___________________________________________________________________________________________________ GS: isOnDisplay
+    @property
+    def isOnDisplay(self):
+        if not self.isVisible():
+            return False
+
+        parent = self.parent()
+        while parent:
+            try:
+                if not parent.isVisible():
+                    return False
+                if parent.isBackgroundParent:
+                    return False
+            except Exception, err:
+                pass
+            parent = parent.parent()
+
+        return True
+
 #___________________________________________________________________________________________________ GS: userData
     @property
     def userData(self):

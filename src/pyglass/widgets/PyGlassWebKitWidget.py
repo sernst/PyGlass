@@ -7,7 +7,7 @@ from PySide import QtGui
 from pyaid.ArgsUtils import ArgsUtils
 
 from pyglass.widgets.PyGlassWidget import PyGlassWidget
-from pyglass.gui.web.PyGlassWebView import PyGlassWebView
+from pyglass.web.PyGlassWebView import PyGlassWebView
 
 #___________________________________________________________________________________________________ PyGlassWebKitWidget
 class PyGlassWebKitWidget(PyGlassWidget):

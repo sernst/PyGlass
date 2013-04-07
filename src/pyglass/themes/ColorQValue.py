@@ -14,7 +14,7 @@ class ColorQValue(ColorValue):
 #                                                                                       C L A S S
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, sourceColor, normalized, opacity):
+    def __init__(self, sourceColor, normalized =False, opacity =1.0):
         """Creates a new instance of ColorQValue."""
         super(ColorQValue, self).__init__(sourceColor, normalized, opacity)
 

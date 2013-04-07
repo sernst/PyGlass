@@ -97,6 +97,11 @@ class PyGlassWindow(QtGui.QMainWindow):
     def isDeployed(cls):
         return PyGlassEnvironment.isDeployed
 
+#___________________________________________________________________________________________________ GS: isOnDisplay
+    @property
+    def isOnDisplay(self):
+        return self.isVisible()
+
 #___________________________________________________________________________________________________ GS: appID
     @property
     def appID(self):
