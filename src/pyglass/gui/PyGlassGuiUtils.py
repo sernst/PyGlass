@@ -2,16 +2,18 @@
 # (C)2013
 # Scott Ernst
 
+import os
 import math
 import inspect
 
-from PySide.QtCore import QObject
+from PySide import QtCore
 from PySide import QtGui
 
 from pyaid.ClassUtils import ClassUtils
+from pyaid.file.FileUtils import FileUtils
 
 #___________________________________________________________________________________________________ PyGlassGuiUtils
-class PyGlassGuiUtils(QObject):
+class PyGlassGuiUtils(QtCore.QObject):
     """A class for..."""
 
 #===================================================================================================
@@ -94,6 +96,7 @@ class PyGlassGuiUtils(QObject):
 
         painter = QtGui.QPainter(target)
         painter.setBrush(brush)
+        painter.setPen(QtCore.Qt.NoPen)
         painter.drawRect(0, 0, w, h)
 
 #___________________________________________________________________________________________________ fillPainter
@@ -108,4 +111,24 @@ class PyGlassGuiUtils(QObject):
 
         painter = QtGui.QPainter(target)
         painter.setBrush(brush)
+        painter.setPen(QtCore.Qt.NoPen)
         painter.drawRect(0, 0, w, h)
+
+#___________________________________________________________________________________________________ createIcon
+    @classmethod
+    def createIcon(cls, iconsPath):
+        """ Creates a window icon from a path, adding the standard icon sizes for multiple
+            operating systems.
+        """
+
+        if not os.path.exists(iconsPath):
+            return None
+
+        iconsPath = FileUtils.cleanupPath(iconsPath, isDir=True)
+        icon      = QtGui.QIcon()
+        sizes     = [512, 256, 180, 128, 96, 72, 64, 48, 32, 24, 16]
+        for size in sizes:
+            path = FileUtils.createPath(iconsPath, str(size) + '.png', isFile=True)
+            if os.path.exists(path):
+                icon.addFile(path)
+        return icon
