@@ -5,13 +5,13 @@
 import math
 import inspect
 
-from PySide.QtCore import QObject
+from PySide import QtCore
 from PySide import QtGui
 
 from pyaid.ClassUtils import ClassUtils
 
 #___________________________________________________________________________________________________ PyGlassGuiUtils
-class PyGlassGuiUtils(QObject):
+class PyGlassGuiUtils(QtCore.QObject):
     """A class for..."""
 
 #===================================================================================================
@@ -94,6 +94,7 @@ class PyGlassGuiUtils(QObject):
 
         painter = QtGui.QPainter(target)
         painter.setBrush(brush)
+        painter.setPen(QtCore.Qt.NoPen)
         painter.drawRect(0, 0, w, h)
 
 #___________________________________________________________________________________________________ fillPainter
@@ -108,4 +109,5 @@ class PyGlassGuiUtils(QObject):
 
         painter = QtGui.QPainter(target)
         painter.setBrush(brush)
+        painter.setPen(QtCore.Qt.NoPen)
         painter.drawRect(0, 0, w, h)

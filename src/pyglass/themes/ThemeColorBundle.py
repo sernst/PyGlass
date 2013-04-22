@@ -14,10 +14,13 @@ class ThemeColorBundle(object):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, colorScheme):
         """Creates a new instance of ThemeColorBundle."""
+        self._scheme = colorScheme
         self._strong = ColorQValue(colorScheme[0])
         self._weak   = ColorQValue(colorScheme[1])
         self._lightBackground = ColorQValue(colorScheme[2])
         self._darkBackground  = ColorQValue(colorScheme[3])
+
+        self._colors = (self._strong, self._weak, self._lightBackground, self._darkBackground)
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -41,6 +44,28 @@ class ThemeColorBundle(object):
     @property
     def dark(self):
         return self._darkBackground
+
+#===================================================================================================
+#                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ clone
+    def clone(self, invert =False):
+        if invert:
+            scheme = list(self._scheme) + []
+            scheme.reverse()
+        else:
+            scheme = self._scheme
+        return ThemeColorBundle(scheme)
+
+#___________________________________________________________________________________________________ hsvShift
+    def hsvShift(self, **kwargs):
+        for color in self._colors:
+            color.hsvShift(**kwargs)
+
+#___________________________________________________________________________________________________ opacityShift
+    def opacityShift(self, opacityDelta):
+        for color in self._colors:
+            color.opacity = min(1.0, max(0.0, color.opacity + opacityDelta))
 
 #===================================================================================================
 #                                                                               I N T R I N S I C
