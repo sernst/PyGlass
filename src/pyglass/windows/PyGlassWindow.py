@@ -52,6 +52,13 @@ class PyGlassWindow(QtGui.QMainWindow):
             self._config              = ApplicationConfig(self)
             self._commonConfig        = ApplicationConfig(self, common=True)
             self._resourceFolderParts = PyGlassGuiUtils.getResourceFolderParts(self)
+
+            icon = PyGlassGuiUtils.createIcon(
+                ArgsUtils.get('iconsPath', self.getAppResourcePath('icons', isDir=True), kwargs)
+            )
+            if icon:
+                self.setWindowIcon(icon)
+
         elif self._mainWindow:
             icon = self._mainWindow.windowIcon()
             if icon:
@@ -258,11 +265,13 @@ class PyGlassWindow(QtGui.QMainWindow):
         self.refreshGui()
 
 #___________________________________________________________________________________________________ updateStatusBar
-    def updateStatusBar(self, message =None, timeout =0):
+    def updateStatusBar(self, message =None, timeout =-1):
         if not message:
             self.statusBar().clearMessage()
             self.statusBar().setVisible(False)
         else:
+            if timeout < 0:
+                timeout = 3000
             self.statusBar().showMessage(message, timeout=timeout)
             self.statusBar().setVisible(True)
 
