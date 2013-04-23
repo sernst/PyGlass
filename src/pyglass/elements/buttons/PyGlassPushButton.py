@@ -79,6 +79,18 @@ class PyGlassPushButton(InteractiveButtonBase):
         self.layout().setSpacing(3)
 
 #===================================================================================================
+#                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: shrink
+    @property
+    def shrink(self):
+        return self.sizePolicy().horizontalPolicy() == QtGui.QSizePolicy.Maximum
+    @shrink.setter
+    def shrink(self, value):
+        hPolicy = QtGui.QSizePolicy.Maximum if value else QtGui.QSizePolicy.Preferred
+        self.setSizePolicy(hPolicy, self.sizePolicy().verticalPolicy())
+
+#===================================================================================================
 #                                                                                     P U B L I C
 
 #___________________________________________________________________________________________________ text
