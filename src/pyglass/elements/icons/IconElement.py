@@ -17,7 +17,7 @@ class IconElement(PyGlassElement):
 #===================================================================================================
 #                                                                                       C L A S S
 
-    _ICON_SIZES  = [16, 24, 32]
+    _ICON_SIZES  = [16, 20, 24, 32]
     _ICON_SHEETS = dict()
 
 #___________________________________________________________________________________________________ __init__
@@ -27,7 +27,7 @@ class IconElement(PyGlassElement):
 
         self._mapCoords = ArgsUtils.get('icon', [0, 0], kwargs, args, 0)
         self._size      = ArgsUtils.get('size', SizeEnum.MEDIUM, kwargs)
-        self._sizeIndex = [SizeEnum.SMALL, SizeEnum.MEDIUM, SizeEnum.LARGE].index(self._size)
+        self._sizeIndex = [SizeEnum.SMALL, SizeEnum.MEDIUM, SizeEnum.LARGE, SizeEnum.XLARGE].index(self._size)
         self._isDark    = ArgsUtils.get('dark', True, kwargs)
         self._opacity   = ArgsUtils.get('opacity', 1.0, kwargs)
 
