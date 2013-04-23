@@ -69,6 +69,16 @@ class PyGlassEnvironment(object):
         cls._rootResourcePath = cls._getRootResourcePath(application)
         cls._rootLocalResourcePath = cls._getRootLocalResourcePath(application)
 
+#___________________________________________________________________________________________________ getPyGlassResourcePath
+    @classmethod
+    def getPyGlassResourcePath(cls, *args, **kwargs):
+        if cls.isDeployed:
+            return cls.getRootResourcePath('pyglass', *args, **kwargs)
+
+        return FileUtils.createPath(
+            cls._ENV_PATH, '..', '..', '..', 'resources', 'pyglass', *args, **kwargs
+        )
+
 #___________________________________________________________________________________________________ getRootResourcePath
     @classmethod
     def getRootResourcePath(cls, *args, **kwargs):
