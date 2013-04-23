@@ -23,8 +23,8 @@ class PyGlassPushButton(InteractiveButtonBase):
 #===================================================================================================
 #                                                                                       C L A S S
 
-    _ROUNDNESS   = [4, 8, 8]
-    _MARGINS     = [(8, 4), (12, 6), (16, 8)]
+    _ROUNDNESS   = [4, 6, 8, 8]
+    _MARGINS     = [(8, 4), (10, 5), (12, 6), (16, 8)]
     _LINE_WIDTH  = 2
     _GLOSS_QCOLORS = (
         QtGui.QColor(255, 255, 255, 100),
@@ -33,7 +33,7 @@ class PyGlassPushButton(InteractiveButtonBase):
         QtGui.QColor(255, 255, 255, 0)
     )
     _LABEL_STYLE = "QLabel { color:#C#; font-weight:500; font-size:#FS#px; }"
-    _FONT_SIZES  = [10, 14, 18]
+    _FONT_SIZES  = [10, 14, 16, 20]
 
 #___________________________________________________________________________________________________ __init__
     def __init__(self, parent, *args, **kwargs):
@@ -41,7 +41,9 @@ class PyGlassPushButton(InteractiveButtonBase):
         super(PyGlassPushButton, self).__init__(parent, **kwargs)
         labelText               = ArgsUtils.get('text', u'', kwargs, args, 0)
         self._size              = ArgsUtils.get('size', SizeEnum.MEDIUM, kwargs)
-        self._sizeIndex         = [SizeEnum.SMALL, SizeEnum.MEDIUM, SizeEnum.LARGE].index(self._size)
+        self._sizeIndex         = [
+            SizeEnum.SMALL, SizeEnum.MEDIUM, SizeEnum.LARGE, SizeEnum.XLARGE
+        ].index(self._size)
         self._colorScheme       = ArgsUtils.get('colorScheme', None, kwargs)
         self._toggleColorScheme = ArgsUtils.get('toggleColorScheme', None, kwargs)
         self._normalBundle      = ArgsUtils.get('normalColors', None, kwargs, args, 1)

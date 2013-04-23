@@ -14,3 +14,5 @@ class SizeEnum(object):
     MEDIUM = 'medium'
 
     LARGE = 'large'
+
+    XLARGE = 'xlarge'
