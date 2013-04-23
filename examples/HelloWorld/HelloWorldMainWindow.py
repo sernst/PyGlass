@@ -6,6 +6,7 @@ from PySide import QtCore
 from PySide import QtGui
 
 from pyglass.elements.buttons.PyGlassPushButton import PyGlassPushButton
+from pyglass.elements.icons.IconSheetMap import IconSheetMap
 from pyglass.themes.ColorSchemes import ColorSchemes
 from pyglass.windows.PyGlassWindow import PyGlassWindow
 
@@ -33,9 +34,11 @@ class HelloWorldMainWindow(PyGlassWindow):
 
         button = PyGlassPushButton(
             self,
+            icon=IconSheetMap.ATOMIC,
+            text=u'Atomic',
             colorScheme=ColorSchemes.GREY,
             toggleColorScheme=ColorSchemes.BLUE,
             toggles=True
         )
-        button.setText(u'Hello!')
+        #button.setText(u'Hello!')
         layout.addWidget(button)

@@ -45,6 +45,11 @@ class ThemeColorBundle(object):
     def dark(self):
         return self._darkBackground
 
+#___________________________________________________________________________________________________ GS: isDark
+    @property
+    def isDark(self):
+        return self._darkBackground.luma < 0.3
+
 #===================================================================================================
 #                                                                                     P U B L I C
 

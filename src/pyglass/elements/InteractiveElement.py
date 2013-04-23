@@ -77,6 +77,11 @@ class InteractiveElement(PyGlassElement):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ setEnabled
+    def setEnabled(self, *args, **kwargs):
+        super(InteractiveElement, self).setEnabled(*args, **kwargs)
+        self._updateDisplay()
+
 #___________________________________________________________________________________________________ mousePressEvent
     def mousePressEvent(self, mouseEvent):
         """Doc..."""
