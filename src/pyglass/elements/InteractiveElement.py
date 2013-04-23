@@ -106,9 +106,7 @@ class InteractiveElement(PyGlassElement):
                 self.checked = True if self._clickOn else not self._checked
             else:
                 self._updateDisplay(InteractionStatesEnum.OVER_MODE)
-            self.clicked.emit()
-            if self._clickCallback is not None:
-                self._clickCallback(self)
+            self.onClickEvent(mouseEvent)
         else:
             self._updateDisplay(InteractionStatesEnum.NORMAL_MODE)
 
@@ -130,8 +128,19 @@ class InteractiveElement(PyGlassElement):
         self._exitInteractivityStates()
         self.rollOut.emit()
 
+#___________________________________________________________________________________________________ onClickEvent
+    def onClickEvent(self, event):
+        self._onClickEventImpl(event)
+        self.clicked.emit()
+        if self._clickCallback is not None:
+            self._clickCallback(self)
+
 #===================================================================================================
 #                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _onClickEventImpl
+    def _onClickEventImpl(self, event):
+        pass
 
 #___________________________________________________________________________________________________ _exitInteractivityStates
     def _exitInteractivityStates(self):
