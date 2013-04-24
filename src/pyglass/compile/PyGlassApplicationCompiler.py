@@ -97,7 +97,13 @@ class PyGlassApplicationCompiler(object):
                 shutil.rmtree(path)
 
         os.chdir(binPath)
-        result = SystemUtils.executeCommand('python %s py2exe' % self._createSetupFile(binPath))
+        result = SystemUtils.executeCommand(
+            'python %s py2exe > %s' % (
+                self._createSetupFile(binPath), self.getBinPath('setup.log', isFile=True)
+            ),
+            remote=True,
+            wait=True
+        )
         if result['code']:
             print 'COMPILATION ERROR:'
             print result['error']
@@ -137,10 +143,53 @@ class PyGlassApplicationCompiler(object):
             else:
                 path = path.replace('\\', '/').strip('/').split('/')
 
-        out = PyGlassEnvironment.getRootResourcePath(*path, isFile=True)
+        out = PyGlassEnvironment.getRootResourcePath(*path)
         if os.path.exists(out):
             return out
         return ''
+
+#___________________________________________________________________________________________________ _createIcon
+    def _createIcon(self, binPath):
+        iconPath = self._getIconPath()
+        if not iconPath:
+            return iconPath
+
+        if os.path.isfile(iconPath):
+            return iconPath
+
+        result = SystemUtils.executeCommand('where convert')
+        if result['code']:
+            return ''
+        items = result['out'].replace('\r', '').strip().split('\n')
+        convertCommand = None
+        for item in items:
+            if item.find('System32') == -1:
+                convertCommand = item
+                break
+        if not convertCommand:
+            return ''
+
+        images = os.listdir(iconPath)
+        cmd = ['"' + convertCommand + '"']
+        for image in images:
+            if not StringUtils.ends(image, ('.png', '.jpg')):
+                continue
+            imagePath = FileUtils.createPath(iconPath, image, isFile=True)
+            cmd.append('"' + imagePath + '"')
+        if len(cmd) < 2:
+            return ''
+
+        targetPath = FileUtils.createPath(binPath, self.appDisplayName + '.ico', isFile=True)
+        cmd.append('"' + targetPath + '"')
+
+        result = SystemUtils.executeCommand(cmd)
+        if result['code'] or not os.path.exists(targetPath):
+            print 'FAILED:'
+            print result['command']
+            print result['error']
+            return ''
+
+        return targetPath
 
 #___________________________________________________________________________________________________ _createSetupFile
     def _createSetupFile(self, binPath):
@@ -167,7 +216,7 @@ class PyGlassApplicationCompiler(object):
             ).replace(
                 '##INCLUDES##', StringUtils.escapeBackSlashes(JSON.asString(self.siteLibraries))
             ).replace(
-                '##ICON_PATH##', StringUtils.escapeBackSlashes(self._getIconPath())
+                '##ICON_PATH##', StringUtils.escapeBackSlashes(self._createIcon(binPath))
             ))
             f.close()
         except Exception, err:

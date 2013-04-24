@@ -59,7 +59,6 @@ class SetupConstructor(object):
         if self._iconPath:
             window['icon_resources'] = [(1, self._iconPath)]
 
-
         out = dict(
             windows=[window],
             data_files=values['dataFiles'],
