@@ -8,9 +8,11 @@ import inspect
 
 from pyaid.file.FileUtils import FileUtils
 from pyaid.json.JSON import JSON
+from pyaid.reflection.Reflection import Reflection
 from pyaid.string.StringUtils import StringUtils
 from pyaid.system.SystemUtils import SystemUtils
 
+from pyglass.compile.SiteLibraryEnum import SiteLibraryEnum
 from pyglass.compile.ResourceCollector import ResourceCollector
 from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 
@@ -34,7 +36,7 @@ class PyGlassApplicationCompiler(object):
 #___________________________________________________________________________________________________ GS: siteLibraries
     @property
     def siteLibraries(self):
-        return []
+        return Reflection.getReflectionList(SiteLibraryEnum)
 
 #___________________________________________________________________________________________________ GS: iconPath
     @property
@@ -55,6 +57,13 @@ class PyGlassApplicationCompiler(object):
     @property
     def appFilename(self):
         return None
+
+#___________________________________________________________________________________________________ GS: appDisplayName
+    @property
+    def appDisplayName(self):
+        if self.appFilename:
+            return self.appFilename
+        return self.application.appID if self.application else None
 
 #___________________________________________________________________________________________________ GS: applicationClass
     @property
@@ -101,6 +110,9 @@ class PyGlassApplicationCompiler(object):
             os.rename(source, dest)
 
         ResourceCollector(self, verbose=True).run()
+
+        self._createNsisInstallerScript(binPath)
+
         return True
 
 #___________________________________________________________________________________________________ getBinPath
@@ -144,6 +156,7 @@ class PyGlassApplicationCompiler(object):
             f.close()
         except Exception, err:
             print err
+            return None
 
         try:
             f = open(path, 'w+')
@@ -159,6 +172,38 @@ class PyGlassApplicationCompiler(object):
             f.close()
         except Exception, err:
             print err
+            return None
+
+        return path
+
+#___________________________________________________________________________________________________ _createNsisInstallerScript
+    def _createNsisInstallerScript(self, binPath):
+        path = FileUtils.createPath(binPath, 'installer.nsi', isFile=True)
+
+        try:
+            sourcePath = PyGlassEnvironment.getPyGlassResourcePath(
+                '..', 'installer.tmpl.nsi', isFile=True
+            )
+            f = open(sourcePath, 'r+')
+            source = f.read()
+            f.close()
+        except Exception, err:
+            print err
+            return None
+
+        try:
+            f = open(path, 'w+')
+            f.write(source.replace(
+                '##APP_NAME##', self.appDisplayName
+            ).replace(
+                '##APP_ID##', self.application.appID
+            ).replace(
+                '##APP_GROUP_ID##', self.application.appGroupID
+            ))
+            f.close()
+        except Exception, err:
+            print err
+            return None
 
         return path
 
