@@ -21,6 +21,7 @@ class RemoteExecutionThread(QtCore.QThread):
         QtCore.QThread.__init__(self, parent)
 
         self._log              = Logger(self)
+        self._log.trace        = True
         self._log.addPrintCallback(self._handleLogWritten)
         self._response         = None
         self._output           = None
