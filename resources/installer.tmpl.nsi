@@ -13,7 +13,7 @@
 	OutFile "##APP_NAME##_Installer.exe"
 
 	; The default installation directory
-	InstallDir $PROGRAMFILES64\##APP_NAME##
+	InstallDir "$PROGRAMFILES64\##APP_NAME##"
 
 	; Registry key to check for directory (so if you install again, it will
 	; overwrite the old one automatically)

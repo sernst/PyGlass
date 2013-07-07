@@ -7,6 +7,7 @@ import sys
 from glob import glob
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.file.FileUtils import FileUtils
 from pyaid.reflection.Reflection import Reflection
 
 from pyglass.compile.SiteLibrarySetup import LIBRARY_INCLUDES
@@ -22,20 +23,31 @@ class SetupConstructor(object):
     _PROGRAM_FILES_PATHS = ['C:\\Program Files\\', 'C:\\Program Files (x86)\\']
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, **kwargs):
+    def __init__(self, fileReference, **kwargs):
         """Creates a new instance of SetupConstructor."""
-        self._scriptPath = ArgsUtils.get('scriptPath', None, kwargs)
-        self._iconPath   = ArgsUtils.get('iconPath', '', kwargs)
-        self._paths      = ArgsUtils.getAsList('resources', kwargs)
-        self._includes   = ArgsUtils.getAsList('includes', kwargs)
+        self.sourceFile  = os.path.abspath(fileReference)
+        self.sourcePath  = os.path.dirname(self.sourceFile)
+
+        self._scriptPath = None
+        self._iconPath   = None
+        self._paths      = None
+        self._includes   = None
+
+        os.chdir(self.sourcePath)
 
 #===================================================================================================
 #                                                                                     P U B L I C
 
 #___________________________________________________________________________________________________ getSetupKwargs
-    def getSetupKwargs(self):
+    def getSetupKwargs(self, **kwargs):
         """Doc..."""
         # Adds tools vmi packages to python system path
+        os.chdir(self.sourcePath)
+
+        self._iconPath   = ArgsUtils.get('iconPath', '', kwargs)
+        self._scriptPath = ArgsUtils.get('scriptPath', None, kwargs)
+        self._paths      = ArgsUtils.getAsList('resources', kwargs)
+        self._includes   = ArgsUtils.getAsList('includes', kwargs)
         for path in self._paths:
             sys.path.append(path)
 
@@ -91,6 +103,14 @@ class SetupConstructor(object):
                 includes += d.includes
 
         return out
+
+#___________________________________________________________________________________________________ createPath
+    def createPath(self, root, *args, **kwargs):
+        return FileUtils.createPath(root, *args, **kwargs)
+
+#___________________________________________________________________________________________________ createSourceRelativePath
+    def createSourceRelativePath(self, *args, **kwargs):
+        return FileUtils.createPath(self.sourcePath, *args, **kwargs)
 
 #===================================================================================================
 #                                                                               I N T R I N S I C

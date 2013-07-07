@@ -119,6 +119,16 @@ class PyGlassApplicationCompiler(object):
 
         self._createNsisInstallerScript(binPath)
 
+        nsisPath = 'C:\\Program Files (x86)\\NSIS\\makensis.exe'
+        if os.path.exists(nsisPath):
+            print 'PACKAGING: NSIS Installer'
+            result = SystemUtils.executeCommand('"%s" "%s"' % (
+                nsisPath, FileUtils.createPath(binPath, 'installer.nsi', isFile=True)))
+            if result['code']:
+                print 'PACKAGING ERROR:'
+                print result['error']
+                return False
+
         return True
 
 #___________________________________________________________________________________________________ getBinPath
