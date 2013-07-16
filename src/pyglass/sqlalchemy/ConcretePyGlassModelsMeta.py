@@ -20,7 +20,7 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
     _engines = dict()
 
 #___________________________________________________________________________________________________ __new__
-    def __new__(cls, name, bases, attrs):
+    def __new__(mcs, name, bases, attrs):
 
         binding = ConcretePyGlassModelsMeta._engines.get(name)
         if binding is None:
@@ -115,7 +115,7 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
         except Exception, err:
             bases = declaredBase
 
-        out = AbstractPyGlassModelsMeta.__new__(cls, name, bases, attrs)
+        out = AbstractPyGlassModelsMeta.__new__(mcs, name, bases, attrs)
         return out
 
 #===================================================================================================
@@ -148,11 +148,11 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
         try:
             return session.createQuery(*args if args else [cls])
         except Exception, err:
-            ConcretePyGlassModelsMeta._logger.writeError(
+            ConcretePyGlassModelsMeta._logger.writeError([
                 'Query Creation Failure: ' + unicode(cls.__name__)
                 + '\nMETA: ' + unicode(cls.__base__.metadata)
                 + '\nREGISTRY: ' + unicode(cls.__base__._decl_class_registry)
-            )
+            ], err)
             raise err
 
 #___________________________________________________________________________________________________ createResult

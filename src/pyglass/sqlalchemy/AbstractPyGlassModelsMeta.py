@@ -20,7 +20,7 @@ class AbstractPyGlassModelsMeta(DeclarativeMeta):
 #===================================================================================================
 #                                                                                       C L A S S
 
-    _registry = {}
+    _registry = dict()
     _logger   = Logger('Models')
 
 #___________________________________________________________________________________________________ __new__
@@ -36,18 +36,14 @@ class AbstractPyGlassModelsMeta(DeclarativeMeta):
                     ModelPropertyGetter(n),
                     ModelPropertySetter(n),
                     None,
-                    ModelPropertyExpression(n)
-                )
+                    ModelPropertyExpression(n))
 
                 # Add external-key property
                 info = getattr(v, 'info')
                 if info and 'model' in info:
                     columnName = info['column'] if 'column' in info else 'i'
                     attrs[info['get']] = property(
-                        ExternalKeyProperty(
-                            attrName, info['model'], columnName
-                        )
-                    )
+                        ExternalKeyProperty(attrName, info['model'], columnName))
 
         return DeclarativeMeta.__new__(cls, name, bases, attrs)
 
@@ -57,7 +53,7 @@ class AbstractPyGlassModelsMeta(DeclarativeMeta):
 #___________________________________________________________________________________________________ GS: MASTER
     @property
     def MASTER(cls):
-        return cls.getModel(True)
+        return cls.getModel()
 
 #___________________________________________________________________________________________________ GS: _log
     @property
@@ -68,28 +64,17 @@ class AbstractPyGlassModelsMeta(DeclarativeMeta):
 #                                                                                     P U B L I C
 
 #___________________________________________________________________________________________________ getModel
-    def getModel(cls, isMaster):
+    def getModel(cls, modelType =None):
+        this = AbstractPyGlassModelsMeta
         name = cls.__name__ + '_Master'
-        if name not in AbstractPyGlassModelsMeta._registry:
-            attrs = {'__module__':cls.__module__, 'IS_MASTER':True}
 
+        if name not in this._registry:
             from pyglass.sqlalchemy.ConcretePyGlassModelsMeta import ConcretePyGlassModelsMeta
-            AbstractPyGlassModelsMeta._registry[name] = ConcretePyGlassModelsMeta(name, (cls,), attrs)
+            this._registry[name] = ConcretePyGlassModelsMeta(
+                name, (cls,), {'__module__':cls.__module__, 'IS_MASTER':True})
 
-        return AbstractPyGlassModelsMeta._registry[name]
+        return this._registry[name]
 
 #___________________________________________________________________________________________________ __str__
     def __str__(cls):
         return '<ModelClass %s>' % cls.__name__
-
-#___________________________________________________________________________________________________ getClass
-    @staticmethod
-    def getClass(modelName):
-        """Returns a model class based on the specified database and model names."""
-
-        modelNameParts = modelName.split('_')
-        databaseName   = modelNameParts[0].lower()
-        moduleName     = 'vmi.models.' + databaseName + '.' + modelName
-        res            = __import__(moduleName, globals(), locals(), [modelName])
-        base           = getattr(res, modelName)
-        return base.MASTER
