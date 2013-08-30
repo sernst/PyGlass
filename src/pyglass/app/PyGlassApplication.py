@@ -149,6 +149,8 @@ class PyGlassApplication(QtCore.QObject):
                 self._splashScreen = splash
                 self.updateSplashScreen('Initializing User Interface')
 
+        self._runPreMainWindowImpl()
+
         windowClass = self.mainWindowClass
         assert inspect.isclass(windowClass)
 
@@ -161,6 +163,13 @@ class PyGlassApplication(QtCore.QObject):
         )
         self._window.initialize()
         self._qApplication.processEvents()
+
+#===================================================================================================
+#                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _runPreMainWindowImpl
+    def _runPreMainWindowImpl(self):
+        pass
 
 #===================================================================================================
 #                                                                               I N T R I N S I C
