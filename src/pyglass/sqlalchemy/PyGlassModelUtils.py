@@ -135,7 +135,7 @@ class PyGlassModelUtils(object):
     @classmethod
     def getPathFromEngineUrl(cls, engineUrl):
         out = engineUrl.split(u'://')[-1]
-        if re.compile('^/.{1}:').match(out):
+        if PyGlassEnvironment.isWindows and re.compile('^/.{1}:').match(out):
             return out[1:]
         return out
 
