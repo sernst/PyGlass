@@ -137,6 +137,8 @@ class PyGlassModelUtils(object):
         out = engineUrl.split(u'://')[-1]
         if PyGlassEnvironment.isWindows and re.compile('^/.{1}:').match(out):
             return out[1:]
+        else:
+            return u'/' + out
         return out
 
 #___________________________________________________________________________________________________ getEngineUrl
