@@ -134,11 +134,12 @@ class PyGlassModelUtils(object):
 #___________________________________________________________________________________________________ getPathFromDatabaseUrl
     @classmethod
     def getPathFromEngineUrl(cls, engineUrl):
-        out = engineUrl.split(u'://')[-1]
+        out = cls._getEngineUrlPath(engineUrl)
+
+        # On Windows the extra slash added to the beginning of the path must be removed
         if PyGlassEnvironment.isWindows and re.compile('^/.{1}:').match(out):
             return out[1:]
-        else:
-            return u'/' + out
+
         return out
 
 #___________________________________________________________________________________________________ getEngineUrl
@@ -152,7 +153,20 @@ class PyGlassModelUtils(object):
 
         # Windows compatibility requires an additional slash before the drive letter to conform
         # to a unix type root path.
-        if not databasePath.startswith(u'/'):
-            databasePath = u'/' + databasePath
+        if PyGlassEnvironment.isWindows:
+            if not databasePath.startswith(u'/'):
+                databasePath = u'/' + databasePath
+            return u'sqlite://' + databasePath
 
-        return u'sqlite://' + databasePath
+        # On unix file systems an additional slash is required before specifying the path element
+        return u'sqlite:///' + databasePath
+
+#===================================================================================================
+#                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _getEngineUrlPath
+    @classmethod
+    def _getEngineUrlPath(cls, engineUrl):
+        if PyGlassEnvironment.isWindows:
+            return engineUrl.split(u'://')[-1]
+        return engineUrl.split(u':///')[-1]

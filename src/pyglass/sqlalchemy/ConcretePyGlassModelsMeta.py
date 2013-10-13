@@ -50,6 +50,7 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
                 raise
 
             try:
+                print 'Engine URL:', url
                 engine = create_engine(url, echo=False)
             except Exception, err:
                 PyGlassModelUtils.logger.writeError([
