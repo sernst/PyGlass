@@ -5,8 +5,10 @@
 import sys
 import os
 
+import appdirs
 import requests.utils
 
+from pyaid.OsUtils import OsUtils
 from pyaid.decorators.ClassGetter import ClassGetter
 from pyaid.file.FileUtils import FileUtils
 from pyaid.json.JSON import JSON
@@ -36,7 +38,10 @@ class PyGlassEnvironment(object):
     def isDeployed(cls):
         try:
             if cls._isDeployed is None:
-                cls._isDeployed = cls._ENV_PATH.find(os.sep + 'library.zip' + os.sep) != -1
+                if OsUtils.isWindows():
+                    cls._isDeployed = cls._ENV_PATH.find(os.sep + 'library.zip' + os.sep) != -1
+                elif OsUtils.isMac():
+                    cls._isDeployed = cls._ENV_PATH.find(os.sep + 'site-packages.zip' + os.sep) != -1
             return cls._isDeployed
         except Exception, err:
             return True
@@ -44,7 +49,7 @@ class PyGlassEnvironment(object):
 #___________________________________________________________________________________________________ GS: isWindows
     @ClassGetter
     def isWindows(cls):
-        return sys.platform.startswith('win')
+        return OsUtils.isWindows()
 
 #___________________________________________________________________________________________________ requestsCABundle
     @ClassGetter
@@ -55,9 +60,8 @@ class PyGlassEnvironment(object):
                 'Lib',
                 'site-packages',
                 'requests',
-                'cacert.pem',
-                isFile=True
-            )
+                'cacert.pem' if OsUtils.isWindows() else '.pem',
+                isFile=True)
         return requests.utils.DEFAULT_CA_BUNDLE_PATH
 
 #===================================================================================================
@@ -82,8 +86,7 @@ class PyGlassEnvironment(object):
             return cls.getRootResourcePath('pyglass', *args, **kwargs)
 
         return FileUtils.createPath(
-            cls._ENV_PATH, '..', '..', '..', 'resources', 'pyglass', *args, **kwargs
-        )
+            cls._ENV_PATH, '..', '..', '..', 'resources', 'pyglass', *args, **kwargs)
 
 #___________________________________________________________________________________________________ getRootResourcePath
     @classmethod
@@ -99,8 +102,7 @@ class PyGlassEnvironment(object):
     @classmethod
     def settingsFileExists(cls):
         return os.path.exists(
-            cls.getRootLocalResourcePath(cls._GLOBAL_SETTINGS_FILE, isFile=True)
-        )
+            cls.getRootLocalResourcePath(cls._GLOBAL_SETTINGS_FILE, isFile=True))
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -108,14 +110,15 @@ class PyGlassEnvironment(object):
 #___________________________________________________________________________________________________ _getRootResourcePath
     @classmethod
     def _getRootResourcePath(cls, application):
-        if cls.isDeployed and cls.isWindows:
-            out = FileUtils.createPath(
-                os.environ['LOCALAPPDATA'],
-                application.appGroupID,
-                application.appID,
-                'resources',
-                isDir=True
-            )
+        if cls.isDeployed:
+            if OsUtils.isWindows():
+                out = FileUtils.createPath(
+                    appdirs.user_data_dir(application.appID, application.appGroupID),
+                    'resources', isDir=True)
+            else:
+                out = FileUtils.createPath(
+                    cls._ENV_PATH.split('/Resources/lib/')[0],
+                    'Resources', 'resources', isDir=True)
         else:
             rootPath = application.debugRootResourcePath
             if not rootPath:
@@ -124,8 +127,7 @@ class PyGlassEnvironment(object):
                 rootPath = rootPath.replace('\\', '/').strip('/').split('/')
 
             out = FileUtils.createPath(
-                application.applicationCodePath, *rootPath, isDir=True
-            )
+                application.applicationCodePath, *rootPath, isDir=True)
 
         if out and not os.path.exists(out):
             os.makedirs(out)
@@ -134,14 +136,10 @@ class PyGlassEnvironment(object):
 #___________________________________________________________________________________________________ _getRootLocalResourcePath
     @classmethod
     def _getRootLocalResourcePath(cls, application):
-        if cls.isDeployed and cls.isWindows:
+        if cls.isDeployed:
             out = FileUtils.createPath(
-                os.environ['LOCALAPPDATA'],
-                application.appGroupID,
-                application.appID,
-                'local_resources',
-                isDir=True
-            )
+                appdirs.user_data_dir(application.appID, application.appGroupID),
+                'local_resources', isDir=True)
         else:
             rootPath = application.debugRootResourcePath
             if not rootPath:
@@ -150,8 +148,7 @@ class PyGlassEnvironment(object):
                 rootPath = rootPath.replace('\\', '/').strip('/').split('/')
 
             out = FileUtils.createPath(
-                application.applicationCodePath, rootPath, 'local', isDir=True
-            )
+                application.applicationCodePath, rootPath, 'local', isDir=True)
 
         if out and not os.path.exists(out):
             os.makedirs(out)

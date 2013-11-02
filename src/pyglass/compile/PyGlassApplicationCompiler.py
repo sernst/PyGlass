@@ -6,6 +6,7 @@ import os
 import shutil
 import inspect
 
+from pyaid.OsUtils import OsUtils
 from pyaid.file.FileUtils import FileUtils
 from pyaid.json.JSON import JSON
 from pyaid.reflection.Reflection import Reflection
@@ -87,36 +88,85 @@ class PyGlassApplicationCompiler(object):
     def run(self):
         """Doc..."""
 
+        # Create the bin directory where the output will be stored if it does not alread exist
         binPath = self.getBinPath(isDir=True)
         if not os.path.exists(binPath):
             os.makedirs(binPath)
 
+        # Remove any folders created by previous build attempts
         for d in self._CLEANUP_FOLDERS:
             path = os.path.join(binPath, d)
             if os.path.exists(path):
                 shutil.rmtree(path)
 
         os.chdir(binPath)
-        result = SystemUtils.executeCommand(
-            'python %s py2exe > %s' % (
-                self._createSetupFile(binPath), self.getBinPath('setup.log', isFile=True)
-            ),
-            remote=True,
-            wait=True
-        )
+
+        ResourceCollector(self, verbose=True).run()
+
+        cmd = 'python %s %s > %s' % (
+            self._createSetupFile(binPath),
+            'py2exe' if OsUtils.isWindows() else 'py2app',
+            self.getBinPath('setup.log', isFile=True) )
+
+        result = SystemUtils.executeCommand(cmd, remote=False, wait=True)
         if result['code']:
             print 'COMPILATION ERROR:'
             print result['error']
             return False
 
-        if self.appFilename:
+        if self.appFilename and OsUtils.isWindows():
             name   = self.applicationClass.__name__
             source = FileUtils.createPath(binPath, 'dist', name + '.exe', isFile=True)
             dest   = FileUtils.createPath(binPath, 'dist', self.appFilename + '.exe', isFile=True)
             os.rename(source, dest)
 
-        ResourceCollector(self, verbose=True).run()
+        if OsUtils.isWindows() and not self._createWindowsInstaller(binPath):
+            return False
+        elif OsUtils.isMac() and not self._createMacDmg(binPath):
+            return False
 
+        return True
+
+#___________________________________________________________________________________________________ getBinPath
+    def getBinPath(self, *args, **kwargs):
+        """Doc..."""
+        return FileUtils.createPath(
+            os.path.dirname(inspect.getabsfile(self.__class__)), self.binPath, *args, **kwargs)
+
+#===================================================================================================
+#                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _createMacDmg
+    def _createMacDmg(self, binPath):
+        target   = FileUtils.createPath(binPath, self.application.appID + '.dmg', isFile=True)
+        tempTarget = FileUtils.createPath(binPath, 'pack.tmp.dmg', isFile=True)
+        distPath = FileUtils.createPath(binPath, 'dist', isDir=True, noTail=True)
+
+        if os.path.exists(tempTarget):
+            SystemUtils.remove(tempTarget)
+
+        cmd = ['hdiutil', 'create', '"%s"' % tempTarget, '-ov', '-volname',
+            '"%s"' % self.appDisplayName, '-fs', 'HFS+', '-srcfolder', '"%s"' % distPath]
+
+        result = SystemUtils.executeCommand(cmd, wait=True)
+        if result['code']:
+            return False
+
+        cmd = ['hdiutil', 'convert', "%s" % tempTarget, '-format', 'UDZO', '-imagekey',
+               'zlib-level=9', '-o', "%s" % target]
+
+        if os.path.exists(target):
+            SystemUtils.remove(target)
+
+        result = SystemUtils.executeCommand(cmd)
+        if result['code']:
+            return False
+
+        SystemUtils.remove(tempTarget)
+        return True
+
+#___________________________________________________________________________________________________ _createWindowsInstaller
+    def _createWindowsInstaller(self, binPath):
         self._createNsisInstallerScript(binPath)
 
         nsisPath = 'C:\\Program Files (x86)\\NSIS\\makensis.exe'
@@ -131,16 +181,6 @@ class PyGlassApplicationCompiler(object):
 
         return True
 
-#___________________________________________________________________________________________________ getBinPath
-    def getBinPath(self, *args, **kwargs):
-        """Doc..."""
-        return FileUtils.createPath(
-            os.path.dirname(inspect.getabsfile(self.__class__)), self.binPath, *args, **kwargs
-        )
-
-#===================================================================================================
-#                                                                               P R O T E C T E D
-
 #___________________________________________________________________________________________________ _getIconPath
     def _getIconPath(self):
         path = self.iconPath
@@ -153,7 +193,8 @@ class PyGlassApplicationCompiler(object):
             else:
                 path = path.replace('\\', '/').strip('/').split('/')
 
-        out = PyGlassEnvironment.getRootResourcePath(*path)
+        path.append('icons' if OsUtils.isWindows() else 'icons.iconset')
+        out = PyGlassEnvironment.getRootResourcePath(*path, isDir=True)
         if os.path.exists(out):
             return out
         return ''
@@ -167,6 +208,22 @@ class PyGlassApplicationCompiler(object):
         if os.path.isfile(iconPath):
             return iconPath
 
+        #-------------------------------------------------------------------------------------------
+        # MAC ICON CREATION
+        #       On OSX use Apple's iconutil (XCode developer tools must be installed) to create an
+        #       icns file from the icons.iconset folder at the specified location.
+        if OsUtils.isMac():
+            targetPath = FileUtils.createPath(binPath, self.appDisplayName + '.icns', isFile=True)
+            result = SystemUtils.executeCommand([
+                'iconutil', '-c', 'icns', '-o', '"' + targetPath + '"', '"' + iconPath + '"'])
+            if result['code']:
+                return ''
+            return targetPath
+
+        #-------------------------------------------------------------------------------------------
+        # WINDOWS ICON CREATION
+        #       On Windows use convert (ImageMagick must be installed and on the PATH) to create an
+        #       ico file from the icons folder of png files.
         result = SystemUtils.executeCommand('where convert')
         if result['code']:
             return ''
@@ -208,8 +265,7 @@ class PyGlassApplicationCompiler(object):
 
         try:
             sourcePath = PyGlassEnvironment.getPyGlassResourcePath(
-                '..', 'setupSource.txt', isFile=True
-            )
+                '..', 'setupSource.txt', isFile=True)
             f      = open(sourcePath, 'r+')
             source = f.read()
             f.close()
@@ -227,7 +283,8 @@ class PyGlassApplicationCompiler(object):
                 '##INCLUDES##', StringUtils.escapeBackSlashes(JSON.asString(self.siteLibraries))
             ).replace(
                 '##ICON_PATH##', StringUtils.escapeBackSlashes(self._createIcon(binPath))
-            ))
+            ).replace(
+                '##APP_NAME##', self.appDisplayName) )
             f.close()
         except Exception, err:
             print err
@@ -241,8 +298,7 @@ class PyGlassApplicationCompiler(object):
 
         try:
             sourcePath = PyGlassEnvironment.getPyGlassResourcePath(
-                '..', 'installer.tmpl.nsi', isFile=True
-            )
+                '..', 'installer.tmpl.nsi', isFile=True)
             f = open(sourcePath, 'r+')
             source = f.read()
             f.close()
@@ -257,8 +313,7 @@ class PyGlassApplicationCompiler(object):
             ).replace(
                 '##APP_ID##', self.application.appID
             ).replace(
-                '##APP_GROUP_ID##', self.application.appGroupID
-            ))
+                '##APP_GROUP_ID##', self.application.appGroupID) )
             f.close()
         except Exception, err:
             print err

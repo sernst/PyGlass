@@ -1,10 +1,12 @@
 # PyGlassApplication.py
-# Vizme, Inc. (C)2013
+# (C)2013
 # Scott Ernst
 
 import sys
 import os
 import inspect
+
+import appdirs
 
 from PySide import QtCore
 from PySide import QtGui
@@ -20,6 +22,8 @@ class PyGlassApplication(QtCore.QObject):
 #===================================================================================================
 #                                                                                       C L A S S
 
+    _LOCATION_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+
 #___________________________________________________________________________________________________ __init__
     def __init__(self):
         """Creates a new instance of PyGlassApplication."""
@@ -30,18 +34,20 @@ class PyGlassApplication(QtCore.QObject):
 
         # Sets a temporary standard out and error for deployed applications in a write allowed
         # location to prevent failed write results.
-        if PyGlassEnvironment.isDeployed and PyGlassEnvironment.isWindows:
+        if PyGlassEnvironment.isDeployed:
             sys.stdout = open(
                 FileUtils.createPath(
-                    os.environ['LOCALAPPDATA'], self.appID + '_out.log', isFile=True
-                ), 'w'
-            )
+                    appdirs.user_data_dir(self.appID, self.appGroupID),
+                    self.appID + '_out.log',
+                    isFile=True),
+                'w')
 
             sys.stderr = open(
                 FileUtils.createPath(
-                    os.environ['LOCALAPPDATA'], self.appID + '_error.log', isFile=True
-                ), 'w'
-            )
+                    appdirs.user_data_dir(self.appID, self.appGroupID),
+                    self.appID + '_error.log',
+                    isFile=True),
+                'w')
 
         PyGlassEnvironment.initializeAppSettings(self)
 
@@ -96,8 +102,7 @@ class PyGlassApplication(QtCore.QObject):
             return False
 
         self._splashScreen.showMessage(
-            message if message else 'Loading...', alignment=QtCore.Qt.AlignBottom
-        )
+            message if message else 'Loading...', alignment=QtCore.Qt.AlignBottom)
         self._qApplication.processEvents()
         return True
 
@@ -138,8 +143,7 @@ class PyGlassApplication(QtCore.QObject):
             parts = str(self.splashScreenUrl).split(':', 1)
             if len(parts) == 1 or parts[0].lower == 'app':
                 splashImagePath = PyGlassEnvironment.getRootResourcePath(
-                    'apps', self.appID, parts[-1], isFile=True
-                )
+                    'apps', self.appID, parts[-1], isFile=True)
             else:
                 splashImagePath = None
 
@@ -159,8 +163,7 @@ class PyGlassApplication(QtCore.QObject):
             qApp=self._qApplication,
             pyGlassApp=self,
             isMainWindow=True,
-            **kwargs
-        )
+            **kwargs)
         self._window.initialize()
         self._qApplication.processEvents()
 

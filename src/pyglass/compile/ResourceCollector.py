@@ -9,6 +9,7 @@ import py_compile
 import requests.utils
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.OsUtils import OsUtils
 from pyaid.debug.Logger import Logger
 from pyaid.file.FileUtils import FileUtils
 from pyaid.string.StringUtils import StringUtils
@@ -29,7 +30,11 @@ class ResourceCollector(object):
         self._log        = Logger(self)
         self._verbose    = ArgsUtils.get('verbose', False, kwargs)
         self._compiler   = compiler
-        self._targetPath = self._compiler.getBinPath('resources', isDir=True)
+
+        if OsUtils.isWindows():
+            self._targetPath = self._compiler.getBinPath('resources', isDir=True)
+        elif OsUtils.isMac():
+            self._targetPath = self._compiler.getBinPath('resources', 'resources', isDir=True)
 
         if os.path.exists(self._targetPath):
             shutil.rmtree(self._targetPath)

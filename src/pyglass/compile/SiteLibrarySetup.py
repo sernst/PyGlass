@@ -2,9 +2,13 @@
 # (C)2013
 # Scott Ernst
 
+import site
 import sys
 import os
 from collections import namedtuple
+
+from pyaid.OsUtils import OsUtils
+from pyaid.file.FileUtils import FileUtils
 
 from pyglass.compile.SiteLibraryEnum import SiteLibraryEnum
 
@@ -12,17 +16,25 @@ _EXTERNAL_SOURCE_NT = namedtuple('EXTERNAL_SOURCE_NT', ['id', 'packages', 'inclu
 
 #---------------------------------------------------------------------------------------------------
 # PySide Data File Generation
-pySideDataFiles = []
-pluginsPath     = os.path.join(sys.exec_prefix, 'Lib', 'site-packages', 'PySide', 'plugins')
+pySideDataFiles  = []
+try:
+    sitePackagePaths = site.getusersitepackages() + site.getsitepackages()
+except Exception, err:
+    sitePackagePaths = [site.getusersitepackages()] + site.getsitepackages()
 
-for item in os.listdir(pluginsPath):
-    itemPath = os.path.join(pluginsPath, item)
-    items    = []
-    for f in os.listdir(itemPath):
-        fpath = os.path.join(itemPath, f)
-        if os.path.isfile(fpath):
-            items.append(fpath)
-    pySideDataFiles.append((item, items))
+for path in sitePackagePaths:
+    pluginsPath = FileUtils.createPath(path, 'Lib', 'site-packages', 'PySide', 'plugins')
+    if not os.path.exists(pluginsPath):
+        continue
+
+    for item in os.listdir(pluginsPath):
+        itemPath = os.path.join(pluginsPath, item)
+        items    = []
+        for f in os.listdir(itemPath):
+            fpath = os.path.join(itemPath, f)
+            if os.path.isfile(fpath):
+                items.append(fpath)
+        pySideDataFiles.append((item, items))
 
 #___________________________________________________________________________________________________ LIBRARY_INCLUDES
 class LIBRARY_INCLUDES(object):
@@ -34,19 +46,16 @@ class LIBRARY_INCLUDES(object):
         id=SiteLibraryEnum.COMMON,
         packages=['lxml','logging.config'],
         includes=['_ssl'],
-        dataFiles=[]
-    )
+        dataFiles=[] )
 
     SQL_ALCHEMY = _EXTERNAL_SOURCE_NT(
         id=SiteLibraryEnum.SQL_ALCHEMY,
         packages=[
             'sqlalchemy.databases',
             'sqlalchemy.util.queue',
-            'sqlalchemy.testing'
-        ],
+            'sqlalchemy.testing' ],
         includes=[],
-        dataFiles=[]
-    )
+        dataFiles=[] )
 
     PYSIDE = _EXTERNAL_SOURCE_NT(
         id=SiteLibraryEnum.PYSIDE,
@@ -67,8 +76,6 @@ class LIBRARY_INCLUDES(object):
             'PySide.QtMultimedia',
             'PySide.QtHelp',
             'PySide.QtDeclarative',
-            'PySide.QtScript'
-        ],
-        dataFiles=pySideDataFiles
-    )
+            'PySide.QtScript' ],
+        dataFiles=pySideDataFiles )
 

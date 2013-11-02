@@ -7,6 +7,7 @@ import sys
 from glob import glob
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.OsUtils import OsUtils
 from pyaid.file.FileUtils import FileUtils
 from pyaid.reflection.Reflection import Reflection
 
@@ -41,9 +42,10 @@ class SetupConstructor(object):
 #___________________________________________________________________________________________________ getSetupKwargs
     def getSetupKwargs(self, **kwargs):
         """Doc..."""
-        # Adds tools vmi packages to python system path
+        # Adds packages to python system path
         os.chdir(self.sourcePath)
 
+        appName          = ArgsUtils.get('appDisplayName', None, kwargs)
         self._iconPath   = ArgsUtils.get('iconPath', '', kwargs)
         self._scriptPath = ArgsUtils.get('scriptPath', None, kwargs)
         self._paths      = ArgsUtils.getAsList('resources', kwargs)
@@ -51,36 +53,45 @@ class SetupConstructor(object):
         for path in self._paths:
             sys.path.append(path)
 
-        #-------------------------------------------------------------------------------------------
-        # FIND MS VISUAL STUDIO RUNTIME DLLS
-        dllPath = None
-        for rootPath in self._PROGRAM_FILES_PATHS:
-            path = rootPath + "Microsoft Visual Studio 9.0\\VC\\redist\\x86\\Microsoft.VC90.CRT"
-            if os.path.exists(path):
-                dllPath = path
-                break
-        if dllPath is None:
-            raise Exception, "Unable to find Microsoft Visual Studio 9.0 installation."
+        dataFiles = []
+        if OsUtils.isWindows():
+            dataFiles += self._addWindowsDataFiles()
 
-        sys.path.append(dllPath)
-        dataFiles = [("Microsoft.VC90.CRT", glob(dllPath + r'\*.*'))]
-        values    = self._getSiteValues(dataFiles, [], [])
-
+        values = self._getSiteValues(dataFiles, [], [])
         window = {'script':self._scriptPath}
 
-        if self._iconPath:
-            window['icon_resources'] = [(1, self._iconPath)]
+        #-------------------------------------------------------------------------------------------
+        # [MAC] CLEANSE PACKAGES
+        #       Py2app does not allow subpackages. Instead the entire package must be copied so
+        #       any subpackage entries listed must be replaced by the top level package
+        if not OsUtils.isWindows():
+            packs = []
+            for item in values['packages']:
+                item = item.split('.')[0]
+                if item not in packs:
+                    packs.append(item)
+            values['packages'] = packs
 
-        out = dict(
-            windows=[window],
-            data_files=values['dataFiles'],
-            options={
-                'py2exe':{
-                    'packages':values['packages'],
-                    'includes':values['includes']
-                }
-            }
-        )
+        compType = 'py2exe' if OsUtils.isWindows() else 'py2app'
+        options = {
+                'packages':values['packages'],
+                'includes':values['includes']}
+        out = dict(options={compType:options})
+
+        if OsUtils.isWindows():
+            if self._iconPath:
+                window['icon_resources'] = [(1, self._iconPath)]
+            out['windows']    = [window]
+            out['data_files'] = values['dataFiles']
+        else:
+            if self._iconPath:
+                options['iconfile'] = self._iconPath
+            out['name']           = appName
+            out['setup_requires'] = [compType]
+            out['app']            = [window]
+            options['resources'] = [
+                FileUtils.createPath(self.sourcePath, 'resources', isDir=True) ]
+
         return out
 
 #===================================================================================================
@@ -111,6 +122,26 @@ class SetupConstructor(object):
 #___________________________________________________________________________________________________ createSourceRelativePath
     def createSourceRelativePath(self, *args, **kwargs):
         return FileUtils.createPath(self.sourcePath, *args, **kwargs)
+
+#___________________________________________________________________________________________________ _addWindowsDataFiles
+    def _addWindowsDataFiles(self):
+        """ Finds the MS Visual Studio runtime dlls that must be bundled with the application in
+            order for the Python environment to run properly."""
+
+        if not OsUtils.isWindows():
+            return []
+
+        dllPath = None
+        for rootPath in self._PROGRAM_FILES_PATHS:
+            path = rootPath + "Microsoft Visual Studio 9.0\\VC\\redist\\x86\\Microsoft.VC90.CRT"
+            if os.path.exists(path):
+                dllPath = path
+                break
+        if dllPath is None:
+            raise Exception, "Unable to find Microsoft Visual Studio 9.0 installation."
+
+        sys.path.append(dllPath)
+        return [("Microsoft.VC90.CRT", glob(dllPath + r'\*.*'))]
 
 #===================================================================================================
 #                                                                               I N T R I N S I C
