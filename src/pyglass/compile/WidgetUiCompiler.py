@@ -78,17 +78,18 @@ class WidgetUiCompiler(object):
         if self._verbose:
             self._log.write('COMPILING: ' + source)
 
-        cmd = '%s %s' % (
-            FileUtils.createPath(self._pythonPath, 'Scripts', 'pyside-uic.exe'),
-            source
-        )
+        if PyGlassEnvironment.isWindows:
+            uicCommand = FileUtils.createPath(self._pythonPath, 'Scripts', 'pyside-uic.exe')
+        else:
+            uicCommand = 'pyside-uic'
+
+        cmd = '%s %s' % (uicCommand, source)
         pipe = subprocess.Popen(
             cmd,
             shell=True,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
+            stderr=subprocess.PIPE)
         out, error = pipe.communicate()
 
         if pipe.returncode or error:

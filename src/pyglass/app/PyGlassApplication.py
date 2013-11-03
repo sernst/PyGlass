@@ -35,19 +35,18 @@ class PyGlassApplication(QtCore.QObject):
         # Sets a temporary standard out and error for deployed applications in a write allowed
         # location to prevent failed write results.
         if PyGlassEnvironment.isDeployed:
-            sys.stdout = open(
-                FileUtils.createPath(
-                    appdirs.user_data_dir(self.appID, self.appGroupID),
-                    self.appID + '_out.log',
-                    isFile=True),
-                'w')
+            path = FileUtils.createPath(
+                appdirs.user_data_dir(self.appID, self.appGroupID),
+                self.appID + '_out.log', isFile=True)
+            folder = FileUtils.getDirectoryOf(path, createIfMissing=True)
+            sys.stdout = open(path, 'w+')
 
-            sys.stderr = open(
-                FileUtils.createPath(
-                    appdirs.user_data_dir(self.appID, self.appGroupID),
-                    self.appID + '_error.log',
-                    isFile=True),
-                'w')
+            FileUtils.createPath(
+                appdirs.user_data_dir(self.appID, self.appGroupID),
+                self.appID + '_error.log',
+                isFile=True)
+            folder = FileUtils.getDirectoryOf(path, createIfMissing=True)
+            sys.stderr = open(path, 'w+')
 
         PyGlassEnvironment.initializeAppSettings(self)
 

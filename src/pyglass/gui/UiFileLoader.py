@@ -89,8 +89,7 @@ class UiFileLoader(QUiLoader):
             if not os.path.exists(widget.getResourcePath()):
                 raise Exception, 'ERROR: Missing widget resource path [%s]: %s' % (
                     widget.__class__.__name__,
-                    str(widget.getResourcePath())
-                )
+                    str(widget.getResourcePath()) )
             widgetModified = 0
             for item in os.listdir(widget.getResourcePath()):
                 if ('.' + item.rsplit('.', 1)[-1]) not in UiFileLoader._WIDGET_EXTENSIONS:
@@ -110,8 +109,7 @@ class UiFileLoader(QUiLoader):
         if widgetPath.endswith('.ui'):
             result = cls.loadFileIntoTarget(
                 widget if loadAsWidget else None,
-                widgetPath
-            )
+                widgetPath)
         else:
             if widgetPath.endswith('.py'):
                 setup = imp.load_source('PySideUiFileSetup', widgetPath).PySideUiFileSetup()
