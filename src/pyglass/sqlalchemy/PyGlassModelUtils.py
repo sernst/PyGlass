@@ -6,6 +6,7 @@ import os
 import re
 import zipfile
 
+from pyaid.OsUtils import OsUtils
 from pyaid.debug.Logger import Logger
 from pyaid.decorators.ClassGetter import ClassGetter
 
@@ -19,7 +20,7 @@ class PyGlassModelUtils(object):
 #===================================================================================================
 #                                                                                       C L A S S
 
-    _ZIP_FIND = os.sep + 'library.zip' + os.sep
+    _ZIP_FIND = os.sep + OsUtils.getPerOsValue('library', 'site-packages') + '.zip' + os.sep
 
     _logger = Logger('SQLAlchemyModels')
 
