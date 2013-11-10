@@ -44,6 +44,8 @@ class RemoteExecutionThread(QtCore.QThread):
         # until the thread completes.
         self.__class__._ACTIVE_THREAD_STORAGE.append(self)
 
+        self._connectSignals(**kwargs)
+
 #===================================================================================================
 #                                                                                   G E T / S E T
 
@@ -85,6 +87,16 @@ class RemoteExecutionThread(QtCore.QThread):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ execute
+    def execute(self, callback =None, logCallback =None, progressCallback =None, **kwargs):
+        self._connectSignals(
+            callback=callback,
+            logCallback=logCallback,
+            progressCallback=progressCallback,
+            **kwargs)
+
+        self.start()
+
 #___________________________________________________________________________________________________ run
     def run(self):
         """ Thread run method."""
@@ -97,6 +109,20 @@ class RemoteExecutionThread(QtCore.QThread):
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
+#___________________________________________________________________________________________________ _connectSignals
+    def _connectSignals(self, **kwargs):
+        logCallback = ArgsUtils.get('logCallback', None, kwargs)
+        if logCallback:
+            self._logSignal.signal.connect(logCallback)
+
+        completeCallback = ArgsUtils.get('callback', None, kwargs)
+        if completeCallback:
+            self._completeSignal.signal.connect(completeCallback)
+
+        progressCallback = ArgsUtils.get('progressCallback', None, kwargs)
+        if progressCallback:
+            self._progressSignal.signal.connect(progressCallback)
+
 #___________________________________________________________________________________________________ _runComplete
     def _runComplete(self, response):
         self._response = response
@@ -107,8 +133,7 @@ class RemoteExecutionThread(QtCore.QThread):
             'response':self._response,
             'error':self._error,
             'output':self._output,
-            'thread':self
-        })
+            'thread':self })
 
         # Remove the thread from the active thread storage so that it can be garbage collected.
         self.__class__._ACTIVE_THREAD_STORAGE.remove(self)
