@@ -10,7 +10,7 @@ from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
 
 #___________________________________________________________________________________________________ PyGlassElementUtils
 class PyGlassElementUtils(object):
-    """A class for..."""
+    """A static class"""
 
 #===================================================================================================
 #                                                                                       C L A S S

@@ -5,6 +5,7 @@
 import sys
 import os
 
+from PySide import QtCore
 from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
@@ -36,6 +37,8 @@ class PyGlassWindow(QtGui.QMainWindow):
         self._isMainWindow = ArgsUtils.extract('isMainWindow', bool(parent is None), kwargs)
         self._mainWindow   = ArgsUtils.extract('mainWindow', None, kwargs)
 
+        self._keyboardCallback = ArgsUtils.extract('keyboardCallback', None, kwargs)
+
         if not self._mainWindow:
             if self._isMainWindow:
                 self._mainWindow = self
@@ -47,6 +50,9 @@ class PyGlassWindow(QtGui.QMainWindow):
 
         QtGui.QMainWindow.__init__(self, parent, ArgsUtils.extract('flags', 0, kwargs))
 
+        if self._keyboardCallback is not None:
+            self.setFocusPolicy(QtCore.Qt.StrongFocus)
+
         if self._isMainWindow:
             self._log                 = Logger(self, printOut=True)
             self._config              = ApplicationConfig(self)
@@ -54,8 +60,7 @@ class PyGlassWindow(QtGui.QMainWindow):
             self._resourceFolderParts = PyGlassGuiUtils.getResourceFolderParts(self)
 
             icon = PyGlassGuiUtils.createIcon(
-                ArgsUtils.get('iconsPath', self.getAppResourcePath('icons', isDir=True), kwargs)
-            )
+                ArgsUtils.get('iconsPath', self.getAppResourcePath('icons', isDir=True), kwargs) )
             if icon:
                 self.setWindowIcon(icon)
 
@@ -99,7 +104,7 @@ class PyGlassWindow(QtGui.QMainWindow):
 #===================================================================================================
 #                                                                                   G E T / S E T
 
-#___________________________________________________________________________________________________ isDeployed
+#___________________________________________________________________________________________________ GS: isDeployed
     @ClassGetter
     def isDeployed(cls):
         return PyGlassEnvironment.isDeployed
@@ -235,6 +240,11 @@ class PyGlassWindow(QtGui.QMainWindow):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ keyPressEvent
+    def keyPressEvent(self, event):
+        if self._keyboardCallback is None or not self._keyboardCallback(event):
+            super(PyGlassWindow, self).keyPressEvent(event)
+
 #___________________________________________________________________________________________________ closeEvent
     def closeEvent(self, *args, **kwargs):
         if self.isMainWindow:
@@ -311,15 +321,13 @@ class PyGlassWindow(QtGui.QMainWindow):
     def getResourcePath(self, *args, **kwargs):
         """Doc..."""
         return FileUtils.createPath(
-            self.rootResourcePath, 'widget', self._resourceFolderParts, *args, **kwargs
-        )
+            self.rootResourcePath, 'widget', self._resourceFolderParts, *args, **kwargs)
 
 #___________________________________________________________________________________________________ getLocalResourcePath
     def getLocalResourcePath(self, *args, **kwargs):
         """Doc..."""
         return FileUtils.createPath(
-            self.rootLocalResourcePath, 'widget', self._resourceFolderParts, *args, **kwargs
-        )
+            self.rootLocalResourcePath, 'widget', self._resourceFolderParts, *args, **kwargs)
 
 #___________________________________________________________________________________________________ showLoading
     def showLoading(self, **kwargs):
@@ -400,12 +408,10 @@ class PyGlassWindow(QtGui.QMainWindow):
 
             if widgetID not in self._widgetClasses:
                 self._log.write(
-                    'ERROR: Unrecognized widgetID "%s" in %s' % (str(widgetID), str(self))
-                )
+                    'ERROR: Unrecognized widgetID "%s" in %s' % (str(widgetID), str(self)))
 
             widget = self._widgetClasses[widgetID](
-                self._widgetParent, flags=self._widgetFlags, widgetID=widgetID
-            )
+                self._widgetParent, flags=self._widgetFlags, widgetID=widgetID)
             self._widgets[widgetID] = widget
 
 #___________________________________________________________________________________________________ refreshGui
