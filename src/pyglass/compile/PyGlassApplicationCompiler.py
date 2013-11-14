@@ -125,6 +125,13 @@ class PyGlassApplicationCompiler(object):
         elif OsUtils.isMac() and not self._createMacDmg(binPath):
             return False
 
+        # Remove the resources path once compilation is complete
+        resourcePath = FileUtils.createPath(binPath, 'resources', isDir=True)
+        SystemUtils.remove(resourcePath)
+
+        buildPath = FileUtils.createPath(binPath, 'build', isDir=True)
+        SystemUtils.remove(buildPath)
+
         return True
 
 #___________________________________________________________________________________________________ getBinPath

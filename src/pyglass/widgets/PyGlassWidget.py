@@ -86,6 +86,25 @@ class PyGlassWidget(PyGlassElement):
         for widgetID, widget in self._widgets.iteritems():
             widget.refresh(**kwargs)
 
+#___________________________________________________________________________________________________ clearActiveWidget
+    def clearActiveWidget(self, containerWidget =None, doneArgs =None):
+        if not self._currentWidget:
+            return
+
+        if doneArgs is None:
+            doneArgs = dict()
+        self._currentWidget.deactivateWidgetDisplay(**doneArgs)
+
+        try:
+            containerWidget.layout().removeWidget(self._currentWidget)
+        except Exception, err:
+            p = self._currentWidget.parent()
+            if p:
+                p.layout().removeWidget(self._currentWidget)
+
+        self._currentWidget.setParent(self._widgetParent)
+        self._currentWidget = None
+
 #___________________________________________________________________________________________________ setActiveWidget
     def setActiveWidget(self, widgetID, containerWidget =None, force =False, args =None, doneArgs =None):
         if widgetID is None or widgetID not in self._widgetClasses:
@@ -107,13 +126,7 @@ class PyGlassWidget(PyGlassElement):
         if not containerLayout:
             containerLayout = self._getLayout(containerWidget, QtGui.QVBoxLayout)
 
-        if self._currentWidget:
-            if doneArgs is None:
-                doneArgs = dict()
-            self._currentWidget.deactivateWidgetDisplay(**doneArgs)
-            containerWidget.layout().removeWidget(self._currentWidget)
-            self._currentWidget.setParent(self._widgetParent)
-
+        self.clearActiveWidget(containerWidget=containerWidget, doneArgs=doneArgs)
         self._currentWidget = widget
         containerLayout.addWidget(widget)
         containerWidget.setContentsMargins(0, 0, 0, 0)
