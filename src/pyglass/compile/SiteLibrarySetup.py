@@ -79,3 +79,8 @@ class LIBRARY_INCLUDES(object):
             'PySide.QtScript' ],
         dataFiles=pySideDataFiles )
 
+    PYGMENTS = _EXTERNAL_SOURCE_NT(
+        id=SiteLibraryEnum.PYGMENTS,
+        packages=['pygments'],
+        includes=[],
+        dataFiles=[])

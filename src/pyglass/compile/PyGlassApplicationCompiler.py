@@ -121,8 +121,10 @@ class PyGlassApplicationCompiler(object):
             os.rename(source, dest)
 
         if OsUtils.isWindows() and not self._createWindowsInstaller(binPath):
+            print 'Installer Creation Failed'
             return False
         elif OsUtils.isMac() and not self._createMacDmg(binPath):
+            print 'DMG Creation Failed'
             return False
 
         # Remove the resources path once compilation is complete
@@ -145,6 +147,7 @@ class PyGlassApplicationCompiler(object):
 
 #___________________________________________________________________________________________________ _createMacDmg
     def _createMacDmg(self, binPath):
+        print 'CREATING Mac DMG'
         target   = FileUtils.createPath(binPath, self.application.appID + '.dmg', isFile=True)
         tempTarget = FileUtils.createPath(binPath, 'pack.tmp.dmg', isFile=True)
         distPath = FileUtils.createPath(binPath, 'dist', isDir=True, noTail=True)
@@ -152,11 +155,13 @@ class PyGlassApplicationCompiler(object):
         if os.path.exists(tempTarget):
             SystemUtils.remove(tempTarget)
 
-        cmd = ['hdiutil', 'create', '"%s"' % tempTarget, '-ov', '-volname',
+        cmd = ['hdiutil', 'create', '-size', '500m', '"%s"' % tempTarget, '-ov', '-volname',
             '"%s"' % self.appDisplayName, '-fs', 'HFS+', '-srcfolder', '"%s"' % distPath]
 
         result = SystemUtils.executeCommand(cmd, wait=True)
         if result['code']:
+            print 'Failed Command Execution:'
+            print result
             return False
 
         cmd = ['hdiutil', 'convert', "%s" % tempTarget, '-format', 'UDZO', '-imagekey',
@@ -167,6 +172,8 @@ class PyGlassApplicationCompiler(object):
 
         result = SystemUtils.executeCommand(cmd)
         if result['code']:
+            print 'Failed Command Execution:'
+            print result
             return False
 
         SystemUtils.remove(tempTarget)

@@ -14,3 +14,5 @@ class SiteLibraryEnum(object):
     SQL_ALCHEMY = 'sqlalchemy'
 
     PYSIDE      = 'pyside'
+
+    PYGMENTS    = 'pygments'
