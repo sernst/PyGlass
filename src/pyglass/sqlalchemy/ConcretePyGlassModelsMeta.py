@@ -95,8 +95,7 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
                 'SessionClass':Session,
                 'BaseClass':Base,
                 'url':url,
-                'databaseUrl':sourceUrl
-            }
+                'databaseUrl':sourceUrl }
             ConcretePyGlassModelsMeta._engines[name] = binding
 
         attrs['ENGINE']        = binding['engine']

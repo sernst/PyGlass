@@ -5,7 +5,11 @@
 import sys
 import os
 
-import appdirs
+try:
+    import appdirs
+except Exception, err:
+    appdirs = None
+
 import requests.utils
 
 from pyaid.OsUtils import OsUtils

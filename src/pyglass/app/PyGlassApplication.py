@@ -6,7 +6,10 @@ import sys
 import os
 import inspect
 
-import appdirs
+try:
+    import appdirs
+except Exception, err:
+    appdirs = None
 
 from PySide import QtCore
 from PySide import QtGui
@@ -35,8 +38,14 @@ class PyGlassApplication(QtCore.QObject):
         # Sets a temporary standard out and error for deployed applications in a write allowed
         # location to prevent failed write results.
         if PyGlassEnvironment.isDeployed:
+            if appdirs:
+                userDir = appdirs.user_data_dir(self.appID, self.appGroupID)
+            else:
+                userDir = FileUtils.createPath(
+                    os.path.expanduser('~'), '.pyglass', self.appGroupID, self.appID, isDir=True)
+
             path = FileUtils.createPath(
-                appdirs.user_data_dir(self.appID, self.appGroupID),
+                userDir,
                 self.appID + '_out.log', isFile=True)
             folder = FileUtils.getDirectoryOf(path, createIfMissing=True)
             sys.stdout = open(path, 'w+')
@@ -138,6 +147,7 @@ class PyGlassApplication(QtCore.QObject):
             raise
 
         self._qApplication = QtGui.QApplication(appArgs if appArgs else [])
+
         if self.splashScreenUrl:
             parts = str(self.splashScreenUrl).split(':', 1)
             if len(parts) == 1 or parts[0].lower == 'app':
@@ -164,6 +174,9 @@ class PyGlassApplication(QtCore.QObject):
             isMainWindow=True,
             **kwargs)
         self._window.initialize()
+
+        self._qApplication.aboutToQuit.connect(self._onApplicationExit)
+        self._intializeComplete()
         self._qApplication.processEvents()
 
 #===================================================================================================
@@ -171,6 +184,14 @@ class PyGlassApplication(QtCore.QObject):
 
 #___________________________________________________________________________________________________ _runPreMainWindowImpl
     def _runPreMainWindowImpl(self):
+        pass
+
+#___________________________________________________________________________________________________ _intializeComplete
+    def _intializeComplete(self):
+        pass
+
+#___________________________________________________________________________________________________ _onApplicationExit
+    def _onApplicationExit(self):
         pass
 
 #===================================================================================================

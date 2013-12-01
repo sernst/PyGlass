@@ -36,6 +36,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         self._qApplication = ArgsUtils.extract('qApp', None, kwargs)
         self._isMainWindow = ArgsUtils.extract('isMainWindow', bool(parent is None), kwargs)
         self._mainWindow   = ArgsUtils.extract('mainWindow', None, kwargs)
+        self._centerWidget = None
 
         self._keyboardCallback = ArgsUtils.extract('keyboardCallback', None, kwargs)
 
@@ -72,7 +73,9 @@ class PyGlassWindow(QtGui.QMainWindow):
         # Loads the ui file if it exists
         hasWindowFile = ArgsUtils.get('mainWindowFile', False, kwargs)
         if hasWindowFile:
-            UiFileLoader.loadWidgetFile(self)
+            if not self._centerWidget:
+                self._createCentralWidget()
+            UiFileLoader.loadWidgetFile(self, target=self._centerWidget)
 
         self._styleSheet = ArgsUtils.get('styleSheet', None, kwargs)
         if self._styleSheet:
@@ -82,7 +85,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         centralWidgetName = ArgsUtils.get('centralWidgetName', None, kwargs)
         if centralWidgetName and hasattr(self, centralWidgetName):
             self._centerWidget = getattr(self, centralWidgetName)
-        else:
+        elif not hasWindowFile:
             self._centerWidget = None
             if ArgsUtils.get('defaultCenterWidget', False, kwargs):
                 self._createCentralWidget()

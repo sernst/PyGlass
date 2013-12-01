@@ -47,9 +47,15 @@ class PyGlassBasicDialogManager(QtCore.QObject):
 #___________________________________________________________________________________________________ openTextQuery
     @classmethod
     def openTextQuery(cls, parent, header, message =None, defaultText =None):
+        """ Opens a text query dialog. If the dialog was canceled the method returns None,
+            otherwise it returns the string set by the user. """
+
         if defaultText is None:
             defaultText = u''
-        return QtGui.QInputDialog.getText(parent, header, message, text=defaultText)
+        result = QtGui.QInputDialog.getText(parent, header, message, text=defaultText)
+        if not result[-1]:
+            return None
+        return result[0]
 
 #___________________________________________________________________________________________________ browseForDirectory
     @classmethod

@@ -20,7 +20,7 @@ class PyGlassModelUtils(object):
 #===================================================================================================
 #                                                                                       C L A S S
 
-    _ZIP_FIND = os.sep + OsUtils.getPerOsValue('library', 'site-packages') + '.zip' + os.sep
+    _ZIP_FIND = os.sep + OsUtils.getPerOsValue('library', 'site-packages', 'fictional') + '.zip' + os.sep
 
     _logger = Logger('SQLAlchemyModels')
 

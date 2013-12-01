@@ -66,9 +66,12 @@ class UiFileLoader(QUiLoader):
 
 #___________________________________________________________________________________________________ loadWidgetFile
     @classmethod
-    def loadWidgetFile(cls, widget, names =None, loadAsWidget =True):
+    def loadWidgetFile(cls, widget, names =None, loadAsWidget =True, target =None):
         lookups = names if names and names[0] \
             else [widget.__class__.__name__, 'widget', 'main', 'gui']
+
+        if not target:
+            target = widget
 
         widgetPath     = None
         widgetModified = 0
@@ -86,10 +89,16 @@ class UiFileLoader(QUiLoader):
                 break
 
         if widgetPath is None:
-            if not os.path.exists(widget.getResourcePath()):
+            try:
+                path = widget.getResourcePath()
+            except Exception, err:
+                raise Exception, 'ERROR: No widget resource path found for "%s" widget' % (
+                    widget.__class__.__name__)
+
+            if not os.path.exists(path):
                 raise Exception, 'ERROR: Missing widget resource path [%s]: %s' % (
-                    widget.__class__.__name__,
-                    str(widget.getResourcePath()) )
+                    widget.__class__.__name__, path)
+
             widgetModified = 0
             for item in os.listdir(widget.getResourcePath()):
                 if ('.' + item.rsplit('.', 1)[-1]) not in UiFileLoader._WIDGET_EXTENSIONS:
@@ -108,20 +117,20 @@ class UiFileLoader(QUiLoader):
 
         if widgetPath.endswith('.ui'):
             result = cls.loadFileIntoTarget(
-                widget if loadAsWidget else None,
+                target if loadAsWidget else None,
                 widgetPath)
         else:
             if widgetPath.endswith('.py'):
                 setup = imp.load_source('PySideUiFileSetup', widgetPath).PySideUiFileSetup()
             else:
                 setup = imp.load_compiled('PySideUiFileSetup', widgetPath).PySideUiFileSetup()
-            result = widget if loadAsWidget else QtGui.QWidget()
+            result = target if loadAsWidget else QtGui.QWidget()
             setup.setupUi(result)
 
-        if result is not widget:
+        if result is not target:
             layout = QtGui.QVBoxLayout()
             layout.addWidget(result)
-            widget.setLayout(layout)
+            target.setLayout(layout)
 
             elements = []
             for item in dir(result):
@@ -129,7 +138,7 @@ class UiFileLoader(QUiLoader):
                 if isinstance(item, QtGui.QWidget):
                     elements.append(item)
         else:
-            layout   = widget.layout()
+            layout   = target.layout()
             elements = None
 
         return {'widget':result, 'layout':layout, 'elements':elements}

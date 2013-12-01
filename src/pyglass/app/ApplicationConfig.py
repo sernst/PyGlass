@@ -2,12 +2,8 @@
 # (C)2012-2013
 # Scott Ernst
 
-import os
-
-from pyaid.NullUtils import NullUtils
 from pyaid.config.SettingsConfig import SettingsConfig
 from pyaid.file.FileUtils import FileUtils
-from pyaid.json.JSON import JSON
 
 #___________________________________________________________________________________________________ ApplicationConfig
 class ApplicationConfig(SettingsConfig):
@@ -40,10 +36,8 @@ class ApplicationConfig(SettingsConfig):
         if self._common:
             return FileUtils.createPath(
                 self._gui.appResourcePath,
-                ApplicationConfig._APP_COMMON_CONFIG_FILENAME
-            )
+                ApplicationConfig._APP_COMMON_CONFIG_FILENAME)
 
         return FileUtils.createPath(
             self._gui.localAppResourcePath,
-            ApplicationConfig._APP_CONFIG_FILENAME
-        )
+            ApplicationConfig._APP_CONFIG_FILENAME)
