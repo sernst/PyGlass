@@ -5,8 +5,7 @@
 import functools
 
 from PySide import QtCore
-
-from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
+from PySide import QtGui
 
 #___________________________________________________________________________________________________ PyGlassElementUtils
 class PyGlassElementUtils(object):
@@ -14,6 +13,18 @@ class PyGlassElementUtils(object):
 
 #===================================================================================================
 #                                                                                       C L A S S
+
+    CURSOR_END       = 'end'
+    CURSOR_LAST_LINE = 'lastLine'
+
+#___________________________________________________________________________________________________ moveTextEditCursor
+    @classmethod
+    def moveTextEditCursor(cls, textEdit, mode):
+        if mode == cls.CURSOR_END:
+            textEdit.moveCursor(QtGui.QTextCursor.End)
+        elif mode == cls.CURSOR_LAST_LINE:
+            textEdit.moveCursor(QtGui.QTextCursor.End)
+            textEdit.moveCursor(QtGui.QTextCursor.StartOfLine)
 
 #___________________________________________________________________________________________________ setCheckState
     @classmethod
