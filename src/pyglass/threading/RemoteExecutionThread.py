@@ -20,6 +20,7 @@ class RemoteExecutionThread(QtCore.QThread):
     def __init__(self, parent, **kwargs):
         QtCore.QThread.__init__(self, parent)
 
+        self._events           = dict()
         self._log              = Logger(self)
         self._log.trace        = True
         self._log.addPrintCallback(self._handleLogWritten)
@@ -39,6 +40,10 @@ class RemoteExecutionThread(QtCore.QThread):
         class RETProgressSignal(QtCore.QObject):
             signal = QtCore.Signal(dict)
         self._progressSignal = RETProgressSignal()
+
+        class RETEventSignal(QtCore.QObject):
+            signal = QtCore.Signal(dict)
+        self._eventSignal = RETEventSignal()
 
         # Add the thread to the static active thread storage so that it won't be garbage collected
         # until the thread completes.
@@ -87,12 +92,24 @@ class RemoteExecutionThread(QtCore.QThread):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ dispatchEvent
+    def dispatchEvent(self, identifier, target =None, data =None):
+        self._eventSignal.signal.emit({
+            'id':identifier,
+            'source':self,
+            'target':target if target else self,
+            'data':data })
+
 #___________________________________________________________________________________________________ execute
-    def execute(self, callback =None, logCallback =None, progressCallback =None, **kwargs):
+    def execute(
+            self, callback =None, logCallback =None, progressCallback =None,
+            eventCallback =None, **kwargs
+    ):
         self._connectSignals(
             callback=callback,
             logCallback=logCallback,
             progressCallback=progressCallback,
+            eventCallback=eventCallback,
             **kwargs)
 
         self.start()
@@ -122,6 +139,10 @@ class RemoteExecutionThread(QtCore.QThread):
         progressCallback = ArgsUtils.get('progressCallback', None, kwargs)
         if progressCallback:
             self._progressSignal.signal.connect(progressCallback)
+
+        eventCallback = ArgsUtils.get('eventCallback', None, kwargs)
+        if eventCallback:
+            self._eventSignal.signal.connect(eventCallback)
 
 #___________________________________________________________________________________________________ _runComplete
     def _runComplete(self, response):
