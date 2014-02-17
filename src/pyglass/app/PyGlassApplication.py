@@ -146,7 +146,14 @@ class PyGlassApplication(QtCore.QObject):
         except Exception, err:
             raise
 
+        # Test for compatible Qt version installation and raise an error if an unsupported version
+        # is being used
+        qtVersion = QtCore.__version_info__
+        if qtVersion[0] < 4 or qtVersion[1] < 8:
+            raise Exception, 'ERROR: Unsupported Qt Version "%s"' % QtCore.__version__
+
         self._qApplication = QtGui.QApplication(appArgs if appArgs else [])
+        ### FUTURE ### self._qApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
         if self.splashScreenUrl:
             parts = str(self.splashScreenUrl).split(':', 1)

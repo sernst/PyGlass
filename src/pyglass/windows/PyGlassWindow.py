@@ -240,6 +240,18 @@ class PyGlassWindow(QtGui.QMainWindow):
     def widgets(self):
         return self._widgets
 
+#___________________________________________________________________________________________________ GS: screenWidth
+    @property
+    def screenWidth(self):
+        rect = self._qApplication.desktop().screenGeometry()
+        return rect.width()
+
+#___________________________________________________________________________________________________ GS: screenHeight
+    @property
+    def screenHeight(self):
+        rect = self._qApplication.desktop().screenGeometry()
+        return rect.height()
+
 #===================================================================================================
 #                                                                                     P U B L I C
 

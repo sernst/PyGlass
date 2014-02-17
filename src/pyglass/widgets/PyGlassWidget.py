@@ -1,5 +1,5 @@
 # PyGlassWidget.py
-# (C)2012-2013
+# (C)2012-2014
 # Scott Ernst
 
 from PySide import QtGui
@@ -134,7 +134,10 @@ class PyGlassWidget(PyGlassElement):
         self.refreshGui()
         if args is None:
             args = dict()
-        widget.activateWidgetDisplay(**args)
+
+        if self._isWidgetActive:
+            widget.activateWidgetDisplay(**args)
+
         return True
 
 #___________________________________________________________________________________________________ loadWidgets
@@ -153,12 +156,10 @@ class PyGlassWidget(PyGlassElement):
 
             if widgetID not in self._widgetClasses:
                 self._log.write(
-                    'ERROR: Unrecognized widgetID "%s" in %s' % (str(widgetID), str(self))
-                )
+                    'ERROR: Unrecognized widgetID "%s" in %s' % (str(widgetID), str(self)) )
 
             widget = self._widgetClasses[widgetID](
-                self._widgetParent, flags=self._widgetFlags, widgetID=widgetID
-            )
+                self._widgetParent, flags=self._widgetFlags, widgetID=widgetID)
             self._widgets[widgetID] = widget
 
 #___________________________________________________________________________________________________ refreshWidgetDisplay
@@ -169,13 +170,25 @@ class PyGlassWidget(PyGlassElement):
 
 #___________________________________________________________________________________________________ activateWidgetDisplay
     def activateWidgetDisplay(self, **kwargs):
+        if self._isWidgetActive:
+            return
+
         self._displayCount += 1
         self._activateWidgetDisplayImpl(**kwargs)
+
         if self._currentWidget:
             self._currentWidget.activateWidgetDisplay(**kwargs)
 
+        self._isWidgetActive = True
+
 #___________________________________________________________________________________________________ deactivateWidgetDisplay
     def deactivateWidgetDisplay(self, **kwargs):
+        if not self._isWidgetActive:
+            return
+
         self._deactivateWidgetDisplayImpl(**kwargs)
+
         if self._currentWidget:
             self._currentWidget.deactivateWidgetDisplay(**kwargs)
+
+        self._isWidgetActive = False

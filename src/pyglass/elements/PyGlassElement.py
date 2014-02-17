@@ -1,5 +1,5 @@
 # PyGlassElement.py
-# (C)2012-2013
+# (C)2012-2014
 # Scott Ernst
 
 from PySide import QtGui
@@ -20,10 +20,11 @@ class PyGlassElement(QtGui.QWidget):
     def __init__(self, parent =None, **kwargs):
         """Creates a new instance of PySideGuiWidget."""
         QtGui.QWidget.__init__(self, parent)
-        self._mainWindow = None
-        self._id         = ArgsUtils.get('id', self.__class__.__name__, kwargs)
-        self._widgetID   = ArgsUtils.get('widgetID', self._id, kwargs)
-        self._userData   = ArgsUtils.get('userData', None, kwargs)
+        self._mainWindow          = None
+        self._isWidgetActive      = False
+        self._id                  = ArgsUtils.get('id', self.__class__.__name__, kwargs)
+        self._widgetID            = ArgsUtils.get('widgetID', self._id, kwargs)
+        self._userData            = ArgsUtils.get('userData', None, kwargs)
         self._resourceFolderParts = PyGlassGuiUtils.getResourceFolderParts(self)
 
 #===================================================================================================
@@ -173,11 +174,17 @@ class PyGlassElement(QtGui.QWidget):
 
 #___________________________________________________________________________________________________ activateWidgetDisplay
     def activateWidgetDisplay(self, **kwargs):
+        if self._isWidgetActive:
+            return
         self._activateWidgetDisplayImpl(**kwargs)
+        self._isWidgetActive = True
 
 #___________________________________________________________________________________________________ deactivateWidgetDisplay
     def deactivateWidgetDisplay(self, **kwargs):
+        if not self._isWidgetActive:
+            return
         self._deactivateWidgetDisplayImpl(**kwargs)
+        self._isWidgetActive = False
 
 #___________________________________________________________________________________________________ getOwnerOf
     def getOwnerOf(self, target):
