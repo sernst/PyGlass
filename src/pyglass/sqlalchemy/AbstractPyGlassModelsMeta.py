@@ -1,8 +1,9 @@
 # AbstractPyGlassModelsMeta.py
-# (C)2012-2013
+# (C)2012-2014
 # Scott Ernst and Eric David Wills
 
 from sqlalchemy import Column
+from sqlalchemy import orm
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -68,10 +69,19 @@ class AbstractPyGlassModelsMeta(DeclarativeMeta):
         this = AbstractPyGlassModelsMeta
         name = cls.__name__ + '_Master'
 
-        if name not in this._registry:
-            from pyglass.sqlalchemy.ConcretePyGlassModelsMeta import ConcretePyGlassModelsMeta
-            this._registry[name] = ConcretePyGlassModelsMeta(
-                name, (cls,), {'__module__':cls.__module__, 'IS_MASTER':True})
+        if name in this._registry:
+            return this._registry[name]
+
+        # New method to be wrapped as the ORM reconstructor
+        def reconstructor(self):
+            self.ormInit()
+
+        from pyglass.sqlalchemy.ConcretePyGlassModelsMeta import ConcretePyGlassModelsMeta
+        this._registry[name] = ConcretePyGlassModelsMeta(
+            name, (cls,), {
+                '__module__':cls.__module__,
+                'IS_MASTER':True,
+                'ormReconstructor':orm.reconstructor(reconstructor) })
 
         return this._registry[name]
 

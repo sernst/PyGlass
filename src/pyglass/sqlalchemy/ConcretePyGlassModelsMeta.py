@@ -36,8 +36,7 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
             except Exception, err:
                 PyGlassModelUtils.logger.writeError([
                     u'ERROR: Unable to get DATABASE_URL from %s.__init__.py' % package,
-                    u'NAME: ' + unicode(name)
-                ], err)
+                    u'NAME: ' + unicode(name) ], err)
                 raise
 
             try:
@@ -45,8 +44,7 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
             except Exception, err:
                 PyGlassModelUtils.logger.writeError([
                     u'ERROR: Unable to get url from database url',
-                    u'DATABASE URL: ' + unicode(sourceUrl)
-                ], err)
+                    u'DATABASE URL: ' + unicode(sourceUrl) ], err)
                 raise
 
             try:
@@ -104,8 +102,8 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
         attrs['URL']           = binding['url']
         attrs['MODEL_NAME']    = name
 
-        attrs['DATABASE_URL'] = binding['databaseUrl']
-        attrs['BINDING']      = binding
+        attrs['DATABASE_URL']  = binding['databaseUrl']
+        attrs['BINDING']       = binding
 
         # Add the declarative base to inheritance
         declaredBase = (binding['BaseClass'],)

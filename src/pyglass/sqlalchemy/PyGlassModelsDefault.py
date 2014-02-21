@@ -40,9 +40,8 @@ class PyGlassModelsDefault(object):
         self.ormInit()
 
 #___________________________________________________________________________________________________ ormInit
-    @orm.reconstructor
     def ormInit(self):
-        pass
+        self.transientData = None
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -86,6 +85,16 @@ class PyGlassModelsDefault(object):
 
 #===================================================================================================
 #                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ fetchTransient
+    def fetchTransient(self, key, defaultValue =None):
+        return self.transientData.get(key, defaultValue) if self.transientData else defaultValue
+
+#___________________________________________________________________________________________________ putTransient
+    def putTransient(self, key, value):
+        if self.transientData is None:
+            self.transientData = dict()
+        self.transientData[key] = value
 
 #___________________________________________________________________________________________________ getValue
     def getValue(self, name):
