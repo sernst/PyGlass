@@ -7,7 +7,6 @@ import datetime
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import Integer
-from sqlalchemy import orm
 from sqlalchemy import UnicodeText
 from sqlalchemy.ext.hybrid import hybrid_property
 
