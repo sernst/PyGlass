@@ -37,6 +37,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         self._isMainWindow = ArgsUtils.extract('isMainWindow', bool(parent is None), kwargs)
         self._mainWindow   = ArgsUtils.extract('mainWindow', None, kwargs)
         self._centerWidget = None
+        self._hasShown     = False
 
         self._keyboardCallback = ArgsUtils.extract('keyboardCallback', None, kwargs)
 
@@ -259,6 +260,12 @@ class PyGlassWindow(QtGui.QMainWindow):
     def keyPressEvent(self, event):
         if self._keyboardCallback is None or not self._keyboardCallback(event):
             super(PyGlassWindow, self).keyPressEvent(event)
+
+#___________________________________________________________________________________________________ showEvent
+    def showEvent(self, *args, **kwargs):
+        if not self._hasShown:
+            self._firstShowImpl()
+            self._hasShown = True
 
 #___________________________________________________________________________________________________ closeEvent
     def closeEvent(self, *args, **kwargs):
@@ -509,6 +516,10 @@ class PyGlassWindow(QtGui.QMainWindow):
 
 #___________________________________________________________________________________________________ _preShowImpl
     def _preShowImpl(self, **kwargs):
+        pass
+
+#___________________________________________________________________________________________________ _firstShowImpl
+    def _firstShowImpl(self):
         pass
 
 #___________________________________________________________________________________________________ _postShowImpl

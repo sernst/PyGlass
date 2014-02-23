@@ -71,6 +71,18 @@ class PyGlassEnvironment(object):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ initializeCurrentPathAppSettings
+    @classmethod
+    def initializeCreatePathAppSettings(cls, *args, **kwargs):
+        rootPath = FileUtils.createPath(*args, **kwargs)
+        cls._rootResourcePath       = FileUtils.createPath(rootPath, 'resources', isDir=True)
+        cls._rootLocalResourcePath  = FileUtils.createPath(rootPath, 'resources', 'local', isDir=True)
+
+#___________________________________________________________________________________________________ initializeCurrentPathAppSettings
+    @classmethod
+    def initializeCurrentPathAppSettings(cls):
+        cls.initializeCurrentPathAppSettings(os.path.abspath(os.curdir), isDir=True)
+
 #___________________________________________________________________________________________________ initializeExplicitAppSettings
     @classmethod
     def initializeExplicitAppSettings(cls, rootResourcePath, rootLocalResourcePath):
