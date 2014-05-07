@@ -88,7 +88,7 @@ class PyGlassApplicationCompiler(object):
     def run(self):
         """Doc..."""
 
-        # Create the bin directory where the output will be stored if it does not alread exist
+        # Create the bin directory where the output will be stored if it does not already exist
         binPath = self.getBinPath(isDir=True)
         if not os.path.exists(binPath):
             os.makedirs(binPath)

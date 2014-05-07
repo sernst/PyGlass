@@ -71,7 +71,7 @@ class PyGlassEnvironment(object):
 #===================================================================================================
 #                                                                                     P U B L I C
 
-#___________________________________________________________________________________________________ initializeCurrentPathAppSettings
+#___________________________________________________________________________________________________ initializeCreatePathAppSettings
     @classmethod
     def initializeCreatePathAppSettings(cls, *args, **kwargs):
         rootPath = FileUtils.createPath(*args, **kwargs)
@@ -81,7 +81,7 @@ class PyGlassEnvironment(object):
 #___________________________________________________________________________________________________ initializeCurrentPathAppSettings
     @classmethod
     def initializeCurrentPathAppSettings(cls):
-        cls.initializeCurrentPathAppSettings(os.path.abspath(os.curdir), isDir=True)
+        cls.initializeCreatePathAppSettings(os.path.abspath(os.curdir), isDir=True)
 
 #___________________________________________________________________________________________________ initializeExplicitAppSettings
     @classmethod

@@ -27,14 +27,16 @@ class ResourceCollector(object):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, compiler, **kwargs):
         """Creates a new instance of ResourceCollector."""
-        self._log        = Logger(self)
+        self._log        = Logger(self, printOut=True)
         self._verbose    = ArgsUtils.get('verbose', False, kwargs)
         self._compiler   = compiler
 
         if OsUtils.isWindows():
             self._targetPath = self._compiler.getBinPath('resources', isDir=True)
         elif OsUtils.isMac():
-            self._targetPath = self._compiler.getBinPath('resources', 'resources', isDir=True)
+            # Can't remember the reason for the double resource folder path arrangement...
+            #self._targetPath = self._compiler.getBinPath('resources', 'resources', isDir=True)
+            self._targetPath = self._compiler.getBinPath('resources', isDir=True)
 
         if os.path.exists(self._targetPath):
             shutil.rmtree(self._targetPath)
@@ -63,8 +65,7 @@ class ResourceCollector(object):
         for container in resources:
             parts = container.replace('\\', '/').split('/')
             self._copyResourceFolder(
-                PyGlassEnvironment.getRootResourcePath(*parts, isDir=True), parts
-            )
+                PyGlassEnvironment.getRootResourcePath(*parts, isDir=True), parts)
 
         #-------------------------------------------------------------------------------------------
         # PYGLASS RESOURCES
@@ -77,8 +78,7 @@ class ResourceCollector(object):
 
         for container in resources:
             self._copyResourceFolder(
-                PyGlassEnvironment.getPyGlassResourcePath('..', container), [container]
-            )
+                PyGlassEnvironment.getPyGlassResourcePath('..', container), [container])
 
         #-------------------------------------------------------------------------------------------
         # CLEANUP
@@ -103,9 +103,7 @@ class ResourceCollector(object):
 
         if self._verbose:
             self._log.write('COPYING: %s -> %s' % (sourcePath, targetPath))
-        results = FileUtils.mergeCopy(sourcePath, targetPath)
-
-
+        return FileUtils.mergeCopy(sourcePath, targetPath)
 
 #___________________________________________________________________________________________________ _copyPythonStaticResources
     def _copyPythonStaticResources(self):
