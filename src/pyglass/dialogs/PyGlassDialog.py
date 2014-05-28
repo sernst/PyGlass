@@ -101,6 +101,12 @@ class PyGlassDialog(QtGui.QDialog):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ open
+    def open(self, *args, **kwargs):
+        super(PyGlassDialog, self).open()
+        if self._widget:
+            self._widget.activateWidgetDisplay()
+
 #___________________________________________________________________________________________________ refreshGui
     def refreshGui(self):
         self.owner.refreshGui()

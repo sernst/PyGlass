@@ -142,6 +142,13 @@ class PyGlassWindow(QtGui.QMainWindow):
             return self._mainWindow
 
         self._mainWindow = PyGlassGuiUtils.getMainWindow(self)
+
+        # Handle case where main window turns out to this window
+        if self._mainWindow == self:
+            self._isMainWindow = True
+            self._mainWindow = None
+            return self
+
         return self._mainWindow
 
 #___________________________________________________________________________________________________ GS: owner
@@ -159,6 +166,9 @@ class PyGlassWindow(QtGui.QMainWindow):
 #___________________________________________________________________________________________________ GS: qApplication
     @property
     def qApplication(self):
+        if self._qApplication is not None:
+            return self._qApplication
+
         return self._qApplication if self.isMainWindow else self.mainWindow.qApplication
 
 #___________________________________________________________________________________________________ GS: appConfig
