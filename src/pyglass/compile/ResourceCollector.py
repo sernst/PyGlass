@@ -34,9 +34,10 @@ class ResourceCollector(object):
         if OsUtils.isWindows():
             self._targetPath = self._compiler.getBinPath('resources', isDir=True)
         elif OsUtils.isMac():
-            # Can't remember the reason for the double resource folder path arrangement...
-            #self._targetPath = self._compiler.getBinPath('resources', 'resources', isDir=True)
-            self._targetPath = self._compiler.getBinPath('resources', isDir=True)
+            # Resource folder resides inside another resource folder so that the copying retains
+            # the original directory structure
+            self._targetPath = self._compiler.getBinPath('resources', 'resources', isDir=True)
+            #self._targetPath = self._compiler.getBinPath('resources', isDir=True)
 
         if os.path.exists(self._targetPath):
             shutil.rmtree(self._targetPath)
