@@ -87,6 +87,19 @@ class PyGlassBasicDialogManager(QtCore.QObject):
             return out
         return FileUtils.cleanupPath(out[0], isFile=True)
 
+#___________________________________________________________________________________________________ browseForFileSave
+    @classmethod
+    def browseForFileSave(cls, parent, caption =None, defaultPath =None):
+        out = QtGui.QFileDialog.getSaveFileName(
+            parent,
+            caption=caption if caption else u'Specify File',
+            dir=defaultPath if defaultPath else os.path.expanduser('~'),
+            options=QtGui.QFileDialog.AnyFile)
+
+        if not out or not out[0]:
+            return out
+        return FileUtils.cleanupPath(out[0], isFile=True)
+
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
