@@ -20,6 +20,8 @@ class RemoteExecutionThread(QtCore.QThread):
     def __init__(self, parent, **kwargs):
         QtCore.QThread.__init__(self, parent)
 
+        self.userData          = None
+
         self._events           = dict()
         self._log              = Logger(self)
         self._log.trace        = True
@@ -123,6 +125,16 @@ class RemoteExecutionThread(QtCore.QThread):
 
         self._runComplete(response)
 
+#___________________________________________________________________________________________________ connectSignals
+    def connectSignals(self, onComplete =None, onLog =None, onProgress =None, onEvent =None):
+        """ Quick access method to connect callbacks to the various remote thread signals. """
+
+        return self._connectSignals(
+            callback=onComplete,
+            logCallback=onLog,
+            progressCallback=onProgress,
+            eventCallback=onEvent)
+
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
@@ -154,7 +166,8 @@ class RemoteExecutionThread(QtCore.QThread):
             'response':self._response,
             'error':self._error,
             'output':self._output,
-            'thread':self })
+            'thread':self,
+            'userData':self.userData })
 
         # Remove the thread from the active thread storage so that it can be garbage collected.
         self.__class__._ACTIVE_THREAD_STORAGE.remove(self)
