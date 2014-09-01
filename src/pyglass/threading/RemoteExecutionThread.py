@@ -26,6 +26,8 @@ class RemoteExecutionThread(QtCore.QThread):
         self._log              = Logger(self)
         self._log.trace        = True
         self._log.addPrintCallback(self._handleLogWritten)
+        self._maxLogBufferSize = 0
+        self._logBuffer        = []
         self._response         = None
         self._output           = None
         self._error            = None
@@ -135,6 +137,24 @@ class RemoteExecutionThread(QtCore.QThread):
             progressCallback=onProgress,
             eventCallback=onEvent)
 
+#___________________________________________________________________________________________________ enableLogBuffer
+    def enableLogBuffer(self, maxLength = 0):
+        self._maxLogBufferSize = maxLength
+
+#___________________________________________________________________________________________________ disableLogBuffer
+    def disableLogBuffer(self):
+        self.flushLogBuffer(disable=True)
+
+#___________________________________________________________________________________________________ flushLogBuffer
+    def flushLogBuffer(self, disable =False):
+        if disable:
+            self._maxLogBufferSize = 0
+
+        if self._logBuffer:
+            b = self._logBuffer
+            self._logBuffer = []
+            self._logSignal.signal.emit(u'\n'.join(b))
+
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
@@ -181,4 +201,9 @@ class RemoteExecutionThread(QtCore.QThread):
 
 #___________________________________________________________________________________________________ _handleLogWritten
     def _handleLogWritten(self, logger, value):
-        self._logSignal.signal.emit(value)
+        if self._maxLogBufferSize > 0:
+            self._logBuffer.append(value)
+            if len(self._logBuffer) > self._maxLogBufferSize:
+                self.flushLogBuffer()
+        else:
+            self._logSignal.signal.emit(value)
