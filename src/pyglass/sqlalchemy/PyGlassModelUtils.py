@@ -22,7 +22,7 @@ class PyGlassModelUtils(object):
 
     _ZIP_FIND = os.sep + OsUtils.getPerOsValue('library', 'site-packages', 'fictional') + '.zip' + os.sep
 
-    _logger = Logger('SQLAlchemyModels')
+    _logger = Logger('SQLAlchemyModels', printOut=True)
 
 #===================================================================================================
 #                                                                                   G E T / S E T
