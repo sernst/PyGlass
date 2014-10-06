@@ -11,6 +11,7 @@ try:
 except Exception, err:
     appdirs = None
 
+import PySide
 from PySide import QtCore
 from PySide import QtGui
 
@@ -25,6 +26,7 @@ class PyGlassApplication(QtCore.QObject):
 #===================================================================================================
 #                                                                                       C L A S S
 
+    _MIN_PYSIDE_VERSION = u'1.2.2'
     _LOCATION_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 
 #___________________________________________________________________________________________________ __init__
@@ -34,6 +36,18 @@ class PyGlassApplication(QtCore.QObject):
         self._qApplication = None
         self._window       = None
         self._splashScreen = None
+
+        # Checks the version of the PySide library being used. If the version is out-of-date,
+        # raise a runtime error.
+        minVersion = self._MIN_PYSIDE_VERSION.split(u'.')
+        version = PySide.__version__.split('.')
+        if int(version[0]) < int(minVersion[0]):
+            if int(version[1]) < int(minVersion[1]):
+                if int(version[2]) < minVersion[2]:
+                    raise RuntimeError, (
+                        u'[ERROR]: The installed PySide version of %s is below PyGlass\''
+                        + u' minimum required version of %s.%s.%s. Please update the library.') % (
+                        version, minVersion[0], minVersion[1], minVersion[2])
 
         # Sets a temporary standard out and error for deployed applications in a write allowed
         # location to prevent failed write results.
@@ -47,14 +61,14 @@ class PyGlassApplication(QtCore.QObject):
             path = FileUtils.createPath(
                 userDir,
                 self.appID + '_out.log', isFile=True)
-            folder = FileUtils.getDirectoryOf(path, createIfMissing=True)
+            FileUtils.getDirectoryOf(path, createIfMissing=True)
             sys.stdout = open(path, 'w+')
 
             FileUtils.createPath(
                 appdirs.user_data_dir(self.appID, self.appGroupID),
                 self.appID + '_error.log',
                 isFile=True)
-            folder = FileUtils.getDirectoryOf(path, createIfMissing=True)
+            FileUtils.getDirectoryOf(path, createIfMissing=True)
             sys.stderr = open(path, 'w+')
 
         PyGlassEnvironment.initializeAppSettings(self)
@@ -152,7 +166,9 @@ class PyGlassApplication(QtCore.QObject):
         if qtVersion[0] < 4 or qtVersion[1] < 8:
             raise Exception, 'ERROR: Unsupported Qt Version "%s"' % QtCore.__version__
 
-        self._qApplication = QtGui.QApplication(appArgs if appArgs else [])
+        qApp = QtGui.QApplication(appArgs if appArgs else [])
+        self._qApplication = qApp
+
         ### FUTURE ### self._qApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
         if self.splashScreenUrl:
@@ -172,7 +188,12 @@ class PyGlassApplication(QtCore.QObject):
         self._runPreMainWindowImpl()
 
         windowClass = self.mainWindowClass
-        assert inspect.isclass(windowClass)
+        if windowClass is None:
+            raise RuntimeError, u'No Main Window Class was specified in your application class.'
+
+        assert inspect.isclass(windowClass), (
+            u'%s.mainWindowClass getter must return a class for your main window' %
+            self.__class__.__name__)
 
         self._window = windowClass(
             parent=None,
