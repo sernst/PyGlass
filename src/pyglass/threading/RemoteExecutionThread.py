@@ -1,5 +1,5 @@
 # RemoteExecutionThread.py
-# (C)2012-2013
+# (C)2012-2014
 # Scott Ernst
 
 from PySide import QtCore
@@ -20,7 +20,7 @@ class RemoteExecutionThread(QtCore.QThread):
     def __init__(self, parent, **kwargs):
         QtCore.QThread.__init__(self, parent)
 
-        self.userData          = None
+        self.userData = ArgsUtils.get('userData', None, kwargs)
 
         self._events           = dict()
         self._log              = Logger(self)

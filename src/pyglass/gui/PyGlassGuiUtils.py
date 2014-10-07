@@ -1,5 +1,5 @@
 # PyGlassGuiUtils.py
-# (C)2013
+# (C)2013-2014
 # Scott Ernst
 
 import os
@@ -21,6 +21,7 @@ class PyGlassGuiUtils(QtCore.QObject):
 
     RESOURCE_FOLDER_PREFIX = 'RESOURCE_FOLDER_PREFIX'
     RESOURCE_FOLDER_NAME   = 'RESOURCE_FOLDER_NAME'
+    RESOURCE_WIDGET_FILE   = 'RESOURCE_WIDGET_FILE'
 
 #===================================================================================================
 #                                                                                     P U B L I C
@@ -66,11 +67,19 @@ class PyGlassGuiUtils(QtCore.QObject):
             target = target.__class__
 
         out = []
+
         prefix = ClassUtils.getAttrFromClass(target, cls.RESOURCE_FOLDER_PREFIX, None)
         if prefix:
             out.extend(prefix.split('/') if isinstance(prefix, basestring) else prefix)
+
         resourceName = ClassUtils.getAttrFromClass(target, cls.RESOURCE_FOLDER_NAME, None)
-        out.append(resourceName if resourceName else target.__name__)
+        widget = ClassUtils.getAttrFromClass(target, cls.RESOURCE_WIDGET_FILE, None)
+        if widget:
+            widget = widget.split('/') if isinstance(widget, basestring) else widget
+            out.extend(widget[:-1])
+
+        if resourceName or not widget:
+            out.append(resourceName if resourceName else target.__name__)
         return out
 
 #___________________________________________________________________________________________________ gradientPainter

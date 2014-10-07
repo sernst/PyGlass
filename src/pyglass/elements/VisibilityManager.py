@@ -12,6 +12,7 @@ class VisibilityManager(object):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, target, rawState =True):
         """Creates a new instance of VisibilityManager."""
+        self._callbacks    = []
         self._rawState     = rawState
         self._lock         = False
         self._target       = target
@@ -37,11 +38,30 @@ class VisibilityManager(object):
         return self._rawState
     @rawState.setter
     def rawState(self, value):
-        if not self._lock:
-            self._rawState = value
+        if self._lock:
+            return
+
+        beforeValue = self.isVisible
+        self._rawState = value
+        if beforeValue != self.isVisible:
+            self._executeCallbacks()
 
 #===================================================================================================
 #                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ addChangeCallback
+    def addChangeCallback(self, callback):
+        if callback in self._callbacks:
+            return True
+        self._callbacks.append(callback)
+        return True
+
+#___________________________________________________________________________________________________ removeChangeCallback
+    def removeChangeCallback(self, callback):
+        if not callback in self._callbacks:
+            return False
+        self._callbacks.remove(callback)
+        return True
 
 #___________________________________________________________________________________________________ clearMuteRequests
     def clearMuteRequests(self):
@@ -91,11 +111,17 @@ class VisibilityManager(object):
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
+#___________________________________________________________________________________________________ _executeCallbacks
+    def _executeCallbacks(self):
+        for callback in self._callbacks:
+            callback(self, None)
+
 #___________________________________________________________________________________________________ _internalMethod
     def _updateTarget(self):
         """Doc..."""
         self._lock = True
         self._target.setVisible(self.isVisible)
+        self._executeCallbacks()
         self._lock = False
 
 #===================================================================================================

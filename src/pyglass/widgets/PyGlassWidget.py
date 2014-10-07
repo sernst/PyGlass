@@ -6,7 +6,6 @@ from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
 
-#AS NEEDED: from pyglass.widgets.LoadingWidget import LoadingWidget
 from pyglass.elements.PyGlassElement import PyGlassElement
 from pyglass.gui.PyGlassBackgroundParent import PyGlassBackgroundParent
 from pyglass.gui.UiFileLoader import UiFileLoader
@@ -18,6 +17,10 @@ class PyGlassWidget(PyGlassElement):
 #===================================================================================================
 #                                                                                       C L A S S
 
+    # Complete relative path from the widget folder to the widget file to load
+    RESOURCE_WIDGET_FILE   = None
+
+    # Prefix folder path relative to the widget folder
     RESOURCE_FOLDER_PREFIX = None
     RESOURCE_FOLDER_NAME   = None
 
@@ -39,7 +42,12 @@ class PyGlassWidget(PyGlassElement):
         widgetFile = ArgsUtils.get('widgetFile', True, kwargs)
 
         if widgetFile:
-            self._widgetData = UiFileLoader.loadWidgetFile(self)
+            parts = self.RESOURCE_WIDGET_FILE
+            if isinstance(parts, basestring):
+                parts = parts.split('/')[-1:]
+            elif parts:
+                parts = parts[-1:]
+            self._widgetData = UiFileLoader.loadWidgetFile(self, names=parts)
         else:
             self._widgetData = None
 
@@ -49,9 +57,6 @@ class PyGlassWidget(PyGlassElement):
             return
 
         self._widgetClasses = ArgsUtils.get('widgets', self._widgetClasses, kwargs)
-        if 'loading' not in self._widgetClasses:
-            from pyglass.widgets.LoadingWidget import LoadingWidget
-            self._widgetClasses['loading'] = LoadingWidget
 
 #===================================================================================================
 #                                                                                   G E T / S E T

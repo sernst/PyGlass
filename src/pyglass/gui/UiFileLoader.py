@@ -1,5 +1,5 @@
 # UiFileLoader.py
-# (C)2012-2013
+# (C)2012-2014
 # Scott Ernst
 
 import os
@@ -8,6 +8,7 @@ import imp
 from PySide import QtCore
 from PySide import QtGui
 from PySide.QtUiTools import QUiLoader
+
 
 #___________________________________________________________________________________________________ UiFileLoader
 class UiFileLoader(QUiLoader):
