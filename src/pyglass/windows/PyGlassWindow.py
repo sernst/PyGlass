@@ -12,13 +12,17 @@ from pyaid.ArgsUtils import ArgsUtils
 from pyaid.debug.Logger import Logger
 from pyaid.decorators.ClassGetter import ClassGetter
 from pyaid.file.FileUtils import FileUtils
+from pyaid.string.StringUtils import StringUtils
+from pyaid.time.TimeUtils import TimeUtils
 
 from pyglass.alembic.AlembicUtils import AlembicUtils
 from pyglass.app.ApplicationConfig import ApplicationConfig
 from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
+from pyglass.elements.VisibilityElement import VisibilityElement
 from pyglass.gui.PyGlassBackgroundParent import PyGlassBackgroundParent
 from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
 from pyglass.gui.UiFileLoader import UiFileLoader
+from pyglass.widgets.ApplicationLevelWidget import ApplicationLevelWidget
 from pyglass.widgets.LoadingWidget import LoadingWidget
 
 #___________________________________________________________________________________________________ PyGlassWindow
@@ -32,12 +36,16 @@ class PyGlassWindow(QtGui.QMainWindow):
     def __init__(self, **kwargs):
         """Creates a new instance of PyGlassWindow."""
         parent = ArgsUtils.extract('parent', None, kwargs)
-        self._application  = ArgsUtils.extract('pyGlassApp', None, kwargs)
-        self._qApplication = ArgsUtils.extract('qApp', None, kwargs)
-        self._isMainWindow = ArgsUtils.extract('isMainWindow', bool(parent is None), kwargs)
-        self._mainWindow   = ArgsUtils.extract('mainWindow', None, kwargs)
-        self._centerWidget = None
-        self._hasShown     = False
+        self._application       = ArgsUtils.extract('pyGlassApp', None, kwargs)
+        self._qApplication      = ArgsUtils.extract('qApp', None, kwargs)
+        self._isMainWindow      = ArgsUtils.extract('isMainWindow', bool(parent is None), kwargs)
+        self._mainWindow        = ArgsUtils.extract('mainWindow', None, kwargs)
+        self._appWrappingWidget = None
+        self._centerWidget      = None
+        self._hasShown          = False
+
+        self._appLevelWidgets              = dict()
+        self._appLevelWidgetDisplayHistory = []
 
         self._keyboardCallback = ArgsUtils.extract('keyboardCallback', None, kwargs)
 
@@ -51,6 +59,27 @@ class PyGlassWindow(QtGui.QMainWindow):
         self._currentWidget    = None
 
         QtGui.QMainWindow.__init__(self, parent, ArgsUtils.extract('flags', 0, kwargs))
+
+        self._instanceUid = TimeUtils.getUidTimecode(
+            prefix=self.__class__.__name__,
+            suffix=StringUtils.getRandomString(8))
+
+        self._styleSheet = ArgsUtils.get('styleSheet', None, kwargs)
+        if self._styleSheet:
+            self.setStyleSheet(self.styleSheetPath)
+
+        self._appWrappingWidget = VisibilityElement(self)
+        layout = QtGui.QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self._appWrappingWidget.setLayout(layout)
+        self.setCentralWidget(self._appWrappingWidget)
+
+        self._contentWrappingWidget = self.addApplicationLevelWidget('main')
+        layout = QtGui.QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self._contentWrappingWidget.setLayout(layout)
 
         if self._keyboardCallback is not None:
             self.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -78,17 +107,13 @@ class PyGlassWindow(QtGui.QMainWindow):
                 self._createCentralWidget()
             UiFileLoader.loadWidgetFile(self, target=self._centerWidget)
 
-        self._styleSheet = ArgsUtils.get('styleSheet', None, kwargs)
-        if self._styleSheet:
-            self.setStyleSheet(self.styleSheetPath)
-
         # Sets a non-standard central widget
         centralWidgetName = ArgsUtils.get('centralWidgetName', None, kwargs)
         if centralWidgetName and hasattr(self, centralWidgetName):
             self._centerWidget = getattr(self, centralWidgetName)
         elif not hasWindowFile:
             self._centerWidget = None
-            if ArgsUtils.get('defaultCenterWidget', False, kwargs):
+            if ArgsUtils.get('defaultCenterWidget', True, kwargs):
                 self._createCentralWidget()
 
         self._lastWidgetID  = None
@@ -107,6 +132,11 @@ class PyGlassWindow(QtGui.QMainWindow):
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: instanceUid
+    @property
+    def instanceUid(self):
+        return self._instanceUid
 
 #___________________________________________________________________________________________________ GS: isDeployed
     @ClassGetter
@@ -361,21 +391,51 @@ class PyGlassWindow(QtGui.QMainWindow):
         return FileUtils.createPath(
             self.rootLocalResourcePath, 'widget', self._resourceFolderParts, *args, **kwargs)
 
-#___________________________________________________________________________________________________ showLoading
-    def showLoading(self, **kwargs):
-        if self._currentWidget.widgetID != 'loading':
-            self._lastWidgetID = self._currentWidget.widgetID
-        self._showLoadingImpl(**kwargs)
-        self.setActiveWidget('loading', force=True, args=kwargs)
-
-#___________________________________________________________________________________________________ hideLoading
-    def hideLoading(self, **kwargs):
-        if self._currentWidget.widgetID != 'loading':
+#___________________________________________________________________________________________________ showApplicationLevelWidget
+    def showApplicationLevelWidget(self, widgetID, **kwargs):
+        w = self.getApplicationLevelWidget(widgetID)
+        if not w:
             return
 
-        self._hideLoadingImpl(**kwargs)
-        if self._lastWidgetID:
-            self.setActiveWidget(self._lastWidgetID, args=kwargs)
+        for wid, widget in self._appLevelWidgets.iteritems():
+            if wid == widgetID:
+                widget.setVisible(True)
+                widget.activateWidgetDisplay(**kwargs)
+            else:
+                widget.visibility.addMuteRequest(w)
+        self.refreshGui()
+
+#___________________________________________________________________________________________________ hideApplicationLevelWidget
+    def hideApplicationLevelWidget(self, widgetID, **kwargs):
+        w = self.getApplicationLevelWidget(widgetID)
+        if not w:
+            return
+
+        for wid, widget in self._appLevelWidgets.iteritems():
+            if wid == widgetID:
+                widget.setVisible(False)
+                widget.deactivateWidgetDisplay(**kwargs)
+            else:
+                widget.visibility.removeMuteRequest(w)
+                if widget.visibility.isVisible:
+                    widget.refreshWidgetDisplay()
+        self.refreshGui()
+
+#___________________________________________________________________________________________________ showLoading
+    def showLoading(self, target, **kwargs):
+        w = self.getApplicationLevelWidget('loading')
+        if not w:
+            return
+        self.showApplicationLevelWidget('loading', target=target, **kwargs)
+        self._showLoadingImpl(target=target, **kwargs)
+
+#___________________________________________________________________________________________________ hideLoading
+    def hideLoading(self, target, **kwargs):
+        w = self.getApplicationLevelWidget('loading')
+        if not w or not w.target == target:
+            return
+        self.hideApplicationLevelWidget('loading', target=target, **kwargs)
+        self._hideLoadingImpl(target=target, **kwargs)
 
 #___________________________________________________________________________________________________ addWidget
     def addWidget(self, key, widgetClass, setActive =False):
@@ -389,6 +449,7 @@ class PyGlassWindow(QtGui.QMainWindow):
 #___________________________________________________________________________________________________ setActiveWidget
     def setActiveWidget(self, widgetID, force =False, args =None, doneArgs =None):
         if not self._centerWidget or widgetID is None or widgetID not in self._widgetClasses:
+            print 'SET ACTIVE FALSE:', self._centerWidget, widgetID, self._widgetClasses
             return False
 
         if not force and self._currentWidget and self._currentWidget.widgetID == widgetID:
@@ -401,9 +462,6 @@ class PyGlassWindow(QtGui.QMainWindow):
         # Deactivates the current widget if the widgets are being switched. However, ignored if the
         # same widget is being activated for a second time.
         if self._currentWidget and widgetID != self._currentWidget.widgetID:
-            if self._currentWidget.widgetID == 'loading':
-                self._hideLoadingImpl()
-
             if doneArgs is None:
                 doneArgs = dict()
             self._currentWidget.deactivateWidgetDisplay(**doneArgs)
@@ -418,7 +476,7 @@ class PyGlassWindow(QtGui.QMainWindow):
                 self._centerWidget.setLayout(layout)
             layout.addWidget(widget)
         else:
-            self.setCentralWidget(widget)
+            self._contentWrappingWidget.layout().addWidget(widget)
         self.setContentsMargins(0, 0, 0, 0)
         self.refreshGui()
 
@@ -442,9 +500,13 @@ class PyGlassWindow(QtGui.QMainWindow):
                 self._log.write(
                     'ERROR: Unrecognized widgetID "%s" in %s' % (str(widgetID), str(self)))
 
-            widget = self._widgetClasses[widgetID](
-                self._widgetParent, flags=self._widgetFlags, widgetID=widgetID)
-            self._widgets[widgetID] = widget
+            try:
+                widget = self._widgetClasses[widgetID](
+                    parent=self._widgetParent, flags=self._widgetFlags, widgetID=widgetID)
+                self._widgets[widgetID] = widget
+            except Exception, err:
+                self._log.write('ERROR: Failed to load widget with id: "%s" ->' % widgetID)
+                raise
 
 #___________________________________________________________________________________________________ refreshGui
     def refreshGui(self):
@@ -487,26 +549,34 @@ class PyGlassWindow(QtGui.QMainWindow):
     def postShow(self, **kwargs):
         self._postShowImpl(**kwargs)
 
+#___________________________________________________________________________________________________ addApplicationLevelWidget
+    def addApplicationLevelWidget(self, widgetID, widgetClass =None, **kwargs):
+        if widgetClass is None:
+            widgetClass = ApplicationLevelWidget
+            ArgsUtils.addIfMissing('widgetFile', False, kwargs)
+
+        widget = widgetClass(parent=self._appWrappingWidget, **kwargs)
+        self._appWrappingWidget.layout().addWidget(widget)
+        self._appLevelWidgets[widgetID] = widget
+        return widget
+
+#___________________________________________________________________________________________________ getApplicationLevelWidget
+    def getApplicationLevelWidget(self, widgetID):
+        if widgetID in self._appLevelWidgets:
+            return self._appLevelWidgets[widgetID]
+        return None
+
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
 #___________________________________________________________________________________________________ _createCentralWidget
     def _createCentralWidget(self):
-        w1 = self.centralWidget()
-        w2 = self._centerWidget
-        if w1 and w2:
-            return w2
-        elif w1 and not w2:
-            self._centerWidget = w1
-            return w1
+        widget = self._centerWidget
+        if widget:
+            return widget
 
-        layout = self.layout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        w = QtGui.QWidget(self)
-        layout.addWidget(w)
-        self.setCentralWidget(w)
+        w = QtGui.QWidget(self._contentWrappingWidget)
+        self._contentWrappingWidget.layout().addWidget(w)
         self._centerWidget = w
         return w
 
@@ -517,9 +587,6 @@ class PyGlassWindow(QtGui.QMainWindow):
 
         self._widgetParent = PyGlassBackgroundParent(proxy=self)
         self._widgets      = dict()
-
-        if 'loading' not in self._widgetClasses:
-            self._widgetClasses['loading'] = LoadingWidget
 
         if activeWidgetID:
             self.setActiveWidget(activeWidgetID)

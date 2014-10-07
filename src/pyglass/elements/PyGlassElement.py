@@ -7,10 +7,11 @@ from PySide import QtGui
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.file.FileUtils import FileUtils
 
+from pyglass.elements.VisibilityElement import VisibilityElement
 from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
 
 #___________________________________________________________________________________________________ PyGlassElement
-class PyGlassElement(QtGui.QWidget):
+class PyGlassElement(VisibilityElement):
     """A class for..."""
 
 #===================================================================================================
@@ -19,7 +20,7 @@ class PyGlassElement(QtGui.QWidget):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, parent =None, **kwargs):
         """Creates a new instance of PySideGuiWidget."""
-        QtGui.QWidget.__init__(self, parent)
+        super(PyGlassElement, self).__init__(parent=parent, **kwargs)
         self._mainWindow          = None
         self._isWidgetActive      = False
         self._id                  = ArgsUtils.get('id', self.__class__.__name__, kwargs)
@@ -158,15 +159,13 @@ class PyGlassElement(QtGui.QWidget):
     def getResourcePath(self, *args, **kwargs):
         """Doc..."""
         return FileUtils.createPath(
-            self.mainWindow.rootResourcePath, 'widget', self._resourceFolderParts, *args, **kwargs
-        )
+            self.mainWindow.rootResourcePath, 'widget', self._resourceFolderParts, *args, **kwargs )
 
 #___________________________________________________________________________________________________ getLocalResourcePath
     def getLocalResourcePath(self, *args, **kwargs):
         """Doc..."""
         return FileUtils.createPath(
-            self.mainWindow.rootLocalResourcePath, 'widget', self._resourceFolderParts, *args, **kwargs
-        )
+            self.mainWindow.rootLocalResourcePath, 'widget', self._resourceFolderParts, *args, **kwargs )
 
 #___________________________________________________________________________________________________ refreshWidgetDisplay
     def refreshWidgetDisplay(self):
@@ -252,18 +251,3 @@ class PyGlassElement(QtGui.QWidget):
 #___________________________________________________________________________________________________ _deactivateWidgetDisplayImpl
     def _deactivateWidgetDisplayImpl(self, **kwargs):
         pass
-
-#===================================================================================================
-#                                                                               I N T R I N S I C
-
-#___________________________________________________________________________________________________ __repr__
-    def __repr__(self):
-        return self.__str__()
-
-#___________________________________________________________________________________________________ __unicode__
-    def __unicode__(self):
-        return unicode(self.__str__())
-
-#___________________________________________________________________________________________________ __str__
-    def __str__(self):
-        return '<%s>' % self.__class__.__name__

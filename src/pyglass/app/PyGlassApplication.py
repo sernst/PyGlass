@@ -1,5 +1,5 @@
 # PyGlassApplication.py
-# (C)2013
+# (C)2013-2014
 # Scott Ernst
 
 import sys

@@ -6,10 +6,10 @@ from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
 
-from pyglass.widgets.PyGlassWidget import PyGlassWidget
+from pyglass.widgets.ApplicationLevelWidget import ApplicationLevelWidget
 
 #___________________________________________________________________________________________________ LoadingWidget
-class LoadingWidget(PyGlassWidget):
+class LoadingWidget(ApplicationLevelWidget):
     """A class for..."""
 
 #===================================================================================================
@@ -19,9 +19,9 @@ class LoadingWidget(PyGlassWidget):
     DEFAULT_INFO   = '(one moment please)'
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent =None, **kwargs):
         """Creates a new instance of LoadingWidget."""
-        PyGlassWidget.__init__(self, parent, **kwargs)
+        super(LoadingWidget, self).__init__(parent=parent, **kwargs)
 
         self._animatedIcon = QtGui.QMovie(self.getResourcePath('horizontal-loader.gif'))
         self.loadImageLabel.setMovie(self._animatedIcon)
@@ -30,6 +30,15 @@ class LoadingWidget(PyGlassWidget):
 
         self._updateDisplay(**kwargs)
 
+#___________________________________________________________________________________________________ showInApplication
+    def showInApplication(self, **kwargs):
+        self._displayInfo = kwargs
+        self._refreshWidgetDisplayImpl()
+
+#___________________________________________________________________________________________________ hideInApplication
+    def hideInApplication(self, **kwargs):
+        self._animatedIcon.stop()
+
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
@@ -37,15 +46,6 @@ class LoadingWidget(PyGlassWidget):
     def _refreshWidgetDisplayImpl(self):
         data = self._displayInfo if self._displayInfo is not None else dict()
         self._updateDisplay(**data)
-
-#___________________________________________________________________________________________________ _activateWidgetDisplayImpl
-    def _activateWidgetDisplayImpl(self, **kwargs):
-        self._displayInfo = kwargs
-        self._refreshWidgetDisplayImpl()
-
-#___________________________________________________________________________________________________ _deactivateWidgetDisplayImpl
-    def _deactivateWidgetDisplayImpl(self, **kwargs):
-        self._animatedIcon.stop()
 
 #___________________________________________________________________________________________________ _updateDisplay
     def _updateDisplay(self, **kwargs):
