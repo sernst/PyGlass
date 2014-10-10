@@ -24,14 +24,13 @@ class PyGlassPushButton(InteractiveButtonBase):
 #                                                                                       C L A S S
 
     _ROUNDNESS   = [4, 6, 8, 8]
-    _MARGINS     = [(8, 4), (10, 5), (12, 6), (16, 8)]
+    _MARGINS     = [(10, 5), (12, 6), (16, 8), (20, 10)]
     _LINE_WIDTH  = 2
     _GLOSS_QCOLORS = (
         QtGui.QColor(255, 255, 255, 100),
         QtGui.QColor(255, 255, 255, 75),
         QtGui.QColor(255, 255, 255, 50),
-        QtGui.QColor(255, 255, 255, 0)
-    )
+        QtGui.QColor(255, 255, 255, 0) )
     _LABEL_STYLE = "QLabel { color:#C#; font-weight:500; font-size:#FS#px; }"
     _FONT_SIZES  = [10, 14, 16, 20]
 
@@ -139,8 +138,7 @@ class PyGlassPushButton(InteractiveButtonBase):
             w - 2*self._LINE_WIDTH,
             h - 2*self._LINE_WIDTH,
             self._ROUNDNESS[self._sizeIndex],
-            self._ROUNDNESS[self._sizeIndex]
-        )
+            self._ROUNDNESS[self._sizeIndex] )
 
         #--- EDGE HIGHLIGHT ---#
 
@@ -156,8 +154,7 @@ class PyGlassPushButton(InteractiveButtonBase):
             w - 2*self._LINE_WIDTH - 2,
             h - 2*self._LINE_WIDTH - 2,
             self._ROUNDNESS[self._sizeIndex],
-            self._ROUNDNESS[self._sizeIndex]
-        )
+            self._ROUNDNESS[self._sizeIndex] )
 
         #--- SPECULAR GLOSS ---#
         gradient = QtGui.QLinearGradient(halfW, -halfH - 1, halfW, halfH + 1)
@@ -175,8 +172,7 @@ class PyGlassPushButton(InteractiveButtonBase):
             w - 2*self._LINE_WIDTH,
             h - 2*self._LINE_WIDTH,
             self._ROUNDNESS[self._sizeIndex],
-            self._ROUNDNESS[self._sizeIndex]
-        )
+            self._ROUNDNESS[self._sizeIndex] )
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -185,8 +181,7 @@ class PyGlassPushButton(InteractiveButtonBase):
     def _populateColorBundles(self):
         if not self._normalBundle:
             self._normalBundle = ThemeColorBundle(
-                self._colorScheme if self._colorScheme else ColorSchemes.GREY
-            )
+                self._colorScheme if self._colorScheme else ColorSchemes.GREY)
 
         if not self._disabledBundle:
             self._disabledBundle = self._normalBundle.clone()
@@ -213,9 +208,7 @@ class PyGlassPushButton(InteractiveButtonBase):
         self._label.setStyleSheet(
             self._LABEL_STYLE.replace(
                 '#C#', bundle.strong.asWebRgbOpacity(None if self.isEnabled() else 0.5)).replace(
-                '#FS#', str(self._FONT_SIZES[self._sizeIndex])
-            )
-        )
+                '#FS#', str(self._FONT_SIZES[self._sizeIndex]) ))
         if not self._label.isVisible() and self._label.text():
             self._label.setVisible(True)
         elif self._label.isVisible() and not self._label.text():
@@ -226,7 +219,8 @@ class PyGlassPushButton(InteractiveButtonBase):
             self._icon.isDark = not bundle.isDark
 
 #___________________________________________________________________________________________________ _getFirstNone
-    def _getFirstNone(self, *args):
+    @classmethod
+    def _getFirstNone(cls, *args):
         for arg in args:
             if arg is not None:
                 return arg

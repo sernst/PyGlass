@@ -77,6 +77,14 @@ class InteractiveElement(PyGlassElement):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ getInteractionState
+    def getInteractionState(self):
+        if not self.isEnabled():
+            return InteractionStatesEnum.DISABLED_MODE
+        elif self.checked:
+            return InteractionStatesEnum.SELECTED_MODE
+        return self._mode
+
 #___________________________________________________________________________________________________ setEnabled
     def setEnabled(self, *args, **kwargs):
         super(InteractiveElement, self).setEnabled(*args, **kwargs)

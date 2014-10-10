@@ -26,7 +26,7 @@ class PyGlassApplication(QtCore.QObject):
 #===================================================================================================
 #                                                                                       C L A S S
 
-    _MIN_PYSIDE_VERSION = u'1.2.2'
+    _MIN_PYSIDE_VERSION = u'1.2.1'
     _LOCATION_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 
 #___________________________________________________________________________________________________ __init__

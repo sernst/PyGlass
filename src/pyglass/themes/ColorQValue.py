@@ -1,5 +1,5 @@
 # ColorQValue.py
-# (C)2013
+# (C)2013-2014
 # Scott Ernst
 
 from PySide import QtGui
@@ -28,3 +28,20 @@ class ColorQValue(ColorValue):
         color.setAlphaF(self._opacity)
         return color
 
+#===================================================================================================
+#                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ compareQColors
+    @classmethod
+    def compareQColors(cls, color1, color2):
+        if not color1 or not color2:
+            return False
+
+        if color1.redF() != color2.redF():
+            return False
+        elif color1.greenF() != color2.greenF():
+            return False
+        elif color1.blueF() != color2.blueF():
+            return False
+
+        return True

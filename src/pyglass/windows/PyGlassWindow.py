@@ -9,6 +9,7 @@ from PySide import QtCore
 from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.OsUtils import OsUtils
 from pyaid.debug.Logger import Logger
 from pyaid.decorators.ClassGetter import ClassGetter
 from pyaid.file.FileUtils import FileUtils
@@ -43,6 +44,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         self._appWrappingWidget = None
         self._centerWidget      = None
         self._hasShown          = False
+        self._isHighDpi         = OsUtils.isHighDpiScaledScreen()
 
         self._appLevelWidgets              = dict()
         self._appLevelWidgetDisplayHistory = []
@@ -132,6 +134,11 @@ class PyGlassWindow(QtGui.QMainWindow):
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: isHighDpi
+    @property
+    def isHighDpi(self):
+        return self._isHighDpi
 
 #___________________________________________________________________________________________________ GS: instanceUid
     @property
@@ -295,6 +302,16 @@ class PyGlassWindow(QtGui.QMainWindow):
 
 #===================================================================================================
 #                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ scaleByDpi
+    def scaleByDpi(self, value, rounded =False, asInt =False):
+        if self._isHighDpi:
+            value *= 2
+        if rounded or asInt:
+            value = round(value)
+        if asInt:
+            return int(value)
+        return value
 
 #___________________________________________________________________________________________________ keyPressEvent
     def keyPressEvent(self, event):

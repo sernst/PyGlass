@@ -83,6 +83,11 @@ class RemoteExecutionThread(QtCore.QThread):
     def response(self):
         return self._response
 
+#___________________________________________________________________________________________________ GS: returnCode
+    @property
+    def returnCode(self):
+        return self._response
+
 #___________________________________________________________________________________________________ GS: output
     @property
     def output(self):

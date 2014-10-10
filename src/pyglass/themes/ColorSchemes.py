@@ -13,9 +13,11 @@ class ColorSchemes(object):
 
     #COLOR   = ('#', '#', '#', '#')
 
-    GREY        = ('#333', '#555', '#DDD', '#AAA')
+    DARK_GREY   = ('#000000', '#333333', '#AAAAAA', '#999999')
 
-    LIGHT_GREY  = ('#888', '#999', '#DDD', '#BBB')
+    GREY        = ('#333333', '#555555', '#DDDDDD', '#AAAAAA')
+
+    LIGHT_GREY  = ('#888888', '#999999', '#DDDDDD', '#BBBBBB')
 
     RED     = ('#541C1C', '#661E1E', '#FF4747', '#BD2222')
 
