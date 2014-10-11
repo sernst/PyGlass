@@ -32,7 +32,7 @@ class PyGlassWidget(PyGlassElement):
         self.setStyleSheet(self.owner.styleSheetPath)
 
         self._displayCount  = 0
-        self._widgetClasses = dict()
+        self._widgetClasses = ArgsUtils.getAsDict('widgets', kwargs)
         self._widgetParent  = None
         self._currentWidget = None
         self._widgets       = dict()
@@ -53,10 +53,6 @@ class PyGlassWidget(PyGlassElement):
 
         name = ArgsUtils.get('containerWidgetName', None, kwargs)
         self._containerWidget = getattr(self, name) if name and hasattr(self, name) else None
-        if not self._containerWidget:
-            return
-
-        self._widgetClasses = ArgsUtils.get('widgets', self._widgetClasses, kwargs)
 
 #===================================================================================================
 #                                                                                   G E T / S E T

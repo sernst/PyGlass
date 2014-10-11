@@ -3,6 +3,7 @@
 # Scott Ernst
 
 from PySide import QtGui
+from pyaid.ArgsUtils import ArgsUtils
 
 from pyglass.widgets.PyGlassWidget import PyGlassWidget
 
@@ -19,7 +20,6 @@ class SimpleScrollArea(PyGlassWidget):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, parent, **kwargs):
         """Creates a new instance of SimpleScrollArea."""
-        cls = self.__class__
         PyGlassWidget.__init__(self, parent, widgetFile=False)
 
         class SimpleScrollerInternal(QtGui.QScrollArea):
@@ -27,6 +27,8 @@ class SimpleScrollArea(PyGlassWidget):
 
         class SimpleScrollerQWidget(QtGui.QWidget):
             pass
+
+        self._borderColor = ArgsUtils.get('borderColor', None, kwargs)
 
         layout         = self._getLayout(self, QtGui.QVBoxLayout)
         self._scroller = SimpleScrollerInternal(self)
@@ -41,9 +43,7 @@ class SimpleScrollArea(PyGlassWidget):
         self._scroller.setWidget(self._innerWidget)
         self._scroller.setWidgetResizable(True)
 
-        self.setStyleSheet(
-            u"SimpleScrollerInternal SimpleScrollerQWidget { background-color: transparent; }"
-        )
+        self._updateStyle()
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -57,3 +57,27 @@ class SimpleScrollArea(PyGlassWidget):
     @property
     def containerWidget(self):
         return self._innerWidget
+
+#___________________________________________________________________________________________________ GS: borderColor
+    @property
+    def borderColor(self):
+        return self._borderColor
+    @borderColor.setter
+    def borderColor(self, value):
+        if self._borderColor == value:
+            return
+        self._borderColor = value
+        self._updateStyle()
+
+#===================================================================================================
+#                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _updateStyle
+    def _updateStyle(self):
+        styles = [
+            u'background-color:transparent',
+            u'border: 1px solid ' + (self._borderColor if self._borderColor else u'transparent')]
+
+        s = u"SimpleScrollArea, SimpleScrollerInternal, SimpleScrollerQWidget { %s; }" % u'; '.join(styles)
+        print u'STYLES:', s
+        self.setStyleSheet(s)
