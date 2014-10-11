@@ -79,5 +79,4 @@ class SimpleScrollArea(PyGlassWidget):
             u'border: 1px solid ' + (self._borderColor if self._borderColor else u'transparent')]
 
         s = u"SimpleScrollArea, SimpleScrollerInternal, SimpleScrollerQWidget { %s; }" % u'; '.join(styles)
-        print u'STYLES:', s
         self.setStyleSheet(s)
