@@ -146,6 +146,11 @@ class InteractiveElement(PyGlassElement):
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
+#___________________________________________________________________________________________________ _initialize
+    def _initialize(self):
+        super(InteractiveElement, self)._initialize()
+        self._updateDisplay(self._mode)
+
 #___________________________________________________________________________________________________ _onClickEventImpl
     def _onClickEventImpl(self, event):
         pass

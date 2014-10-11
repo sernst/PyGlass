@@ -106,6 +106,16 @@ class GridListElement(PyGlassElement):
             if not item:
                 continue
             self._items.remove(item)
+
+            widget.setParent(None)
+            self.layout().removeWidget(widget)
+        self.update()
+
+#___________________________________________________________________________________________________ clear
+    def clear(self):
+        while len(self._items) > 0:
+            item = self._items.pop()
+            widget = item[0]
             self.layout().removeWidget(widget)
             widget.setParent(None)
         self.update()
