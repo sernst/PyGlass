@@ -21,6 +21,7 @@ class PyGlassElement(VisibilityElement):
     def __init__(self, parent =None, **kwargs):
         """Creates a new instance of PySideGuiWidget."""
         super(PyGlassElement, self).__init__(parent=parent, **kwargs)
+        self._initialized         = False
         self._mainWindow          = None
         self._isWidgetActive      = False
         self._id                  = ArgsUtils.get('id', self.__class__.__name__, kwargs)
@@ -124,6 +125,17 @@ class PyGlassElement(VisibilityElement):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ resizeEvent
+    def resizeEvent(self, *args, **kwargs):
+        if not self._initialized:
+            self._initialize()
+            self._initialized = True
+        self._resizeImpl(*args, **kwargs)
+
+#___________________________________________________________________________________________________ paintEvent
+    def paintEvent(self, *args, **kwargs):
+        self._paintImpl(*args, **kwargs)
+
 #___________________________________________________________________________________________________ getAncestor
     def getAncestor(self, ident):
         parent = self.parent()
@@ -195,6 +207,18 @@ class PyGlassElement(VisibilityElement):
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _initialize
+    def _initialize(self):
+        pass
+
+#___________________________________________________________________________________________________ resizeEvent
+    def _resizeImpl(self, *args, **kwargs):
+        pass
+
+#___________________________________________________________________________________________________ _paintImpl
+    def _paintImpl(self, *args, **kwargs):
+        pass
 
 #___________________________________________________________________________________________________ _createElementWidget
     def _createElementWidget(self, parent, layoutClass =None, add =False):

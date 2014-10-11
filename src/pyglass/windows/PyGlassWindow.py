@@ -251,7 +251,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         if not self.isMainWindow:
             return self.owner.appResourcePath
 
-        out = self.getRootResourcePath('apps', self.appID, isDir=True)
+        out = self.pyGlassApplication.getAppResourcePath(isDir=True)
         if not os.path.exists(out):
             os.makedirs(out)
         return out
@@ -262,7 +262,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         if not self.isMainWindow:
             return self.owner.localAppResourcePath
 
-        out = self.getRootLocalResourcePath('apps', self.appID, isDir=True)
+        out = self.pyGlassApplication.getLocalAppResourcePath(isDir=True)
         if not os.path.exists(out):
             os.makedirs(out)
         return out

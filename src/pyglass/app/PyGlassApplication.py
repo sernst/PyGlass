@@ -118,6 +118,14 @@ class PyGlassApplication(QtCore.QObject):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ getAppResourcePath
+    def getAppResourcePath(self, *args, **kwargs):
+        return PyGlassEnvironment.getRootResourcePath('apps', self.appID, *args, **kwargs)
+
+#___________________________________________________________________________________________________ getLocalAppResourcePath
+    def getLocalAppResourcePath(self, *args, **kwargs):
+        return PyGlassEnvironment.getRootLocalResourcePath('apps', self.appID, *args, **kwargs)
+
 #___________________________________________________________________________________________________ updateSplashScreen
     def updateSplashScreen(self, message =None):
         if not self._splashScreen:
@@ -184,6 +192,10 @@ class PyGlassApplication(QtCore.QObject):
                 splash.show()
                 self._splashScreen = splash
                 self.updateSplashScreen('Initializing User Interface')
+
+        # Add the resources path to the search directory
+        QtCore.QDir.addSearchPath('AppResources', self.getAppResourcePath(isDir=True))
+        QtCore.QDir.addSearchPath('LocalAppResources', self.getLocalAppResourcePath(isDir=True))
 
         self._runPreMainWindowImpl()
 

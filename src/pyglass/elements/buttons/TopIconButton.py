@@ -13,6 +13,9 @@ from pyglass.elements.buttons.InteractiveButtonBase import InteractiveButtonBase
 from pyglass.elements.icons.IconElement import IconElement
 
 #___________________________________________________________________________________________________ TopIconButton
+from pyglass.enum.InteractionStatesEnum import InteractionStatesEnum
+
+
 class TopIconButton(InteractiveButtonBase):
     """A class for..."""
 
@@ -22,7 +25,7 @@ class TopIconButton(InteractiveButtonBase):
     PAINT_PROPS = namedtuple(
         'PAINT_PROPS', ['state', 'width', 'height', 'halfWidth', 'halfHeight'])
 
-    ICON_STYLE_SPEC     = namedtuple('ICON_STYLE_SPEC', ['color', 'alpha', 'name', 'atlas'])
+    ICON_STYLE_SPEC     = namedtuple('ICON_STYLE_SPEC', ['color', 'alpha', 'name', 'atlas', 'scale'])
     LABEL_STYLE_SPEC    = namedtuple('LABEL_SPEC', ['color', 'fontFamily', 'size'])
     FILL_PAINT_SPEC     = namedtuple('FILL_PAINT_SPEC', ['lightColor', 'darkColor'])
     EDGE_PAINT_SPEC     = namedtuple('EDGE_DRAW_SPEC', ['color', 'lineWidth', 'higlightColor'])
@@ -68,10 +71,18 @@ class TopIconButton(InteractiveButtonBase):
         layout.addStretch()
 
         self.sizePolicy().setControlType(QtGui.QSizePolicy.ToolButton)
-        self._updateDisplay()
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: shrink
+    @property
+    def shrink(self):
+        return self.sizePolicy().horizontalPolicy() == QtGui.QSizePolicy.Maximum
+    @shrink.setter
+    def shrink(self, value):
+        hPolicy = QtGui.QSizePolicy.Maximum if value else QtGui.QSizePolicy.Preferred
+        self.setSizePolicy(hPolicy, self.sizePolicy().verticalPolicy())
 
 #___________________________________________________________________________________________________ GS: iconAtlas
     @property
@@ -142,10 +153,14 @@ class TopIconButton(InteractiveButtonBase):
         self.repaint()
 
 #===================================================================================================
-#                                                                                     P U B L I C
+#                                                                               P R O T E C T E D
 
-#___________________________________________________________________________________________________ paintEvent
-    def paintEvent(self, *args, **kwargs):
+#___________________________________________________________________________________________________ _initialize
+    def _initialize(self):
+        self._updateDisplay(InteractionStatesEnum.NORMAL_MODE)
+
+#___________________________________________________________________________________________________ _paintImpl
+    def _paintImpl(self, *args, **kwargs):
         interactionState = self.getInteractionState()
 
         size  = self.size()
@@ -215,9 +230,6 @@ class TopIconButton(InteractiveButtonBase):
             w - 2.0*lineWide - 2.0, h - 2.0*lineWide - 2.0,
             self.roundness, self.roundness)
 
-#===================================================================================================
-#                                                                               P R O T E C T E D
-
 #___________________________________________________________________________________________________ _getIconSpec
     def _getIconSpec(self, state):
         return None
@@ -267,6 +279,7 @@ class TopIconButton(InteractiveButtonBase):
         self.icon.name    = spec.name
         self.icon.opacity = spec.alpha
         self.icon.color   = spec.color
+        self.icon.textureScale = spec.scale
 
 #___________________________________________________________________________________________________ _getAsQColor
     @classmethod

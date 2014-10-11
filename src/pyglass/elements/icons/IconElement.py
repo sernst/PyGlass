@@ -9,11 +9,9 @@ from pyaid.ArgsUtils import ArgsUtils
 from pyaid.dict.DictUtils import DictUtils
 
 from pyglass.elements.PyGlassElement import PyGlassElement
-
-#___________________________________________________________________________________________________ IconElement
 from pyglass.themes.ColorQValue import ColorQValue
 
-
+#___________________________________________________________________________________________________ IconElement
 class IconElement(PyGlassElement):
     """A class for..."""
 
@@ -29,9 +27,21 @@ class IconElement(PyGlassElement):
         self._definition = None
         self._opacity    = ArgsUtils.get('opacity', 1.0, kwargs)
         self._color      = None
+        self._scale      = 1.0
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: textureScale
+    @property
+    def textureScale(self):
+        return None
+    @textureScale.setter
+    def textureScale(self, value):
+        if self._scale == value:
+            return
+        self._scale = value
+        self._refreshTexture()
 
 #___________________________________________________________________________________________________ GS: color
     @property
@@ -94,9 +104,20 @@ class IconElement(PyGlassElement):
 
         d     = self._definition
         image = self.atlas.image
+        img = QtGui.QImage()
+
+        x           = int(round(self._scale*float(d.x)))
+        y           = int(round(self._scale*float(d.y)))
+        width       = int(round(self._scale*float(d.width)))
+        height      = int(round(self._scale*float(d.height)))
+        frameX      = int(round(self._scale*float(d.frameX)))
+        frameY      = int(round(self._scale*float(d.frameY)))
+        frameWidth  = int(round(self._scale*float(d.frameWidth)))
+        frameHeight = int(round(self._scale*float(d.frameHeight)))
 
         if not self._color:
             painter = QtGui.QPainter(self)
+            painter.scale(self._scale, self._scale)
             painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
             painter.setRenderHint(QtGui.QPainter.Antialiasing)
             painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
@@ -105,8 +126,9 @@ class IconElement(PyGlassElement):
             painter.end()
             return
 
-        pix     = QtGui.QPixmap(d.frameWidth, d.frameHeight)
+        pix     = QtGui.QPixmap(frameWidth, frameHeight)
         painter = QtGui.QPainter(pix)
+        painter.scale(self._scale, self._scale)
         painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
@@ -149,6 +171,8 @@ class IconElement(PyGlassElement):
         if not self._definition:
             return
 
-        self.setFixedSize(self._definition.frameWidth, self._definition.frameHeight)
+        self.setFixedSize(
+            int(round(self._scale*float(self._definition.frameWidth))),
+            int(round(self._scale*float(self._definition.frameHeight))) )
         self.repaint()
 
