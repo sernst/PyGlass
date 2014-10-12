@@ -82,8 +82,7 @@ class PyGlassModelUtils(object):
                         AlembicUtils.stampDatabase(c.DATABASE_URL)
                         cls._logger.write(
                             u'CREATED: ' + unicode(c) + u' ' + unicode(c.__table__)
-                            + u' [STAMPED head]'
-                        )
+                            + u' [STAMPED head]' )
             except Exception, err:
                 cls._logger.writeError([
                     u'MODEL INITIALIZATION FAILURE:',
@@ -92,8 +91,7 @@ class PyGlassModelUtils(object):
                     u'MODULE IMPORT: ' + unicode(m),
                     u'IMPORT CLASS: ' + unicode(n),
                     u'IMPORT RESULT: ' + unicode(r),
-                    u'CLASS RESULT: ' + unicode(c)
-                ], err)
+                    u'CLASS RESULT: ' + unicode(c) ], err)
 
         return out
 
@@ -113,7 +111,7 @@ class PyGlassModelUtils(object):
             if path[-1].endswith(u'.vdb'):
                 path[-1] = path[-1][:-4]
 
-        return PyGlassEnvironment.getResourcePath(*path)
+        return PyGlassEnvironment.getRootResourcePath(*path)
 
 #___________________________________________________________________________________________________ getPathFromDatabaseUrl
     @classmethod

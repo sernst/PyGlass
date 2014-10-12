@@ -198,8 +198,7 @@ class AlembicUtils(object):
         os.path.walk(databaseRoot, cls._findAppDatabases, {
             'root':databaseRoot,
             'results':results,
-            'appName':appName
-        })
+            'appName':appName })
         return results
 
 #___________________________________________________________________________________________________ initializeAppDatabases
