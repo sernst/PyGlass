@@ -108,7 +108,7 @@ class PyGlassWidget(PyGlassElement):
 
 #___________________________________________________________________________________________________ setActiveWidget
     def setActiveWidget(self, widgetID, containerWidget =None, force =False, args =None, doneArgs =None):
-        if widgetID is None or widgetID not in self._widgetClasses:
+        if widgetID and not widgetID in self._widgetClasses:
             return False
 
         if containerWidget is None:
@@ -119,9 +119,12 @@ class PyGlassWidget(PyGlassElement):
         if not force and self._currentWidget and self._currentWidget.widgetID == widgetID:
             return True
 
-        if widgetID not in self._widgets:
-            self.loadWidgets(widgetID)
-        widget = self._widgets[widgetID]
+        if widgetID:
+            if widgetID not in self._widgets:
+                self.loadWidgets(widgetID)
+            widget = self._widgets[widgetID]
+        else:
+            widget = None
 
         containerLayout = containerWidget.layout()
         if not containerLayout:
@@ -129,14 +132,16 @@ class PyGlassWidget(PyGlassElement):
 
         self.clearActiveWidget(containerWidget=containerWidget, doneArgs=doneArgs)
         self._currentWidget = widget
-        containerLayout.addWidget(widget)
-        containerWidget.setContentsMargins(0, 0, 0, 0)
+
+        if widget:
+            containerLayout.addWidget(widget)
+            containerWidget.setContentsMargins(0, 0, 0, 0)
 
         self.refreshGui()
         if args is None:
             args = dict()
 
-        if self._isWidgetActive:
+        if widget and self._isWidgetActive:
             widget.activateWidgetDisplay(**args)
 
         return True
@@ -193,3 +198,16 @@ class PyGlassWidget(PyGlassElement):
             self._currentWidget.deactivateWidgetDisplay(**kwargs)
 
         self._isWidgetActive = False
+
+#___________________________________________________________________________________________________ diposeWidgets
+    def disposeWidgets(self, *widgetIDs):
+        if not widgetIDs:
+            widgetIDs = self._widgets.keys()
+
+        for widgetID in widgetIDs:
+            widget = self._widgets[widgetID]
+            if self._currentWidget and self._currentWidget == widget:
+                self.setActiveWidget(None)
+            widget.setParent(None)
+            widget.deleteLater()
+            del self._widgets[widgetID]
