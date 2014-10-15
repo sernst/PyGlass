@@ -20,7 +20,7 @@ class GridListElement(PyGlassElement):
     def __init__(self, parent =None, **kwargs):
         """Creates a new instance of GridListElement."""
         super(GridListElement, self).__init__(parent=parent, **kwargs)
-        self._items = []
+        self._widgetItems = []
 
         self._maxColumnWidth = 1024.0
         self._lastColumnCount = -1
@@ -54,10 +54,15 @@ class GridListElement(PyGlassElement):
         w = self.size().width()
         return float(max(1, math.ceil(float(w)/float(wMax))))
 
-#___________________________________________________________________________________________________ GS: items
+#___________________________________________________________________________________________________ GS: widgetItems
     @property
-    def items(self):
-        return self._items
+    def widgetItems(self):
+        return self._widgetItems
+
+#___________________________________________________________________________________________________ GS: widgetCount
+    @property
+    def widgetCount(self):
+        return len(self.widgetItems)
 
 #===================================================================================================
 #                                                                                     P U B L I C
@@ -77,77 +82,66 @@ class GridListElement(PyGlassElement):
 
         count = self.columnCount
 
-        for item in self._items:
+        for widget in self._widgetItems:
             coordinate = self.getGridCoordinatesFromIndex(index)
-            layout.removeWidget(item[0])
-            layout.addWidget(item[0], coordinate[0], coordinate[1])
-            item[0].setVisible(True)
+            layout.removeWidget(widget)
+            layout.addWidget(widget, coordinate[0], coordinate[1])
+            widget.setVisible(True)
             index += 1
 
         self._lastColumnCount = count
-        self._lastItemCount = len(self._items)
+        self._lastItemCount = len(self._widgetItems)
         self._updating = False
 
 #___________________________________________________________________________________________________ insertItem
     def insertItems(self, index, *widgets):
         for widget in widgets:
-            item = self.getWidgetItem(widget)
-            if item:
-                if self._items.index(item) == index:
+            if widget in self._widgetItems:
+                if self._widgetItems.index(widget) == index:
                     return
-                self._items.remove(item)
-            self._items.insert(index, (widget, None))
+                self._widgetItems.remove(widget)
+            self._widgetItems.insert(index, widget)
             widget.setParent(self)
             index += 1
         self.update()
 
-#___________________________________________________________________________________________________ addItem
+#___________________________________________________________________________________________________ addItems
     def addItems(self, *widgets):
         """Doc..."""
         for widget in widgets:
-            item = self.getWidgetItem(widget)
-            if item:
-                self._items.remove(item)
-            self._items.append((widget, None))
+            if widget in self._widgetItems:
+                self._widgetItems.remove(widget)
+            self._widgetItems.append(widget)
             widget.setParent(self)
         self.update()
 
-#___________________________________________________________________________________________________ removeItem
+#___________________________________________________________________________________________________ removeItems
     def removeItems(self, *widgets):
+        out = []
         for widget in widgets:
-            item = self.getWidgetItem(widget)
-            if not item:
+            if not widget in self._widgetItems:
                 continue
-            self._items.remove(item)
-
+            self._widgetItems.remove(widget)
             widget.setParent(None)
             self.layout().removeWidget(widget)
+            out.append(widget)
         self.update()
+        return out
 
 #___________________________________________________________________________________________________ clear
     def clear(self):
-        while len(self._items) > 0:
-            item = self._items.pop()
-            widget = item[0]
+        while len(self._widgetItems) > 0:
+            widget = self._widgetItems.pop()
             self.layout().removeWidget(widget)
             widget.setParent(None)
         self.update()
 
-#___________________________________________________________________________________________________ getWidgetItem
-    def getWidgetItem(self, widget):
-        index = self.getIndexOfWidget(widget)
-        if index == -1:
-            return None
-        return self._items[index]
-
 #___________________________________________________________________________________________________ getIndexOfWidget
     def getIndexOfWidget(self, widget):
-        index = 0
-        for item in self._items:
-            if item[0] == widget:
-                return index
-            index += 1
-        return -1
+        try:
+            return self._widgetItems.index(widget)
+        except Exception, err:
+            return -1
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -158,5 +152,5 @@ class GridListElement(PyGlassElement):
 
         # Only update if the column count changes for performance
         count = self.columnCount
-        if count != self._lastColumnCount or len(self._items) != self._lastItemCount:
+        if count != self._lastColumnCount or len(self._widgetItems) != self._lastItemCount:
             self.update()
