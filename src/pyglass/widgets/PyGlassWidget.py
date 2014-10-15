@@ -186,6 +186,8 @@ class PyGlassWidget(PyGlassElement):
             self._currentWidget.activateWidgetDisplay(**kwargs)
 
         self._isWidgetActive = True
+        self.updateGeometry()
+        self.update()
 
 #___________________________________________________________________________________________________ deactivateWidgetDisplay
     def deactivateWidgetDisplay(self, **kwargs):

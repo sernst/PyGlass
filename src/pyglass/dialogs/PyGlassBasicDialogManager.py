@@ -77,15 +77,24 @@ class PyGlassBasicDialogManager(QtCore.QObject):
 
 #___________________________________________________________________________________________________ browseForFileOpen
     @classmethod
-    def browseForFileOpen(cls, parent, caption =None, defaultPath =None):
-        out = QtGui.QFileDialog.getOpenFileName(
+    def browseForFileOpen(cls, parent, caption =None, defaultPath =None, allowMultiple =False):
+        QFD = QtGui.QFileDialog
+        f = QFD.getOpenFileNames if allowMultiple else QFD.getOpenFileName
+        out = f(
             parent,
             caption=caption if caption else u'Select a File',
             dir=defaultPath if defaultPath else os.path.expanduser('~'))
 
         if not out or not out[0]:
             return out
-        return FileUtils.cleanupPath(out[0], isFile=True)
+
+        if not allowMultiple:
+            return FileUtils.cleanupPath(out[0], isFile=True)
+
+        items = []
+        for item in out[0]:
+            items.append(FileUtils.cleanupPath(item, isFile=True))
+        return items
 
 #___________________________________________________________________________________________________ browseForFileSave
     @classmethod

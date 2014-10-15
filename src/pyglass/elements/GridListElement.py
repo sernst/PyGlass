@@ -24,6 +24,8 @@ class GridListElement(PyGlassElement):
 
         self._maxColumnWidth = 1024.0
         self._lastColumnCount = -1
+        self._lastItemCount = 0
+        self._updating = False
 
         layout = QtGui.QGridLayout()
         self.setLayout(layout)
@@ -67,24 +69,35 @@ class GridListElement(PyGlassElement):
 
 #___________________________________________________________________________________________________ update
     def update(self):
+        if self._updating:
+            return
+        self._updating = True
         index = 0
         layout = self.layout()
+
         count = self.columnCount
+
         for item in self._items:
             coordinate = self.getGridCoordinatesFromIndex(index)
             layout.removeWidget(item[0])
             layout.addWidget(item[0], coordinate[0], coordinate[1])
+            item[0].setVisible(True)
             index += 1
+
         self._lastColumnCount = count
+        self._lastItemCount = len(self._items)
+        self._updating = False
 
 #___________________________________________________________________________________________________ insertItem
     def insertItems(self, index, *widgets):
         for widget in widgets:
-            if widget in self._items:
-                if self._items.index(widget) == index:
+            item = self.getWidgetItem(widget)
+            if item:
+                if self._items.index(item) == index:
                     return
-                self._items.remove(widget)
+                self._items.remove(item)
             self._items.insert(index, (widget, None))
+            widget.setParent(self)
             index += 1
         self.update()
 
@@ -92,9 +105,9 @@ class GridListElement(PyGlassElement):
     def addItems(self, *widgets):
         """Doc..."""
         for widget in widgets:
-            if widget in self._items:
-                self._items.remove(widget)
-
+            item = self.getWidgetItem(widget)
+            if item:
+                self._items.remove(item)
             self._items.append((widget, None))
             widget.setParent(self)
         self.update()
@@ -145,5 +158,5 @@ class GridListElement(PyGlassElement):
 
         # Only update if the column count changes for performance
         count = self.columnCount
-        if count != self._lastColumnCount:
+        if count != self._lastColumnCount or len(self._items) != self._lastItemCount:
             self.update()

@@ -1,4 +1,4 @@
-# ResizableImage.py
+# FixedAspectImage.py
 # (C) 2014
 # Scott Ernst
 
@@ -9,25 +9,42 @@ from PySide import QtGui
 
 from pyglass.elements.PyGlassElement import PyGlassElement
 
-#___________________________________________________________________________________________________ ResizableImage
-class ResizableImage(PyGlassElement):
+#___________________________________________________________________________________________________ FixedAspectImage
+class FixedAspectImage(PyGlassElement):
+
+#===================================================================================================
+#                                                                                       C L A S S
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, parent =None, pixmap =None, **kwargs):
-        super(ResizableImage, self).__init__(parent=parent, **kwargs)
+    def __init__(self, parent =None, pixmap =None, aspectRatio =1.25, preferredWidth =-1, **kwargs):
+        super(FixedAspectImage, self).__init__(parent=parent, **kwargs)
 
-        self._pixmap    = None
-        self.pixmap     = pixmap
-        self._scale     = 1.0
-        self._xOffset   = 0
-        self._yOffset   = 0
+        self._preferredWidth = preferredWidth
+        self._aspect         = aspectRatio
+        self._pixmap         = None
+        self._scale          = 1.0
+        self._xOffset        = 0
+        self._yOffset        = 0
 
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         policy.setHeightForWidth(True)
         self.setSizePolicy(policy)
 
+        self.pixmap = pixmap
+
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: preferredWidth
+    @property
+    def preferredWidth(self):
+        return self._preferredWidth
+    @preferredWidth.setter
+    def preferredWidth(self, value):
+        if self._preferredWidth == value:
+            return
+        self._preferredWidth = value
+        self._updateLayoutData()
 
 #___________________________________________________________________________________________________ GS: xOffset
     @property
@@ -53,18 +70,13 @@ class ResizableImage(PyGlassElement):
         if self._pixmap == value:
             return
         self._pixmap = value
-        if not value:
-            return
         self.setMaximumHeight(value.size().height() if value else 16777215)
         self._updateLayoutData()
 
 #___________________________________________________________________________________________________ GS: aspectRatio
     @property
     def aspectRatio(self):
-        if not self._pixmap or self._pixmap.isNull():
-            return 1.0
-        s = self._pixmap.size()
-        return float(s.width())/float(s.height())
+        return self._aspect
 
 #===================================================================================================
 #                                                                                     P U B L I C
@@ -72,18 +84,15 @@ class ResizableImage(PyGlassElement):
 #___________________________________________________________________________________________________ sizeHint
     def sizeHint(self, *args, **kwargs):
         if not self._pixmap or self._pixmap.isNull():
-            return super(ResizableImage, self).sizeHint(*args, **kwargs)
-        s = self._pixmap.size()
-        return QtCore.QSize(s.width(), s.height())
+            return super(FixedAspectImage, self).sizeHint(*args, **kwargs)
+
+        w = self.preferredWidth if self.preferredWidth > 0 else float(self._pixmap.size().width())
+        h = w/self.aspectRatio
+        return QtCore.QSize(round(w), round(h))
 
 #___________________________________________________________________________________________________ heightForWidth
     def heightForWidth(self, width):
-        if not self._pixmap or self._pixmap.isNull():
-            return super(ResizableImage, self).heightForWidth(width)
-
-        size = self._pixmap.size()
-        scale = float(width)/float(size.width())
-        return math.ceil(scale*float(size.height()))
+        return round(float(width)/self.aspectRatio)
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -119,12 +128,12 @@ class ResizableImage(PyGlassElement):
 
 #___________________________________________________________________________________________________ _resizeImpl
     def _resizeImpl(self, event):
-        super(ResizableImage, self)._resizeImpl(event)
+        super(FixedAspectImage, self)._resizeImpl(event)
         self._updateLayoutData(event.size())
 
 #___________________________________________________________________________________________________ _paintImpl
     def _paintImpl(self, event):
-        super(ResizableImage, self)._paintImpl(event)
+        super(FixedAspectImage, self)._paintImpl(event)
 
         if not self._pixmap or self._pixmap.isNull():
             return
@@ -134,4 +143,9 @@ class ResizableImage(PyGlassElement):
         painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
         painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
         painter.scale(self._scale, self._scale)
-        painter.drawPixmap(self._xOffset/self._scale, self._yOffset/self._scale, self._pixmap)
+        painter.drawPixmap(
+            round(self._xOffset/self._scale),
+            round(self._yOffset/self._scale),
+            self._pixmap)
+        painter.end()
+

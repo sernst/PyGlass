@@ -30,7 +30,7 @@ class PyGlassApplication(QtCore.QObject):
     _LOCATION_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """Creates a new instance of PyGlassApplication."""
         QtCore.QObject.__init__(self)
         self._qApplication = None
@@ -76,13 +76,17 @@ class PyGlassApplication(QtCore.QObject):
 #===================================================================================================
 #                                                                                   G E T / S E T
 
+#___________________________________________________________________________________________________ GS: qApplication
+    @property
+    def qApplication(self):
+        return self._qApplication
+
 #___________________________________________________________________________________________________ GS: applicationCodePath
     @property
     def applicationCodePath(self):
         """ Determines the application code path where this file is located. the abspath enforces
             the absolute path with the correct os.sep to prevent issues with file path format in
-            resources.
-        """
+            resources. """
         return os.path.abspath(os.path.dirname(inspect.getfile(self.__class__)))
 
 #___________________________________________________________________________________________________ GS: debugRootResourcePath

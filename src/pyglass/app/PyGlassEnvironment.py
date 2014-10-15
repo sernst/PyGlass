@@ -30,12 +30,23 @@ class PyGlassEnvironment(object):
     _ENV_SETTINGS          = None
     _GLOBAL_SETTINGS_FILE  = 'environment.vcd'
 
+    _application           = None
     _rootResourcePath      = None
     _rootLocalResourcePath = None
     _isDeployed            = None
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: application
+    @ClassGetter
+    def application(self):
+        return self._application
+
+#___________________________________________________________________________________________________ GS: qApplication
+    @property
+    def qApplication(self):
+        return self._application.q
 
 #___________________________________________________________________________________________________ isDeployed
     @ClassGetter
@@ -92,7 +103,8 @@ class PyGlassEnvironment(object):
 #___________________________________________________________________________________________________ initializeAppSettings
     @classmethod
     def initializeAppSettings(cls, application):
-        cls._rootResourcePath = cls._getRootResourcePath(application)
+        cls._application           = application
+        cls._rootResourcePath      = cls._getRootResourcePath(application)
         cls._rootLocalResourcePath = cls._getRootLocalResourcePath(application)
 
 #___________________________________________________________________________________________________ getPyGlassResourcePath

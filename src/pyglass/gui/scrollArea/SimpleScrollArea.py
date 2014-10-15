@@ -1,8 +1,10 @@
 # SimpleScrollArea.py
-# (C)2013
+# (C)2013-2014
 # Scott Ernst
 
+from PySide import QtCore
 from PySide import QtGui
+
 from pyaid.ArgsUtils import ArgsUtils
 
 from pyglass.widgets.PyGlassWidget import PyGlassWidget
@@ -11,8 +13,7 @@ from pyglass.widgets.PyGlassWidget import PyGlassWidget
 class SimpleScrollArea(PyGlassWidget):
     """ This is a basic QScrollArea wrapped in such a way to make it possible for the scroll area
         to have a transparent background in such a way that the transparent background styling
-        doesn't get inherited by the child widgets of the scroll area.
-    """
+        doesn't get inherited by the child widgets of the scroll area. """
 
 #===================================================================================================
 #                                                                                       C L A S S
@@ -22,9 +23,15 @@ class SimpleScrollArea(PyGlassWidget):
         """Creates a new instance of SimpleScrollArea."""
         PyGlassWidget.__init__(self, parent, widgetFile=False)
 
+        #-------------------------------------------------------------------------------------------
         class SimpleScrollerInternal(QtGui.QScrollArea):
-            pass
+            def resizeEvent(self, event):
+                maxW = self.widget().maximumWidth()
+                w = event.size().width()
+                if maxW != w:
+                    self.widget().setMaximumWidth(w)
 
+        #-------------------------------------------------------------------------------------------
         class SimpleScrollerQWidget(QtGui.QWidget):
             pass
 

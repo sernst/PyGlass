@@ -189,6 +189,8 @@ class PyGlassElement(VisibilityElement):
             return
         self._activateWidgetDisplayImpl(**kwargs)
         self._isWidgetActive = True
+        self.updateGeometry()
+        self.update()
 
 #___________________________________________________________________________________________________ deactivateWidgetDisplay
     def deactivateWidgetDisplay(self, **kwargs):

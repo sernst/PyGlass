@@ -30,7 +30,7 @@ class VisibilityManager(object):
 #___________________________________________________________________________________________________ GS: isVisible
     @property
     def isVisible(self):
-        return self.rawState and (len(self._showRequests) > 0 or len(self._muteRequests) == 0)
+        return self._rawState and (len(self._showRequests) > 0 or len(self._muteRequests) == 0)
 
 #___________________________________________________________________________________________________ GS: rawState
     @property
@@ -38,7 +38,7 @@ class VisibilityManager(object):
         return self._rawState
     @rawState.setter
     def rawState(self, value):
-        if self._lock:
+        if self._lock or self._rawState == value:
             return
 
         beforeValue = self.isVisible

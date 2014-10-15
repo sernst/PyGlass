@@ -27,7 +27,8 @@ class ApplicationLevelWidget(PyGlassWidget):
         self._displayCount += 1
         self._activateWidgetDisplayImpl(**kwargs)
         self._isWidgetActive = True
-
+        self.updateGeometry()
+        self.update()
 
 #___________________________________________________________________________________________________ refreshWidgetDisplay
     def refreshWidgetDisplay(self):
