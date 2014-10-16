@@ -1,37 +1,45 @@
-# PyGlassObject.py
+# PyGlassSignalEvent.py
 # (C)2014
 # Scott Ernst
 
 from PySide import QtCore
 
-from pyaid.string.StringUtils import StringUtils
-from pyaid.time.TimeUtils import TimeUtils
-
-#___________________________________________________________________________________________________ PyGlassObject
-class PyGlassObject(QtCore.QObject):
+#___________________________________________________________________________________________________ PyGlassSignalEvent
+class PyGlassSignalEvent(QtCore.QObject):
     """A class for..."""
 
 #===================================================================================================
 #                                                                                       C L A S S
 
-    _INSTANCE_INDEX = 0
-
 #___________________________________________________________________________________________________ __init__
-    def __init__(self):
-        """Creates a new instance of PyGlassObject."""
-        super(PyGlassObject, self).__init__()
-        self._INSTANCE_INDEX += 1
-        self._instanceUid = TimeUtils.getUidTimecode(
-            prefix=self.__class__.__name__,
-            suffix=unicode(self._INSTANCE_INDEX) + '-' + StringUtils.getRandomString(8) )
+    def __init__(self, target, data):
+        """Creates a new instance of PyGlassSignalEvent."""
+        super(PyGlassSignalEvent, self).__init__()
+        self._target = target
+        self._data = data
 
 #===================================================================================================
 #                                                                                   G E T / S E T
 
-#___________________________________________________________________________________________________ GS: instanceUid
+#___________________________________________________________________________________________________ GS: target
     @property
-    def instanceUid(self):
-        return self._instanceUid
+    def target(self):
+        return self._target
+
+#___________________________________________________________________________________________________ GS: data
+    @property
+    def data(self):
+        return self._data
+
+#===================================================================================================
+#                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ get
+    def get(self, key, defaultValue =None):
+        try:
+            return self._data[key]
+        except Exception, err:
+            return defaultValue
 
 #===================================================================================================
 #                                                                               I N T R I N S I C
@@ -47,4 +55,5 @@ class PyGlassObject(QtCore.QObject):
 #___________________________________________________________________________________________________ __str__
     def __str__(self):
         return '<%s>' % self.__class__.__name__
+
 
