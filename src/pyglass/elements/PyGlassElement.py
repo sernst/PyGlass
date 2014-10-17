@@ -207,6 +207,22 @@ class PyGlassElement(VisibilityElement):
     def getMainWindowOf(self, target):
         return PyGlassGuiUtils.getMainWindow(target)
 
+#___________________________________________________________________________________________________ clearLayout
+    @classmethod
+    def clearLayout(cls, layout, unparent =True):
+        out = []
+        item = layout.takeAt(0)
+        while item:
+            w = item.widget()
+            if w:
+                out.append(w)
+                if unparent:
+                    w.setParent(None)
+            del item
+            item = layout.takeAt(0)
+
+        return out
+
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
