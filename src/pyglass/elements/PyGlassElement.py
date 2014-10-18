@@ -9,6 +9,7 @@ from pyaid.file.FileUtils import FileUtils
 
 from pyglass.elements.VisibilityElement import VisibilityElement
 from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
+from pyglass.overlay.OverlayManager import OverlayManager
 
 #___________________________________________________________________________________________________ PyGlassElement
 class PyGlassElement(VisibilityElement):
@@ -21,6 +22,7 @@ class PyGlassElement(VisibilityElement):
     def __init__(self, parent =None, **kwargs):
         """Creates a new instance of PySideGuiWidget."""
         super(PyGlassElement, self).__init__(parent=parent, **kwargs)
+        self._overlayManager      = None
         self._initialized         = False
         self._mainWindow          = None
         self._isWidgetActive      = False
@@ -31,6 +33,28 @@ class PyGlassElement(VisibilityElement):
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: overlayManager
+    @property
+    def overlayManager(self):
+        return self._overlayManager
+
+#___________________________________________________________________________________________________ GS: allowOverlays
+    @property
+    def allowOverlays(self):
+        return self._overlayManager is not None
+    @allowOverlays.setter
+    def allowOverlays(self, value):
+        if self.allowOverlays == value:
+            return
+
+        if value:
+            self._overlayManager = OverlayManager(self)
+        else:
+            self._overlayManager.dispose()
+            self._overlayManager = None
+        self.updateGeometry()
+        self.update()
 
 #___________________________________________________________________________________________________ GS: isOnDisplay
     @property
@@ -131,6 +155,9 @@ class PyGlassElement(VisibilityElement):
             self._initialize()
             self._initialized = True
         self._resizeImpl(*args, **kwargs)
+
+        if self._overlayManager:
+            self._overlayManager.resize()
 
 #___________________________________________________________________________________________________ paintEvent
     def paintEvent(self, *args, **kwargs):

@@ -64,7 +64,7 @@ class InteractiveElement(PyGlassElement):
         return self._toggles and self._checked
     @checked.setter
     def checked(self, value):
-        if not self._toggles:
+        if not self._toggles or self._checked == value:
             return
 
         wasChecked    = self._checked
