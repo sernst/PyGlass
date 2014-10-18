@@ -11,11 +11,9 @@ from pyaid.ArgsUtils import ArgsUtils
 
 from pyglass.elements.buttons.InteractiveButtonBase import InteractiveButtonBase
 from pyglass.elements.icons.IconElement import IconElement
-
-#___________________________________________________________________________________________________ TopIconButton
 from pyglass.enum.InteractionStatesEnum import InteractionStatesEnum
 
-
+#___________________________________________________________________________________________________ TopIconButton
 class TopIconButton(InteractiveButtonBase):
     """A class for..."""
 
@@ -46,13 +44,13 @@ class TopIconButton(InteractiveButtonBase):
         iconBoxLayout.setSpacing(0)
         iconBoxLayout.addStretch()
 
-        label = IconElement(
+        icon = IconElement(
             parent=iconBox,
             name=ArgsUtils.get('iconName', None, kwargs),
             atlas=ArgsUtils.get('iconAtlas', None, kwargs) )
-        iconBoxLayout.addWidget(label)
+        iconBoxLayout.addWidget(icon)
         iconBoxLayout.addStretch()
-        self.icon = label
+        self.icon = icon
 
         label = QtGui.QLabel()
         label.setVisible(False)
@@ -83,6 +81,15 @@ class TopIconButton(InteractiveButtonBase):
     def shrink(self, value):
         hPolicy = QtGui.QSizePolicy.Maximum if value else QtGui.QSizePolicy.Preferred
         self.setSizePolicy(hPolicy, self.sizePolicy().verticalPolicy())
+
+#___________________________________________________________________________________________________ GS: shrinkVertical
+    @property
+    def shrinkVertical(self):
+        return self.sizePolicy().verticalPolicy() == QtGui.QSizePolicy.Maximum
+    @shrinkVertical.setter
+    def shrinkVertical(self, value):
+        vPolicy = QtGui.QSizePolicy.Maximum if value else QtGui.QSizePolicy.Preferred
+        self.setSizePolicy(self.sizePolicy().horizontalPolicy(), vPolicy)
 
 #___________________________________________________________________________________________________ GS: iconAtlas
     @property

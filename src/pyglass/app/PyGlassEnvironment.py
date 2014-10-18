@@ -38,15 +38,20 @@ class PyGlassEnvironment(object):
 #===================================================================================================
 #                                                                                   G E T / S E T
 
+#___________________________________________________________________________________________________ GS: mainWindow
+    @ClassGetter
+    def mainWindow(cls):
+        return cls._application.mainWindow
+
 #___________________________________________________________________________________________________ GS: application
     @ClassGetter
-    def application(self):
-        return self._application
+    def application(cls):
+        return cls._application
 
 #___________________________________________________________________________________________________ GS: qApplication
     @property
-    def qApplication(self):
-        return self._application.q
+    def qApplication(cls):
+        return cls._application.q
 
 #___________________________________________________________________________________________________ isDeployed
     @ClassGetter

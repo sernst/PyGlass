@@ -182,7 +182,7 @@ class TextureAtlas(object):
                 frameWidth = width
 
             try:
-                frameHeight = int(entry.getAttribute('frameWidth'))
+                frameHeight = int(entry.getAttribute('frameHeight'))
             except Exception, err:
                 frameHeight = height
 
