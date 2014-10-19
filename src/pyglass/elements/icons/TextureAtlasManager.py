@@ -2,6 +2,8 @@
 # (C)2014
 # Scott Ernst
 
+from collections import namedtuple
+
 from pyglass.elements.icons.TextureAtlas import TextureAtlas
 
 #___________________________________________________________________________________________________ TextureAtlasManager
@@ -10,6 +12,8 @@ class TextureAtlasManager(object):
 
 #===================================================================================================
 #                                                                                       C L A S S
+
+    TEXTURE_BUNDLE = namedtuple('TEXTURE_BUNDLE', ['atlas', 'icon'])
 
 #___________________________________________________________________________________________________ __init__
     def __init__(self, parent):
@@ -40,6 +44,11 @@ class TextureAtlasManager(object):
 #___________________________________________________________________________________________________ addAtlas
     def add(self, name, atlas):
         self._atlases[name] = atlas
+
+#___________________________________________________________________________________________________ getBundle
+    def getBundle(self, atlasName, iconName):
+        """getBundle doc..."""
+        return self.TEXTURE_BUNDLE(self.get(atlasName), iconName)
 
 #___________________________________________________________________________________________________ get
     def get(self, name):

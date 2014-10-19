@@ -54,9 +54,25 @@ class OverlayManager(PyGlassObject):
         overlay.setParent(self.owner)
         size = self.owner.size()
         overlay.changeSize(size.width(), size.height())
-        overlay.raise_()
-        overlay.setVisible(True)
         return True
+
+#___________________________________________________________________________________________________ show
+    def show(self, name):
+        """show doc..."""
+        try:
+            self.getByName(name).show()
+            return True
+        except Exception, err:
+            return False
+
+#___________________________________________________________________________________________________ hide
+    def hide(self, name):
+        """hideByName doc..."""
+        try:
+            self.getByName(name).hide()
+            return True
+        except Exception, err:
+            return False
 
 #___________________________________________________________________________________________________ getByName
     def getByName(self, name):

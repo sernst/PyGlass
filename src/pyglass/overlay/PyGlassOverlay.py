@@ -19,12 +19,18 @@ class PyGlassOverlay(PyGlassElement):
     def __init__(self, name, parent =None, **kwargs):
         """Creates a new instance of PyGlassOverlay."""
         super(PyGlassOverlay, self).__init__(parent=parent, **kwargs)
-        self.name = name
-        self._manager = ArgsUtils.get('manager', None, kwargs)
+        self.name       = name
+        self._manager   = ArgsUtils.get('manager', None, kwargs)
         self._backColor = QtGui.QColor(0, 0, 0, 200)
+        self._isShowing = False
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: isShowing
+    @property
+    def isShowing(self):
+        return self._isShowing
 
 #___________________________________________________________________________________________________ GS: manager
     @property
@@ -44,6 +50,23 @@ class PyGlassOverlay(PyGlassElement):
         self.setFixedSize(width, height)
         self.updateGeometry()
         self.update()
+
+#___________________________________________________________________________________________________ show
+    def show(self):
+        """showOverlay doc..."""
+        if not self._isShowing:
+           self.activateWidgetDisplay()
+        self._isShowing = True
+        super(PyGlassOverlay, self).show()
+        self.raise_()
+
+#___________________________________________________________________________________________________ hide
+    def hide(self):
+        """hideOverlay doc..."""
+        if self._isShowing:
+           self.deactivateWidgetDisplay()
+        self._isShowing = False
+        super(PyGlassOverlay, self).hide()
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
