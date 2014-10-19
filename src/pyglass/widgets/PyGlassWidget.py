@@ -57,6 +57,16 @@ class PyGlassWidget(PyGlassElement):
 #===================================================================================================
 #                                                                                   G E T / S E T
 
+#___________________________________________________________________________________________________ GS: currentWidgetKey
+    @property
+    def currentWidgetKey(self):
+        if not self._currentWidget:
+            return None
+        for key, widget in self._widgets.iteritems():
+            if widget == self._currentWidget:
+                return key
+        return None
+
 #___________________________________________________________________________________________________ GS: displayCount
     @property
     def displayCount(self):
