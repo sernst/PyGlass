@@ -237,6 +237,9 @@ class PyGlassElement(VisibilityElement):
 #___________________________________________________________________________________________________ clearLayout
     @classmethod
     def clearLayout(cls, layout, unparent =True):
+        if layout is None:
+            return []
+
         out = []
         item = layout.takeAt(0)
         while item:
