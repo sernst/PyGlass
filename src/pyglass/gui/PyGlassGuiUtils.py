@@ -86,8 +86,8 @@ class PyGlassGuiUtils(QtCore.QObject):
     @classmethod
     def gradientPainter(cls, target, size, upperColor, lowerColor):
         """ This method must be called within a paint event. It will paint a gradient background
-            on the target widget for the specified size.
-        """
+            on the target widget for the specified size. """
+
         w     = size.width()
         h     = size.height()
         halfW = math.ceil(float(w)/2.0)
@@ -110,10 +110,10 @@ class PyGlassGuiUtils(QtCore.QObject):
 
 #___________________________________________________________________________________________________ fillPainter
     @classmethod
-    def fillPainter(cls, target, size, color):
+    def fillPainter(cls, target, size, color, roundness =0):
         """ This method must be called within a paint event. It will paint a gradient background
-            on the target widget for the specified size.
-        """
+            on the target widget for the specified size. """
+
         w     = size.width()
         h     = size.height()
         brush = QtGui.QBrush(color)
@@ -121,14 +121,17 @@ class PyGlassGuiUtils(QtCore.QObject):
         painter = QtGui.QPainter(target)
         painter.setBrush(brush)
         painter.setPen(QtCore.Qt.NoPen)
-        painter.drawRect(0, 0, w, h)
+        if roundness > 0:
+            painter.drawRoundedRect(0, 0, w, h, roundness, roundness)
+        else:
+            painter.drawRect(0, 0, w, h)
+        painter.end()
 
 #___________________________________________________________________________________________________ createIcon
     @classmethod
     def createIcon(cls, iconsPath):
         """ Creates a window icon from a path, adding the standard icon sizes for multiple
-            operating systems.
-        """
+            operating systems. """
 
         if not os.path.exists(iconsPath):
             return None
