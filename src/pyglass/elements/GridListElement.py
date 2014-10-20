@@ -21,6 +21,7 @@ class GridListElement(PyGlassElement):
         """Creates a new instance of GridListElement."""
         super(GridListElement, self).__init__(parent=parent, **kwargs)
         self._widgetItems = []
+        self._spacers = []
 
         self._maxColumnWidth = 1024.0
         self._lastColumnCount = -1
@@ -89,6 +90,20 @@ class GridListElement(PyGlassElement):
             widget.setVisible(True)
             index += 1
 
+        # Add empty spacer elements if the number of widgets is less than the number of columns.
+        # This forces the grid to conform to the size and layout it would have with a larger
+        # number of items populated within it.
+        spacerCount = int(count) - len(self._widgetItems)
+        for spacer in self._spacers:
+            layout.removeWidget(spacer)
+
+        for spacerIndex in range(max(0, spacerCount)):
+            spacer = self._getSpacer(spacerIndex)
+            coordinate = self.getGridCoordinatesFromIndex(index)
+            layout.addWidget(spacer, coordinate[0], coordinate[1])
+            spacer.setVisible(True)
+            index += 1
+
         self._lastColumnCount = count
         self._lastItemCount = len(self._widgetItems)
         self._updating = False
@@ -145,6 +160,18 @@ class GridListElement(PyGlassElement):
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _getSpacer
+    def _getSpacer(self, index):
+        """_getSpacer doc..."""
+        if index < len(self._spacers):
+            return self._spacers[index]
+
+        spacer, layout = self._createWidget(self, QtGui.QHBoxLayout)
+        layout.addStretch()
+        spacer.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Expanding)
+        self._spacers.append(spacer)
+        return spacer
 
 #___________________________________________________________________________________________________ _resizeImpl
     def _resizeImpl(self, *args, **kwargs):

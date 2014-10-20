@@ -214,7 +214,6 @@ class PyGlassWidget(PyGlassElement):
             return
 
         self._lastPeerWidgetID = ArgsUtils.get('lastPeerWidgetID', None, kwargs)
-        print self, self.widgetID, 'FROM:', self._lastPeerWidgetID
 
         self._displayCount += 1
         self._activateWidgetDisplayImpl(**kwargs)
