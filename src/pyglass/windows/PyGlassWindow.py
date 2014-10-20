@@ -118,16 +118,14 @@ class PyGlassWindow(QtGui.QMainWindow):
             if ArgsUtils.get('defaultCenterWidget', True, kwargs):
                 self._createCentralWidget()
 
-        self._lastWidgetID  = None
+        self._lastChildWidgetID  = None
         self._widgetParent  = None
         self._widgets       = None
         self._widgetFlags   = None
 
-        self._widgetClasses = ArgsUtils.get('widgets', None, kwargs)
+        self._widgetClasses = ArgsUtils.getAsDict('widgets', kwargs)
         if self._widgetClasses:
             self._initializeWidgetChildren()
-        else:
-            self._widgetClasses = dict()
 
         self.setWindowTitle(ArgsUtils.get('title', self._createTitleFromClass(), kwargs))
         self.updateStatusBar()
@@ -466,7 +464,6 @@ class PyGlassWindow(QtGui.QMainWindow):
 #___________________________________________________________________________________________________ setActiveWidget
     def setActiveWidget(self, widgetID, force =False, args =None, doneArgs =None):
         if not self._centerWidget or widgetID is None or widgetID not in self._widgetClasses:
-            print 'SET ACTIVE FALSE:', self._centerWidget, widgetID, self._widgetClasses
             return False
 
         if not force and self._currentWidget and self._currentWidget.widgetID == widgetID:
@@ -483,6 +480,7 @@ class PyGlassWindow(QtGui.QMainWindow):
                 doneArgs = dict()
             self._currentWidget.deactivateWidgetDisplay(**doneArgs)
             self._currentWidget.setParent(self._widgetParent)
+            self._lastChildWidgetID = self._currentWidget.widgetID
 
         self._currentWidget = widget
         if self._centerWidget:
@@ -499,7 +497,8 @@ class PyGlassWindow(QtGui.QMainWindow):
 
         if args is None:
             args = dict()
-        widget.activateWidgetDisplay(**args)
+
+        widget.activateWidgetDisplay(lastPeerWidgetID=self._lastChildWidgetID, **args)
         return True
 
 #___________________________________________________________________________________________________ loadWidgets

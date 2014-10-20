@@ -236,7 +236,7 @@ class PyGlassElement(VisibilityElement):
 
 #___________________________________________________________________________________________________ clearLayout
     @classmethod
-    def clearLayout(cls, layout, unparent =True):
+    def clearLayout(cls, layout, unparent =True, deleteLater =False):
         if layout is None:
             return []
 
@@ -251,6 +251,14 @@ class PyGlassElement(VisibilityElement):
             del item
             item = layout.takeAt(0)
 
+        if deleteLater:
+            for item in out:
+                try:
+                    item.deleteLater()
+                except Exception, err:
+                    print u'[WARNING]: Delete later faliure %s -> %s' % (
+                        self.__class__.__name__, item)
+            return []
         return out
 
 #===================================================================================================

@@ -38,6 +38,8 @@ class PyGlassWidget(PyGlassElement):
         self._widgets       = dict()
         self._widgetFlags   = ArgsUtils.get('widgetFlags', None, kwargs)
         self._widgetID      = ArgsUtils.get('widgetID', None, kwargs)
+        self._lastChildWidgetID  = None
+        self._lastPeerWidgetID   = None
 
         widgetFile = ArgsUtils.get('widgetFile', True, kwargs)
 
@@ -57,9 +59,20 @@ class PyGlassWidget(PyGlassElement):
 #===================================================================================================
 #                                                                                   G E T / S E T
 
-#___________________________________________________________________________________________________ GS: currentWidgetKey
+#___________________________________________________________________________________________________ GS: lastPeerWidgetID
     @property
-    def currentWidgetKey(self):
+    def lastPeerWidgetID(self):
+        """ The ID of the widget that was replaced by this widget or None if not applicable. """
+        return self._lastPeerWidgetID
+
+#___________________________________________________________________________________________________ GS: lastChildWidgetID
+    @property
+    def lastChildWidgetID(self):
+        return self._lastChildWidgetID
+
+#___________________________________________________________________________________________________ GS: currentChildWidgetID
+    @property
+    def currentChildWidgetID(self):
         if not self._currentWidget:
             return None
         for key, widget in self._widgets.iteritems():
@@ -84,6 +97,18 @@ class PyGlassWidget(PyGlassElement):
 
 #===================================================================================================
 #                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ getChildWidget
+    def getChildWidget(self, widgetID, allowCreation =True):
+        """getChildWidget doc..."""
+        if not widgetID:
+            return None
+
+        if widgetID not in self._widgets:
+            if not allowCreation:
+                return None
+            self.loadWidgets(widgetID)
+        return self._widgets[widgetID]
 
 #___________________________________________________________________________________________________ addWidgetChild
     def addWidgetChild(self, key, widgetClass, setActive =False):
@@ -113,6 +138,7 @@ class PyGlassWidget(PyGlassElement):
             if p:
                 p.layout().removeWidget(self._currentWidget)
 
+        self._lastChildWidgetID = self._currentWidget.widgetID
         self._currentWidget.setParent(self._widgetParent)
         self._currentWidget = None
 
@@ -130,9 +156,7 @@ class PyGlassWidget(PyGlassElement):
             return True
 
         if widgetID:
-            if widgetID not in self._widgets:
-                self.loadWidgets(widgetID)
-            widget = self._widgets[widgetID]
+            widget = self.getChildWidget(widgetID, allowCreation=True)
         else:
             widget = None
 
@@ -152,7 +176,7 @@ class PyGlassWidget(PyGlassElement):
             args = dict()
 
         if widget and self._isWidgetActive:
-            widget.activateWidgetDisplay(**args)
+            widget.activateWidgetDisplay(lastPeerWidgetID=self._lastChildWidgetID, **args)
 
         return True
 
@@ -188,6 +212,9 @@ class PyGlassWidget(PyGlassElement):
     def activateWidgetDisplay(self, **kwargs):
         if self._isWidgetActive:
             return
+
+        self._lastPeerWidgetID = ArgsUtils.get('lastPeerWidgetID', None, kwargs)
+        print self, self.widgetID, 'FROM:', self._lastPeerWidgetID
 
         self._displayCount += 1
         self._activateWidgetDisplayImpl(**kwargs)

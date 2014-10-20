@@ -67,7 +67,7 @@ class InteractiveElement(PyGlassElement):
         if not self._toggles or self._checked == value:
             return
 
-        wasChecked    = self._checked
+        wasChecked = self._checked
         self._checked = value
         if wasChecked and not value:
             self._updateDisplay(InteractionStatesEnum.NORMAL_MODE)
