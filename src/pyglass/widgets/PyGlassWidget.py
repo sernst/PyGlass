@@ -145,11 +145,13 @@ class PyGlassWidget(PyGlassElement):
 #___________________________________________________________________________________________________ setActiveWidget
     def setActiveWidget(self, widgetID, containerWidget =None, force =False, args =None, doneArgs =None):
         if widgetID and not widgetID in self._widgetClasses:
+            print '[WARNING]: Invalid widget ID "%s" in %s' % (widgetID, self)
             return False
 
         if containerWidget is None:
             containerWidget = self._containerWidget
         if containerWidget is None:
+            print '[WARNING]: %s has no specified container widget' % self
             return False
 
         if not force and self._currentWidget and self._currentWidget.widgetID == widgetID:

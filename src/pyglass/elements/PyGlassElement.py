@@ -269,11 +269,11 @@ class PyGlassElement(VisibilityElement):
         pass
 
 #___________________________________________________________________________________________________ resizeEvent
-    def _resizeImpl(self, *args, **kwargs):
+    def _resizeImpl(self, event):
         pass
 
 #___________________________________________________________________________________________________ _paintImpl
-    def _paintImpl(self, *args, **kwargs):
+    def _paintImpl(self, event):
         pass
 
 #___________________________________________________________________________________________________ _createElementWidget
@@ -309,7 +309,8 @@ class PyGlassElement(VisibilityElement):
                 if cleanupForceRemoval:
                     child.deleteLater()
         elif layout:
-            print 'WARNING: Invalid layout change attempt:', targetWidget, layoutClass, layout
+            print '[WARNING]: Invalid layout change attempt on %s in %s with %s -> %s' % (
+                targetWidget, self, layoutClass, layout)
             return layout
 
         if not layoutClass:
