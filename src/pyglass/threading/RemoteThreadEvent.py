@@ -26,21 +26,11 @@ class RemoteThreadEvent(PyGlassSignalEvent):
         return self._id
 
 #===================================================================================================
-#                                                                                     P U B L I C
-
-#___________________________________________________________________________________________________ get
-    def get(self, key, defaultValue =None):
-        """get doc..."""
-        try:
-            self.data[key]
-        except Exception, err:
-            return defaultValue
-
-#===================================================================================================
 #                                                                               I N T R I N S I C
 
 #___________________________________________________________________________________________________ __getitem__
     def __getitem__(self, key):
         if key in self.data:
             return self.data[key]
-        return super(RemoteThreadEvent, self).__getitem__(key)
+
+        raise KeyError, 'No such key "%s" in event data' % key
