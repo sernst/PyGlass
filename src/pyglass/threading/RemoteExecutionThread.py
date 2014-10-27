@@ -2,10 +2,13 @@
 # (C)2012-2014
 # Scott Ernst
 
+import warnings
+
 from PySide import QtCore
 
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.debug.Logger import Logger
+from pyglass.threading.RemoteThreadEvent import RemoteThreadEvent
 
 #___________________________________________________________________________________________________ RemoteExecutionThread
 class RemoteExecutionThread(QtCore.QThread):
@@ -15,6 +18,11 @@ class RemoteExecutionThread(QtCore.QThread):
 #                                                                                       C L A S S
 
     _ACTIVE_THREAD_STORAGE = []
+
+    completeSignal = QtCore.Signal(object)
+    eventSignal    = QtCore.Signal(object)
+    logSignal      = QtCore.Signal(object)
+    progressSignal = QtCore.Signal(object)
 
 #___________________________________________________________________________________________________ __init__
     def __init__(self, parent, **kwargs):
@@ -28,26 +36,10 @@ class RemoteExecutionThread(QtCore.QThread):
         self._log.addPrintCallback(self._handleLogWritten)
         self._maxLogBufferSize = 0
         self._logBuffer        = []
-        self._response         = None
+        self._returnCode         = None
         self._output           = None
         self._error            = None
         self._explicitComplete = ArgsUtils.get('explicitComplete', False, kwargs)
-
-        class RETCompleteSignal(QtCore.QObject):
-            signal = QtCore.Signal(dict)
-        self._completeSignal = RETCompleteSignal()
-
-        class RETLogSignal(QtCore.QObject):
-            signal = QtCore.Signal(str)
-        self._logSignal = RETLogSignal()
-
-        class RETProgressSignal(QtCore.QObject):
-            signal = QtCore.Signal(dict)
-        self._progressSignal = RETProgressSignal()
-
-        class RETEventSignal(QtCore.QObject):
-            signal = QtCore.Signal(dict)
-        self._eventSignal = RETEventSignal()
 
         # Add the thread to the static active thread storage so that it won't be garbage collected
         # until the thread completes.
@@ -58,35 +50,29 @@ class RemoteExecutionThread(QtCore.QThread):
 #===================================================================================================
 #                                                                                   G E T / S E T
 
+#___________________________________________________________________________________________________ GS: success
+    @property
+    def success(self):
+        return self.returnCode == 0
+
 #___________________________________________________________________________________________________ GS: log
     @property
     def log(self):
         return self._log
 
-#___________________________________________________________________________________________________ GS: logSignal
-    @property
-    def logSignal(self):
-        return self._logSignal
-
-#___________________________________________________________________________________________________ GS: completeSignal
-    @property
-    def completeSignal(self):
-        return self._completeSignal
-
-#___________________________________________________________________________________________________ GS: progressSignal
-    @property
-    def progressSignal(self):
-        return self._progressSignal
-
 #___________________________________________________________________________________________________ GS: response
     @property
     def response(self):
-        return self._response
+        warnings.warn(
+            'RemoteExceutionThread.response is deprecated in favor of .returnCode',
+            DeprecationWarning)
+        self._log.write('[DEPRECATION WARNING]: Use returnCode instead of response', traceStack=True)
+        return self._returnCode
 
 #___________________________________________________________________________________________________ GS: returnCode
     @property
     def returnCode(self):
-        return self._response
+        return self._returnCode
 
 #___________________________________________________________________________________________________ GS: output
     @property
@@ -102,12 +88,11 @@ class RemoteExecutionThread(QtCore.QThread):
 #                                                                                     P U B L I C
 
 #___________________________________________________________________________________________________ dispatchEvent
-    def dispatchEvent(self, identifier, target =None, data =None):
-        self._eventSignal.signal.emit({
-            'id':identifier,
-            'source':self,
-            'target':target if target else self,
-            'data':data })
+    def dispatchEvent(self, signal, identifier =None, data =None):
+        signal.emit(RemoteThreadEvent(
+            identifier=identifier,
+            target=self,
+            data=data))
 
 #___________________________________________________________________________________________________ execute
     def execute(
@@ -158,7 +143,7 @@ class RemoteExecutionThread(QtCore.QThread):
         if self._logBuffer:
             b = self._logBuffer
             self._logBuffer = []
-            self._logSignal.signal.emit(u'\n'.join(b))
+            self.dispatchEvent(self.logSignal, 'log', {'message':u'\n'.join(b)})
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -167,28 +152,28 @@ class RemoteExecutionThread(QtCore.QThread):
     def _connectSignals(self, **kwargs):
         logCallback = ArgsUtils.get('logCallback', None, kwargs)
         if logCallback:
-            self._logSignal.signal.connect(logCallback)
+            self.logSignal.connect(logCallback)
 
         completeCallback = ArgsUtils.get('callback', None, kwargs)
         if completeCallback:
-            self._completeSignal.signal.connect(completeCallback)
+            self.completeSignal.connect(completeCallback)
 
         progressCallback = ArgsUtils.get('progressCallback', None, kwargs)
         if progressCallback:
-            self._progressSignal.signal.connect(progressCallback)
+            self.progressSignal.connect(progressCallback)
 
         eventCallback = ArgsUtils.get('eventCallback', None, kwargs)
         if eventCallback:
-            self._eventSignal.signal.connect(eventCallback)
+            self.eventSignal.connect(eventCallback)
 
 #___________________________________________________________________________________________________ _runComplete
     def _runComplete(self, response):
-        self._response = response
-        if self._response is None:
-            self._response = 0
+        self._returnCode = response
+        if self._returnCode is None:
+            self._returnCode = 0
 
-        self._completeSignal.signal.emit({
-            'response':self._response,
+        self.dispatchEvent(self.completeSignal, 'complete', {
+            'response':self._returnCode,
             'error':self._error,
             'output':self._output,
             'thread':self,
@@ -211,4 +196,4 @@ class RemoteExecutionThread(QtCore.QThread):
             if len(self._logBuffer) > self._maxLogBufferSize:
                 self.flushLogBuffer()
         else:
-            self._logSignal.signal.emit(value)
+            self.dispatchEvent(self.logSignal, 'log', {'message':value})

@@ -2,10 +2,8 @@
 # (C)2014
 # Scott Ernst
 
-from PySide import QtCore
-
 #___________________________________________________________________________________________________ PyGlassSignalEvent
-class PyGlassSignalEvent(QtCore.QObject):
+class PyGlassSignalEvent(object):
     """A class for..."""
 
 #===================================================================================================
