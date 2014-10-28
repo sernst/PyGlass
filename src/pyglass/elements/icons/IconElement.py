@@ -8,6 +8,7 @@ from PySide import QtCore
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.dict.DictUtils import DictUtils
 
+from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 from pyglass.elements.PyGlassElement import PyGlassElement
 from pyglass.themes.ColorQValue import ColorQValue
 
@@ -19,17 +20,18 @@ class IconElement(PyGlassElement):
 #                                                                                       C L A S S
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, parent =None, name =None, atlas =None, **kwargs):
+    def __init__(self, parent =None, name =None, **kwargs):
         """Creates a new instance of IconElement."""
         super(IconElement, self).__init__(parent, **kwargs)
-        self._name       = name
-        self._atlas      = atlas
-        self._definition = None
-        self._textureMaxWidth = 0
-        self._textureMaxHeight = 0
-        self._opacity    = ArgsUtils.get('opacity', 1.0, kwargs)
-        self._color      = None
-        self._scale      = 1.0
+        self._name              = None
+        self._definition        = None
+        self._textureMaxWidth   = 0
+        self._textureMaxHeight  = 0
+        self._opacity           = ArgsUtils.get('opacity', 1.0, kwargs)
+        self._color             = None
+        self._scale             = 1.0
+
+        self.name = name
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -105,18 +107,6 @@ class IconElement(PyGlassElement):
         self._definition = None
         self._refreshTexture()
 
-#___________________________________________________________________________________________________ GS: atlas
-    @property
-    def atlas(self):
-        return self._atlas
-    @atlas.setter
-    def atlas(self, value):
-        if self._atlas == value:
-            return
-        self._atlas = value
-        self._definition = None
-        self._refreshTexture()
-
 #___________________________________________________________________________________________________ GS: opacity
     @property
     def opacity(self):
@@ -135,7 +125,6 @@ class IconElement(PyGlassElement):
     def echo(self):
         return unicode(self) + u': ' + DictUtils.prettyPrint({
             'DEF':self._definition,
-            'ATLAS':self.atlas,
             'NAME':self.name,
             'SIZE':(self.size().width(), self.size().height()) })
 
@@ -144,12 +133,12 @@ class IconElement(PyGlassElement):
 
 #___________________________________________________________________________________________________ _refreshTexture
     def _refreshTexture(self):
-        if not self.name or not self.atlas:
+        if not self.name:
             self.setFixedSize(max(1, self.textureMaxWidth), max(1, self.textureMaxHeight))
             self.repaint()
             return
 
-        self._definition = self.atlas.getDefinition(self.name)
+        self._definition = PyGlassEnvironment.atlasManager.getDefinition(self.name)
         if not self._definition:
             self.setFixedSize(max(1, self.textureMaxWidth), max(1, self.textureMaxHeight))
             self.repaint()
@@ -164,20 +153,14 @@ class IconElement(PyGlassElement):
     def _paintImpl(self, event):
         """Doc..."""
         super(IconElement, self)._paintImpl(event)
-        if not self._definition or not self.atlas:
+
+        if not self._definition:
             return
 
         d     = self._definition
-        image = self.atlas.image
-        img = QtGui.QImage()
+        image = PyGlassEnvironment.atlasManager.getAtlas(self.name).image
 
         ts          = self.textureScale
-        x           = int(round(ts*float(d.x)))
-        y           = int(round(ts*float(d.y)))
-        width       = int(round(ts*float(d.width)))
-        height      = int(round(ts*float(d.height)))
-        frameX      = int(round(ts*float(d.frameX)))
-        frameY      = int(round(ts*float(d.frameY)))
         frameWidth  = int(round(ts*float(d.frameWidth)))
         frameHeight = int(round(ts*float(d.frameHeight)))
 

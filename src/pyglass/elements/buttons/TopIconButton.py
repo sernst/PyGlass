@@ -23,7 +23,7 @@ class TopIconButton(InteractiveButtonBase):
     PAINT_PROPS = namedtuple(
         'PAINT_PROPS', ['state', 'width', 'height', 'halfWidth', 'halfHeight'])
 
-    ICON_STYLE_SPEC     = namedtuple('ICON_STYLE_SPEC', ['color', 'alpha', 'name', 'atlas', 'scale'])
+    ICON_STYLE_SPEC     = namedtuple('ICON_STYLE_SPEC', ['color', 'alpha', 'name', 'scale'])
     LABEL_STYLE_SPEC    = namedtuple('LABEL_SPEC', ['color', 'fontFamily', 'size'])
     FILL_PAINT_SPEC     = namedtuple('FILL_PAINT_SPEC', ['lightColor', 'darkColor'])
     EDGE_PAINT_SPEC     = namedtuple('EDGE_DRAW_SPEC', ['color', 'lineWidth', 'higlightColor'])
@@ -44,10 +44,7 @@ class TopIconButton(InteractiveButtonBase):
         iconBoxLayout.setSpacing(0)
         iconBoxLayout.addStretch()
 
-        icon = IconElement(
-            parent=iconBox,
-            name=ArgsUtils.get('iconName', None, kwargs),
-            atlas=ArgsUtils.get('iconAtlas', None, kwargs) )
+        icon = IconElement(parent=iconBox, name=ArgsUtils.get('iconName', None, kwargs))
         iconBoxLayout.addWidget(icon)
         iconBoxLayout.addStretch()
         self.icon = icon
@@ -90,17 +87,6 @@ class TopIconButton(InteractiveButtonBase):
     def shrinkVertical(self, value):
         vPolicy = QtGui.QSizePolicy.Maximum if value else QtGui.QSizePolicy.Preferred
         self.setSizePolicy(self.sizePolicy().horizontalPolicy(), vPolicy)
-
-#___________________________________________________________________________________________________ GS: iconAtlas
-    @property
-    def iconAtlas(self):
-        return self.icon.atlas
-    @iconAtlas.setter
-    def iconAtlas(self, value):
-        if self.icon.atlas == value:
-            return
-        self.icon.atlas = value
-        self._updateIcon()
 
 #___________________________________________________________________________________________________ GS: iconName
     @property
@@ -282,7 +268,6 @@ class TopIconButton(InteractiveButtonBase):
         if not spec:
             return
 
-        self.icon.atlas   = spec.atlas
         self.icon.name    = spec.name
         self.icon.opacity = spec.alpha
         self.icon.color   = spec.color

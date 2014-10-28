@@ -2,8 +2,8 @@
 # (C)2013
 # Scott Ernst
 
-import sys
 import os
+
 
 try:
     import appdirs
@@ -16,6 +16,8 @@ from pyaid.OsUtils import OsUtils
 from pyaid.decorators.ClassGetter import ClassGetter
 from pyaid.file.FileUtils import FileUtils
 from pyaid.json.JSON import JSON
+
+# AS NEEDED: from pyglass.elements.icons.TextureAtlasManager import TextureAtlasManager
 
 #___________________________________________________________________________________________________ PyGlassEnvironment
 class PyGlassEnvironment(object):
@@ -34,9 +36,18 @@ class PyGlassEnvironment(object):
     _rootResourcePath      = None
     _rootLocalResourcePath = None
     _isDeployed            = None
+    _atlasManager          = None
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: atlasManager
+    @ClassGetter
+    def atlasManager(cls):
+        if cls._atlasManager is None:
+            from pyglass.elements.icons.TextureAtlasManager import TextureAtlasManager
+            cls._atlasManager = TextureAtlasManager()
+        return cls._atlasManager
 
 #___________________________________________________________________________________________________ GS: mainWindow
     @ClassGetter

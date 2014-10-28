@@ -2,8 +2,6 @@
 # (C)2014
 # Scott Ernst
 
-from collections import namedtuple
-
 from pyglass.elements.icons.TextureAtlas import TextureAtlas
 
 #___________________________________________________________________________________________________ TextureAtlasManager
@@ -13,10 +11,8 @@ class TextureAtlasManager(object):
 #===================================================================================================
 #                                                                                       C L A S S
 
-    TEXTURE_BUNDLE = namedtuple('TEXTURE_BUNDLE', ['atlas', 'icon'])
-
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, parent):
+    def __init__(self):
         """Creates a new instance of TextureAtlasManager."""
         self._atlases = dict()
 
@@ -41,20 +37,36 @@ class TextureAtlasManager(object):
         self.add(name, atlas)
         return atlas
 
-#___________________________________________________________________________________________________ addAtlas
+#___________________________________________________________________________________________________ add
     def add(self, name, atlas):
         self._atlases[name] = atlas
 
-#___________________________________________________________________________________________________ getBundle
-    def getBundle(self, atlasName, iconName):
-        """getBundle doc..."""
-        return self.TEXTURE_BUNDLE(self.get(atlasName), iconName)
+#___________________________________________________________________________________________________ getDefinition
+    def getDefinition(self, name):
+        """getDefinition doc..."""
+        parts = name.split(':')
+        if len(parts) != 2 or not parts[0] in self._atlases:
+            return None
+        return self._atlases[parts[0]].getDefinition(parts[1])
+
+#___________________________________________________________________________________________________ getAtlas
+    def getAtlas(self, name):
+        """getAtlas doc..."""
+        if not name:
+            return None
+        return self.get(name.split(':')[0])
 
 #___________________________________________________________________________________________________ get
-    def get(self, name):
+    def get(self, name, parent =None):
         """Doc..."""
-        if name in self._atlases:
+        if not name:
+            return None
+
+        parts = name.split(':')
+        if len(parts) == 1 and name in self._atlases:
             return self._atlases[name]
+        elif len(parts) == 2 and parts[0] in self._atlases:
+            return self._atlases[parts[0]].getIcon(parts[1], parent=parent)
         return None
 
 #___________________________________________________________________________________________________ remove

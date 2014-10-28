@@ -74,7 +74,7 @@ class TextureAtlas(object):
             self._definition = self._getDefinitionFile(self._definitionPath)
         return self._definition
 
-#___________________________________________________________________________________________________ GS: propertyName
+#___________________________________________________________________________________________________ GS: image
     @property
     def image(self):
         if self._image is None:
@@ -132,9 +132,9 @@ class TextureAtlas(object):
         return None
 
 #___________________________________________________________________________________________________ getIcon
-    def getIcon(self, parent, name, **kwargs):
+    def getIcon(self, name, parent =None, **kwargs):
         """Doc..."""
-        return IconElement(parent=parent, name=name, atlas=self, **kwargs)
+        return IconElement(parent=parent, name=name, **kwargs)
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
