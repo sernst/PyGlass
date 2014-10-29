@@ -58,6 +58,14 @@ class InteractiveElement(PyGlassElement):
                 c.setShape(QtCore.Qt.PointingHandCursor)
                 self.setCursor(c)
 
+#___________________________________________________________________________________________________ GS: isChecked
+    @property
+    def isChecked(self):
+        return self.checked
+    @isChecked.setter
+    def isChecked(self, value):
+        self.checked = value
+
 #___________________________________________________________________________________________________ GS: checked
     @property
     def checked(self):

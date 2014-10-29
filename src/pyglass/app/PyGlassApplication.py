@@ -181,8 +181,6 @@ class PyGlassApplication(QtCore.QObject):
         qApp = QtGui.QApplication(appArgs if appArgs else [])
         self._qApplication = qApp
 
-        ### FUTURE ### self._qApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
-
         if self.splashScreenUrl:
             parts = str(self.splashScreenUrl).split(':', 1)
             if len(parts) == 1 or parts[0].lower == 'app':
@@ -219,9 +217,18 @@ class PyGlassApplication(QtCore.QObject):
             **kwargs)
         self._window.initialize()
 
-        self._qApplication.aboutToQuit.connect(self._onApplicationExit)
-        self._intializeComplete()
-        self._qApplication.processEvents()
+#___________________________________________________________________________________________________ runMainLoop
+    def runMainLoop(self):
+        """runMainLoop doc..."""
+
+        self.mainWindow.preShow()
+        self.mainWindow.show()
+
+        self._qApplication.setQuitOnLastWindowClosed(False)
+        self._qApplication.lastWindowClosed.connect(self._handleLastWindowClosed)
+        result = self._qApplication.exec_()
+        self._onPostApplication(result)
+        sys.exit(result)
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -235,8 +242,24 @@ class PyGlassApplication(QtCore.QObject):
         pass
 
 #___________________________________________________________________________________________________ _onApplicationExit
-    def _onApplicationExit(self):
+    def _onApplicationExit(self, *args, **kwargs):
         pass
+
+#___________________________________________________________________________________________________ _onPostApplication
+    def _onPostApplication(self, resultCode):
+        """_onPostApplication doc..."""
+        pass
+
+#===================================================================================================
+#                                                                                 H A N D L E R S
+
+#___________________________________________________________________________________________________ _handleLastWindowClosed
+    def _handleLastWindowClosed(self):
+        """_handleLastWindowClosed doc..."""
+        if self.mainWindow:
+            self.mainWindow.postShow()
+        self._onApplicationExit()
+        self._qApplication.exit()
 
 #===================================================================================================
 #                                                                               I N T R I N S I C

@@ -549,13 +549,10 @@ class PyGlassWindow(QtGui.QMainWindow):
             preDisplay.show()
             result = self.qApplication.exec_()
 
-        if not result:
-            self.preShow()
-            self.show()
-            result = self.qApplication.exec_()
-            self.postShow()
+        if result:
+            sys.exit(result)
 
-        sys.exit(result)
+        self._application.runMainLoop()
 
 #___________________________________________________________________________________________________ preShow
     def preShow(self, **kwargs):
