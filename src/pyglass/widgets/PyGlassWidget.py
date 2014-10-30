@@ -28,7 +28,8 @@ class PyGlassWidget(PyGlassElement):
     def __init__(self, parent =None, **kwargs):
         """Creates a new instance of PyGlassWidget."""
         PyGlassElement.__init__(self, parent, **kwargs)
-        print 'CREATING: %s | PARENTED TO: %s' % (self, parent)
+        if kwargs.get('verbos', False):
+            print 'CREATING: %s | PARENTED TO: %s' % (self, parent)
         self.setStyleSheet(self.owner.styleSheetPath)
 
         self._displayCount  = 0

@@ -101,8 +101,11 @@ class PyGlassPushButton(InteractiveButtonBase):
         self._label.setText(value)
         self._updateDisplay()
 
-#___________________________________________________________________________________________________ paintEvent
-    def paintEvent(self, *args, **kwargs):
+#===================================================================================================
+#                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _paintImpl
+    def _paintImpl(self, event):
         size   = self.size()
         w      = size.width()
         h      = size.height()
@@ -173,9 +176,6 @@ class PyGlassPushButton(InteractiveButtonBase):
             h - 2*self._LINE_WIDTH,
             self._ROUNDNESS[self._sizeIndex],
             self._ROUNDNESS[self._sizeIndex] )
-
-#===================================================================================================
-#                                                                               P R O T E C T E D
 
 #___________________________________________________________________________________________________ _populateColorBundles
     def _populateColorBundles(self):

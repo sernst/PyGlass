@@ -244,8 +244,8 @@ class TopIconButton(InteractiveButtonBase):
         return self.EDGE_PAINT_SPEC(lineWidth=2.0, color=0xFF000000, higlightColor=0xFFCCCCCC)
 
 #___________________________________________________________________________________________________ _updateDisplayImpl
-    def _updateDisplay(self, mode =None):
-        super(TopIconButton, self)._updateDisplay(mode=mode)
+    def _updateDisplayImpl(self):
+        super(TopIconButton, self)._updateDisplayImpl()
 
         state = self.getInteractionState()
         labelStyle = self._getLabelStyleSpec(state)

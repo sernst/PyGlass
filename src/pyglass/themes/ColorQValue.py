@@ -24,9 +24,14 @@ class ColorQValue(ColorValue):
 #___________________________________________________________________________________________________ GS: qColor
     @property
     def qColor(self):
-        color = QtGui.QColor.fromRgba(self._rawColor)
+        color = QtGui.QColor.fromRgb(*self.asRgb(output=list))
         color.setAlphaF(self._opacity)
         return color
+    @qColor.setter
+    def qColor(self, value):
+        self._rawColor = self.rgbToInt({'r':value.red(), 'g':value.green(), 'b':value.blue()})
+        self._opacity = value.alphaF()
+        self._unCache()
 
 #===================================================================================================
 #                                                                                     P U B L I C

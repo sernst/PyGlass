@@ -32,7 +32,9 @@ class InteractiveElement(PyGlassElement):
         self._clickOn      = clickOn
         self._checked      = False
         self._mode         = InteractionStatesEnum.NORMAL_MODE
+        self._isHovering   = False
         self._mouseEnabled = True
+        self._displayIsDirty = True
 
         c = QtGui.QCursor()
         c.setShape(QtCore.Qt.PointingHandCursor)
@@ -40,6 +42,11 @@ class InteractiveElement(PyGlassElement):
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: isHovering
+    @property
+    def isHovering(self):
+        return self.mouseEnabled and self._isHovering
 
 #___________________________________________________________________________________________________ GS: mouseEnabled
     @property
@@ -115,32 +122,41 @@ class InteractiveElement(PyGlassElement):
         if not self.mouseEnabled:
             return
 
+        self._isHovering = False
+
+        ISE  = InteractionStatesEnum
         pos  = mouseEvent.pos()
         size = self.size()
         if 0 <= pos.x() <= size.width() and 0 <= pos.y() <= size.height():
             if self._toggles:
                 self.checked = True if self._clickOn else not self._checked
             else:
-                self._updateDisplay(InteractionStatesEnum.OVER_MODE)
+                self._updateDisplay(ISE.OVER_MODE)
             self.onClickEvent(mouseEvent)
         else:
-            self._updateDisplay(InteractionStatesEnum.NORMAL_MODE)
+            self._updateDisplay(ISE.SELECTED_MODE if self.checked else ISE.NORMAL_MODE)
 
 #___________________________________________________________________________________________________ enterEvent
     def enterEvent(self, *args, **kwargs):
         if not self.mouseEnabled:
             return
 
+        self._isHovering = True
+
         if self._toggles and self._clickOn and self._checked:
             return
 
         self._updateDisplay(InteractionStatesEnum.OVER_MODE)
+
         self.rollOver.emit()
 
 #___________________________________________________________________________________________________ leaveEvent
     def leaveEvent(self, *args, **kwargs):
+        self._isHovering = False
+
         if not self.mouseEnabled:
             return
+
         self._exitInteractivityStates()
         self.rollOut.emit()
 
@@ -150,6 +166,13 @@ class InteractiveElement(PyGlassElement):
         self.clicked.emit()
         if self._clickCallback is not None:
             self._clickCallback(self)
+
+#___________________________________________________________________________________________________ paintEvent
+    def paintEvent(self, event):
+        if self._displayIsDirty:
+            self._displayIsDirty = False
+            self._updateDisplayImpl()
+        super(InteractiveElement, self).paintEvent(event)
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -173,8 +196,13 @@ class InteractiveElement(PyGlassElement):
 #___________________________________________________________________________________________________ _updateDisplay
     def _updateDisplay(self, mode =None):
         """Doc..."""
-        self._mode = mode if mode else InteractionStatesEnum.NORMAL_MODE
-        self._updateDisplayImpl()
+        if mode:
+            self._mode = mode
+        elif self.isChecked:
+            self._mode = InteractionStatesEnum.SELECTED_MODE
+        else:
+            self._mode = InteractionStatesEnum.NORMAL_MODE
+        self._displayIsDirty = True
         self.repaint()
 
 #___________________________________________________________________________________________________ _updateDisplayImpl
