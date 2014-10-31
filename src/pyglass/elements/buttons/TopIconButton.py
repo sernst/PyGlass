@@ -143,7 +143,7 @@ class TopIconButton(InteractiveButtonBase):
         if self._roundness == value:
             return
         self._roundness = value
-        self.repaint()
+        self.update()
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -153,7 +153,7 @@ class TopIconButton(InteractiveButtonBase):
         self._updateDisplay(InteractionStatesEnum.NORMAL_MODE)
 
 #___________________________________________________________________________________________________ _paintImpl
-    def _paintImpl(self, *args, **kwargs):
+    def _paintImpl(self, event):
         interactionState = self.getInteractionState()
 
         size  = self.size()
@@ -178,6 +178,8 @@ class TopIconButton(InteractiveButtonBase):
             return
 
         painter = QtGui.QPainter(self)
+        if not painter.isActive():
+            self.mainWindow.logger.write('Painter Not Active', traceStack=True)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
 
@@ -210,6 +212,7 @@ class TopIconButton(InteractiveButtonBase):
 
         #--- EDGE HIGHLIGHT ---#
         if lineWide <= 0.0:
+            painter.end()
             return
 
         pen = QtGui.QPen()
@@ -222,6 +225,7 @@ class TopIconButton(InteractiveButtonBase):
             lineWide + 1.0, lineWide + 1.0,
             w - 2.0*lineWide - 2.0, h - 2.0*lineWide - 2.0,
             self.roundness, self.roundness)
+        painter.end()
 
 #___________________________________________________________________________________________________ _getIconSpec
     def _getIconSpec(self, state):
@@ -268,10 +272,10 @@ class TopIconButton(InteractiveButtonBase):
         if not spec:
             return
 
-        self.icon.name    = spec.name
-        self.icon.opacity = spec.alpha
-        self.icon.color   = spec.color
-        self.icon.textureScale = spec.scale
+        self.icon.name          = spec.name
+        self.icon.opacity       = spec.alpha
+        self.icon.color         = spec.color
+        self.icon.textureScale  = spec.scale
 
 #___________________________________________________________________________________________________ _getAsQColor
     @classmethod

@@ -203,7 +203,7 @@ class InteractiveElement(PyGlassElement):
         else:
             self._mode = InteractionStatesEnum.NORMAL_MODE
         self._displayIsDirty = True
-        self.repaint()
+        self.update()
 
 #___________________________________________________________________________________________________ _updateDisplayImpl
     def _updateDisplayImpl(self):

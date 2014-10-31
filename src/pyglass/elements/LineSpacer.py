@@ -89,7 +89,7 @@ class LineSpacer(QtGui.QWidget):
             self.setFixedSize(3, self.maximumHeight())
         else:
             self.setFixedSize(self.maximumWidth(), 3)
-        self.repaint()
+        self.update()
 
 #===================================================================================================
 #                                                                               I N T R I N S I C

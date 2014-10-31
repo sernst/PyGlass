@@ -88,7 +88,7 @@ class IconElement(PyGlassElement):
             self._color = value
             return
         self._color = value
-        self.repaint()
+        self.update()
 
 #___________________________________________________________________________________________________ GS: definition
     @property
@@ -116,7 +116,7 @@ class IconElement(PyGlassElement):
         if value == self._opacity:
             return
         self._opacity = value
-        self.repaint()
+        self.update()
 
 #===================================================================================================
 #                                                                                     P U B L I C
@@ -135,19 +135,19 @@ class IconElement(PyGlassElement):
     def _refreshTexture(self):
         if not self.name:
             self.setFixedSize(max(1, self.textureMaxWidth), max(1, self.textureMaxHeight))
-            self.repaint()
+            self.update()
             return
 
         self._definition = PyGlassEnvironment.atlasManager.getDefinition(self.name)
         if not self._definition:
             self.setFixedSize(max(1, self.textureMaxWidth), max(1, self.textureMaxHeight))
-            self.repaint()
+            self.update()
             return
 
         self.setFixedSize(
             int(round(self.textureScale*float(self._definition.frameWidth))),
             int(round(self.textureScale*float(self._definition.frameHeight))) )
-        self.repaint()
+        self.update()
 
 #___________________________________________________________________________________________________ _paintImpl
     def _paintImpl(self, event):
@@ -199,3 +199,4 @@ class IconElement(PyGlassElement):
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
         painter.drawPixmap(0, 0, pix)
+        painter.end()

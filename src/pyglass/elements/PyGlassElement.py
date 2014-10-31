@@ -30,6 +30,7 @@ class PyGlassElement(VisibilityElement):
         self._widgetID            = ArgsUtils.get('widgetID', self._id, kwargs)
         self._userData            = ArgsUtils.get('userData', None, kwargs)
         self._resourceFolderParts = PyGlassGuiUtils.getResourceFolderParts(self)
+        self._isPainting          = False
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -161,7 +162,10 @@ class PyGlassElement(VisibilityElement):
 
 #___________________________________________________________________________________________________ paintEvent
     def paintEvent(self, *args, **kwargs):
-        self._paintImpl(*args, **kwargs)
+        if not self._isPainting:
+            self._isPainting = True
+            self._paintImpl(*args, **kwargs)
+            self._isPainting = False
 
 #___________________________________________________________________________________________________ getAncestor
     def getAncestor(self, ident):

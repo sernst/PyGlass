@@ -216,10 +216,15 @@ class PyGlassWindow(QtGui.QMainWindow):
     def commonAppConfig(self):
         return self._commonConfig if self.isMainWindow else self.mainWindow.commonAppConfig
 
+#___________________________________________________________________________________________________ GS: logger
+    @property
+    def logger(self):
+        return self._log if self.isMainWindow else self.owner.log
+
 #___________________________________________________________________________________________________ GS: log
     @property
     def log(self):
-        return self._log if self.isMainWindow else self.owner.log
+        return self.logger
 
 #___________________________________________________________________________________________________ GS: styleSheetPath
     @property
