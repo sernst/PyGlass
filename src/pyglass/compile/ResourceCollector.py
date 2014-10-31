@@ -109,7 +109,9 @@ class ResourceCollector(object):
 #___________________________________________________________________________________________________ _copyPythonStaticResources
     def _copyPythonStaticResources(self):
         sourcePath = requests.utils.DEFAULT_CA_BUNDLE_PATH
-        parts      = sourcePath[len(sys.exec_prefix):].strip(os.sep).split(os.sep)
+        parts      = sourcePath.strip(os.sep).split(os.sep)
+        index      = parts.index('site-packages')
+        parts      = parts[index:]
         destPath   = FileUtils.createPath(self._targetPath, 'pythonRoot', *parts, isFile=True)
         folder     = os.path.dirname(destPath)
         if not os.path.exists(folder):

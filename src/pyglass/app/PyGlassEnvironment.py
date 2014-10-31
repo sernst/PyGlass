@@ -87,12 +87,7 @@ class PyGlassEnvironment(object):
     def requestsCABundle(cls):
         if cls.isDeployed:
             return  cls.getRootResourcePath(
-                'pythonRoot',
-                'Lib',
-                'site-packages',
-                'requests',
-                'cacert.pem' if OsUtils.isWindows() else '.pem',
-                isFile=True)
+                'pythonRoot', 'site-packages', 'requests', 'cacert.pem', isFile=True)
         return requests.utils.DEFAULT_CA_BUNDLE_PATH
 
 #===================================================================================================
