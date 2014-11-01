@@ -298,7 +298,9 @@ class PyGlassApplicationCompiler(object):
             ).replace(
                 '##ICON_PATH##', StringUtils.escapeBackSlashes(self._createIcon(binPath))
             ).replace(
-                '##APP_NAME##', self.appDisplayName) )
+                '##APP_NAME##', self.appDisplayName
+            ).replace(
+                '##SAFE_APP_NAME##', self.appDisplayName.replace(' ', '_') ))
             f.close()
         except Exception, err:
             print err
@@ -327,7 +329,9 @@ class PyGlassApplicationCompiler(object):
             ).replace(
                 '##APP_ID##', self.application.appID
             ).replace(
-                '##APP_GROUP_ID##', self.application.appGroupID) )
+                '##APP_GROUP_ID##', self.application.appGroupID
+            ).replace(
+                '##SAFE_APP_NAME##', self.appDisplayName.replace(' ', '_') ))
             f.close()
         except Exception, err:
             print err

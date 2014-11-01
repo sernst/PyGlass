@@ -10,7 +10,7 @@
 
 	; The name of the installer
 	Name "##APP_NAME##"
-	OutFile "##APP_NAME##_Installer.exe"
+	OutFile "##SAFE_APP_NAME##_Installer.exe"
 
 	; The default installation directory
 	InstallDir "$PROGRAMFILES64\##APP_NAME##"
