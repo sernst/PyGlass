@@ -5,6 +5,7 @@
 from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyglass.themes.ColorQValue import ColorQValue
 
 #___________________________________________________________________________________________________ StyledLabel
 class StyledLabel(QtGui.QLabel):
@@ -54,8 +55,13 @@ class StyledLabel(QtGui.QLabel):
     def color(self, value):
         if self._color == value:
             return
-        self._color = value
-
+        elif value is None:
+            self._color = None
+        elif isinstance(value, QtGui.QColor):
+            self._color = value
+        else:
+            self._color = ColorQValue(value).qColor
+        self._update()
 
 #___________________________________________________________________________________________________ GS: isItalic
     @property
@@ -129,13 +135,15 @@ class StyledLabel(QtGui.QLabel):
             self._fontWeight = fontWeight
         if isBold is not None:
             self._isBold = isBold
-        if color:
-            self._color = color
         if isItalic is not None:
             self._isItalic = isItalic
         if isBorderless is not None:
             self._isBorderless = isBorderless
-        self._update()
+
+        if color is not None:
+            self.color = color
+        else:
+            self._update()
 
 #===================================================================================================
 #                                                                               P R O T E C T E D

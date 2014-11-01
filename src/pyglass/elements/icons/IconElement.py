@@ -6,6 +6,7 @@ from PySide import QtGui
 from PySide import QtCore
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.OsUtils import OsUtils
 from pyaid.dict.DictUtils import DictUtils
 
 from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
@@ -175,7 +176,9 @@ class IconElement(PyGlassElement):
             painter.end()
             return
 
-        pix     = QtGui.QPixmap(frameWidth, frameHeight)
+
+        pix     = QtGui.QImage(frameWidth, frameHeight, QtGui.QImage.Format_ARGB32)
+        # pix     = QtGui.QPixmap(frameWidth, frameHeight)
         painter = QtGui.QPainter(pix)
         painter.scale(ts, ts)
         painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
@@ -198,5 +201,6 @@ class IconElement(PyGlassElement):
         painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
-        painter.drawPixmap(0, 0, pix)
+        painter.drawImage(0, 0, pix)
+        # painter.drawPixmap(0, 0, pix)
         painter.end()
