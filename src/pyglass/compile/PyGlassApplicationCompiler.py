@@ -44,6 +44,11 @@ class PyGlassApplicationCompiler(object):
     def iconPath(self):
         return None
 
+#___________________________________________________________________________________________________ GS: appResourceIds
+    @property
+    def appResourceIds(self):
+        return [self._application.ID]
+
 #___________________________________________________________________________________________________ GS: resources
     @property
     def resources(self):

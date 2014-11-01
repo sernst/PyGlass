@@ -6,18 +6,17 @@ import sys
 import os
 import inspect
 
+import PySide
+from PySide import QtCore
+from PySide import QtGui
+from pyaid.file.FileUtils import FileUtils
+
+from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
+
 try:
     import appdirs
 except Exception, err:
     appdirs = None
-
-import PySide
-from PySide import QtCore
-from PySide import QtGui
-
-from pyaid.file.FileUtils import FileUtils
-
-from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 
 #___________________________________________________________________________________________________ PyGlassApplication
 class PyGlassApplication(QtCore.QObject):

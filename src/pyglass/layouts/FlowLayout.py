@@ -2,8 +2,6 @@
 # (C)2014
 # Scott Ernst
 
-#
-
 from PySide import QtCore
 from PySide import QtGui
 
@@ -91,7 +89,8 @@ class FlowLayout(QtGui.QLayout):
         lineHeight = 0
 
         for item in self.itemList:
-            nextX = x + item.sizeHint().width() + spaceX
+            widgetSize = self._getWidgetSize(item)
+            nextX = x + widgetSize.width() + spaceX
             if (nextX - spaceX) > (rect.right() - margins[2]) and lineHeight > 0:
                 x = rect.x() + margins[0]
                 y = y + lineHeight + spaceY
@@ -99,9 +98,21 @@ class FlowLayout(QtGui.QLayout):
                 lineHeight = 0
 
             if not testOnly:
-                item.setGeometry(QtCore.QRect(QtCore.QPoint(x, y), item.sizeHint()))
+                try:
+                    item.widget().setGeometry(QtCore.QRect(QtCore.QPoint(0, 0), widgetSize))
+                except Exception, err:
+                    pass
+                item.setGeometry(QtCore.QRect(QtCore.QPoint(x, y), widgetSize))
 
             x = nextX
-            lineHeight = max(lineHeight, item.sizeHint().height())
+            lineHeight = max(lineHeight, widgetSize.height())
 
         return y + lineHeight - rect.y()
+
+#===================================================================================================
+#                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _getWidgetSize
+    def _getWidgetSize(self, widget):
+        """_getWidgetSize doc..."""
+        return widget.sizeHint()

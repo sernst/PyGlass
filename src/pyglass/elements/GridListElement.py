@@ -10,6 +10,10 @@ from PySide import QtGui
 from pyglass.elements.PyGlassElement import PyGlassElement
 
 #___________________________________________________________________________________________________ GridListElement
+from pyglass.layouts.FlowLayout import FlowLayout
+from pyglass.layouts.ResponsiveFlowLayout import ResponsiveFlowLayout
+
+
 class GridListElement(PyGlassElement):
     """A class for..."""
 
@@ -23,12 +27,16 @@ class GridListElement(PyGlassElement):
         self._widgetItems = []
         self._spacers = []
 
+        self._lastColumnWidth = -100
         self._maxColumnWidth = 1024.0
         self._lastColumnCount = -1
         self._lastItemCount = 0
         self._updating = False
 
-        layout = QtGui.QGridLayout()
+        # layout = QtGui.QGridLayout()
+        layout = ResponsiveFlowLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(12)
         self.setLayout(layout)
 
 #===================================================================================================
@@ -43,7 +51,14 @@ class GridListElement(PyGlassElement):
         if self._maxColumnWidth == value:
             return
         self._maxColumnWidth = value
-        self.update()
+        self.updateItems()
+
+#___________________________________________________________________________________________________ GS: columnWidth
+    @property
+    def columnWidth(self):
+        count = self.columnCount
+        w = float(self.size().width()) - 12.0*float(count)
+        return min(self.maxColumnWidth, int(w/float(count)))
 
 #___________________________________________________________________________________________________ GS: columnCount
     @property
@@ -73,8 +88,8 @@ class GridListElement(PyGlassElement):
         cols = self.columnCount
         return math.floor(float(index)/cols), index % cols
 
-#___________________________________________________________________________________________________ update
-    def update(self):
+#___________________________________________________________________________________________________ updateItems
+    def updateItems(self, reorder =True):
         if self._updating:
             return
         self._updating = True
@@ -82,31 +97,20 @@ class GridListElement(PyGlassElement):
         layout = self.layout()
 
         count = self.columnCount
+        wide  = self.columnWidth
 
         for widget in self._widgetItems:
-            coordinate = self.getGridCoordinatesFromIndex(index)
-            layout.removeWidget(widget)
-            layout.addWidget(widget, coordinate[0], coordinate[1])
+            if reorder:
+                layout.removeWidget(widget)
+                layout.addWidget(widget)
             widget.setVisible(True)
-            index += 1
-
-        # Add empty spacer elements if the number of widgets is less than the number of columns.
-        # This forces the grid to conform to the size and layout it would have with a larger
-        # number of items populated within it.
-        spacerCount = int(count) - len(self._widgetItems)
-        for spacer in self._spacers:
-            layout.removeWidget(spacer)
-
-        for spacerIndex in range(max(0, spacerCount)):
-            spacer = self._getSpacer(spacerIndex)
-            coordinate = self.getGridCoordinatesFromIndex(index)
-            layout.addWidget(spacer, coordinate[0], coordinate[1])
-            spacer.setVisible(True)
+            # widget.setFixedWidth(wide)
             index += 1
 
         self._lastColumnCount = count
         self._lastItemCount = len(self._widgetItems)
         self._updating = False
+        self.update()
 
 #___________________________________________________________________________________________________ insertItem
     def insertItems(self, index, *widgets):
@@ -118,7 +122,7 @@ class GridListElement(PyGlassElement):
             self._widgetItems.insert(index, widget)
             widget.setParent(self)
             index += 1
-        self.update()
+        self.updateItems()
 
 #___________________________________________________________________________________________________ addItems
     def addItems(self, *widgets):
@@ -128,7 +132,7 @@ class GridListElement(PyGlassElement):
                 self._widgetItems.remove(widget)
             self._widgetItems.append(widget)
             widget.setParent(self)
-        self.update()
+        self.updateItems()
 
 #___________________________________________________________________________________________________ removeItems
     def removeItems(self, *widgets):
@@ -140,7 +144,7 @@ class GridListElement(PyGlassElement):
             widget.setParent(None)
             self.layout().removeWidget(widget)
             out.append(widget)
-        self.update()
+        self.updateItems()
         return out
 
 #___________________________________________________________________________________________________ clear
@@ -149,7 +153,7 @@ class GridListElement(PyGlassElement):
             widget = self._widgetItems.pop()
             self.layout().removeWidget(widget)
             widget.setParent(None)
-        self.update()
+        self.updateItems()
 
 #___________________________________________________________________________________________________ getIndexOfWidget
     def getIndexOfWidget(self, widget):
@@ -179,5 +183,12 @@ class GridListElement(PyGlassElement):
 
         # Only update if the column count changes for performance
         count = self.columnCount
-        if count != self._lastColumnCount or len(self._widgetItems) != self._lastItemCount:
-            self.update()
+        columnWidth = self.columnWidth
+        doUpdate = count != self._lastColumnCount \
+            or len(self._widgetItems) != self._lastItemCount \
+            or abs(columnWidth - self._lastColumnCount) > 10
+
+        if doUpdate:
+            self._lastColumnWidth = columnWidth
+            self.layout().itemWidth = columnWidth
+            self.updateItems(reorder=False)

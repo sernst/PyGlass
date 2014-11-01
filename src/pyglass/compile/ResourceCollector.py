@@ -54,19 +54,31 @@ class ResourceCollector(object):
         resources = self._compiler.resources
 
         #-------------------------------------------------------------------------------------------
-        # APP RESOURCES
+        # RESOURCES
         #       If no resource folders were specified copy the entire contents of the resources
         #       folder. Make sure to skip the local resources path in the process.
         if not resources:
             for item in os.listdir(PyGlassEnvironment.getRootResourcePath(isDir=True)):
                 itemPath = PyGlassEnvironment.getRootResourcePath(item)
-                if os.path.isdir(itemPath) and not item == 'local':
+                if os.path.isdir(itemPath) and not item in ['local', 'apps']:
                     resources.append(item)
 
         for container in resources:
             parts = container.replace('\\', '/').split('/')
             self._copyResourceFolder(
                 PyGlassEnvironment.getRootResourcePath(*parts, isDir=True), parts)
+
+        #-------------------------------------------------------------------------------------------
+        # APP RESOURCES
+        appResources = self._compiler.resourceAppIds
+        if not appResources:
+            appResources = []
+        for appResource in appResources:
+            itemPath = PyGlassEnvironment.getRootResourcePath('apps', appResource, isDir=True)
+            if not os.path.exists(itemPath):
+                self._log.write('[WARNING]: No such app resource path found: %s' % appResource)
+                continue
+            self._copyResourceFolder(itemPath, ['apps', appResource])
 
         #-------------------------------------------------------------------------------------------
         # PYGLASS RESOURCES
