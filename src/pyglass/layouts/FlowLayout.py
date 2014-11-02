@@ -16,12 +16,24 @@ class FlowLayout(QtGui.QLayout):
         super(FlowLayout, self).__init__(parent)
         self.setSpacing(spacing)
         self.itemList = []
+        self._isCentered = False
 
 #___________________________________________________________________________________________________ __del__
     def __del__(self):
         item = self.takeAt(0)
         while item:
             item = self.takeAt(0)
+
+#===================================================================================================
+#                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: isCentered
+    @property
+    def isCentered(self):
+        return self._isCentered
+    @isCentered.setter
+    def isCentered(self, value):
+        self._isCentered = value
 
 #===================================================================================================
 #                                                                                     P U B L I C
@@ -88,24 +100,35 @@ class FlowLayout(QtGui.QLayout):
         y = rect.y() + margins[1]
         lineHeight = 0
 
+        maxWide = rect.right() - margins[2]
+        xMax = 0
+
+        items = []
         for item in self.itemList:
             widgetSize = self._getWidgetSize(item)
             nextX = x + widgetSize.width() + spaceX
-            if (nextX - spaceX) > (rect.right() - margins[2]) and lineHeight > 0:
+            if (nextX - spaceX) > maxWide and lineHeight > 0:
                 x = rect.x() + margins[0]
                 y = y + lineHeight + spaceY
                 nextX = x + item.sizeHint().width() + spaceX
                 lineHeight = 0
+            else:
+                xMax = max(xMax, nextX - spaceX)
 
             if not testOnly:
                 try:
                     item.widget().setGeometry(QtCore.QRect(QtCore.QPoint(0, 0), widgetSize))
                 except Exception, err:
                     pass
-                item.setGeometry(QtCore.QRect(QtCore.QPoint(x, y), widgetSize))
+                items.append((item, x, y, widgetSize))
 
             x = nextX
             lineHeight = max(lineHeight, widgetSize.height())
+
+        xOffset = int(0.5*float(maxWide - xMax)) if self.isCentered else 0
+        for data in items:
+            data[0].setGeometry(QtCore.QRect(
+                QtCore.QPoint(data[1] + xOffset, data[2]), data[3]))
 
         return y + lineHeight - rect.y()
 
