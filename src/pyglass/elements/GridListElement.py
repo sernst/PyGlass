@@ -4,16 +4,12 @@
 
 import math
 
-from PySide import QtCore
 from PySide import QtGui
 
 from pyglass.elements.PyGlassElement import PyGlassElement
-
-#___________________________________________________________________________________________________ GridListElement
-from pyglass.layouts.FlowLayout import FlowLayout
 from pyglass.layouts.ResponsiveFlowLayout import ResponsiveFlowLayout
 
-
+#___________________________________________________________________________________________________ GridListElement
 class GridListElement(PyGlassElement):
     """A class for..."""
 
@@ -93,23 +89,22 @@ class GridListElement(PyGlassElement):
         if self._updating:
             return
         self._updating = True
-        index = 0
-        layout = self.layout()
 
-        count = self.columnCount
-        wide  = self.columnWidth
+        index  = 0
+        layout = self.layout()
+        count  = self.columnCount
 
         for widget in self._widgetItems:
             if reorder:
                 layout.removeWidget(widget)
                 layout.addWidget(widget)
             widget.setVisible(True)
-            # widget.setFixedWidth(wide)
             index += 1
 
         self._lastColumnCount = count
         self._lastItemCount = len(self._widgetItems)
         self._updating = False
+        self.updateGeometry()
         self.update()
 
 #___________________________________________________________________________________________________ insertItem
@@ -181,14 +176,9 @@ class GridListElement(PyGlassElement):
     def _resizeImpl(self, *args, **kwargs):
         super(GridListElement, self)._resizeImpl(*args, **kwargs)
 
-        # Only update if the column count changes for performance
-        count = self.columnCount
         columnWidth = self.columnWidth
-        doUpdate = count != self._lastColumnCount \
-            or len(self._widgetItems) != self._lastItemCount \
-            or abs(columnWidth - self._lastColumnCount) > 10
 
-        if doUpdate:
+        if columnWidth - self._lastColumnWidth:
             self._lastColumnWidth = columnWidth
             self.layout().itemWidth = columnWidth
             self.updateItems(reorder=False)

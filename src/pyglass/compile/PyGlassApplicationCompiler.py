@@ -1,5 +1,5 @@
 # PyGlassApplicationCompiler.py
-# (C)2013
+# (C)2013-2014
 # Scott Ernst
 
 import os
@@ -44,10 +44,10 @@ class PyGlassApplicationCompiler(object):
     def iconPath(self):
         return None
 
-#___________________________________________________________________________________________________ GS: appResourceIds
+#___________________________________________________________________________________________________ GS: resourceAppIds
     @property
-    def appResourceIds(self):
-        return [self._application.ID]
+    def resourceAppIds(self):
+        return [self._application.appID]
 
 #___________________________________________________________________________________________________ GS: resources
     @property
@@ -138,6 +138,8 @@ class PyGlassApplicationCompiler(object):
 
         buildPath = FileUtils.createPath(binPath, 'build', isDir=True)
         SystemUtils.remove(buildPath)
+
+        FileUtils.openFolderInSystemDisplay(binPath)
 
         return True
 

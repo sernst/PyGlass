@@ -53,15 +53,21 @@ class StyledLabel(QtGui.QLabel):
         return self._color
     @color.setter
     def color(self, value):
-        if self._color == value:
-            return
-        elif value is None:
+        if value is None:
+            if self._color is None:
+                return
             self._color = None
-        elif isinstance(value, QtGui.QColor):
+            self._update()
+            return
+
+        c = self._color
+        if isinstance(value, QtGui.QColor):
             self._color = value
         else:
             self._color = ColorQValue(value).qColor
-        self._update()
+
+        if not ColorQValue.compareQColors(value, c):
+            self._update()
 
 #___________________________________________________________________________________________________ GS: isItalic
     @property
@@ -140,10 +146,9 @@ class StyledLabel(QtGui.QLabel):
         if isBorderless is not None:
             self._isBorderless = isBorderless
 
-        if color is not None:
-            self.color = color
-        else:
-            self._update()
+        if color:
+            self._color = ColorQValue.getAsQColor(color)
+        self._update()
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -180,7 +185,8 @@ class StyledLabel(QtGui.QLabel):
             self.setStyleSheet(None)
             return
 
-        self.setStyleSheet('; '.join(items))
+        css = '; '.join(items)
+        self.setStyleSheet(css)
 
 #===================================================================================================
 #                                                                               I N T R I N S I C

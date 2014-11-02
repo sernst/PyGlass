@@ -16,6 +16,11 @@ class ColorQValue(ColorValue):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, sourceColor, normalized =False, opacity =1.0):
         """Creates a new instance of ColorQValue."""
+        if isinstance(sourceColor, QtGui.QColor):
+            sourceColor = {
+                'r':sourceColor.red(), 'g':sourceColor.green(), 'b':sourceColor.blue(),
+                'a':sourceColor.alpha() }
+
         super(ColorQValue, self).__init__(sourceColor, normalized, opacity)
 
 #===================================================================================================
@@ -50,3 +55,11 @@ class ColorQValue(ColorValue):
             return False
 
         return True
+
+#___________________________________________________________________________________________________ getAsQColor
+    @classmethod
+    def getAsQColor(cls, source):
+        """getAsQColor doc..."""
+        if isinstance(source, QtGui.QColor):
+            return source
+        return cls(source).qColor
