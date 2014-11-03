@@ -38,6 +38,14 @@ class GridListElement(PyGlassElement):
 #===================================================================================================
 #                                                                                   G E T / S E T
 
+#___________________________________________________________________________________________________ GS: isCenterAligned
+    @property
+    def isCenterAligned(self):
+        return self.layout().isCentered
+    @isCenterAligned.setter
+    def isCenterAligned(self, value):
+        self.layout().isCentered = value
+
 #___________________________________________________________________________________________________ GS: maxColumnWidth
     @property
     def maxColumnWidth(self):

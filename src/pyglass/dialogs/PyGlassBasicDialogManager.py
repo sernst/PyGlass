@@ -2,6 +2,7 @@
 # (C)2012-2014
 # Scott Ernst
 
+from collections import namedtuple
 import os
 
 from PySide import QtCore
@@ -14,6 +15,8 @@ class PyGlassBasicDialogManager(QtCore.QObject):
 
 #===================================================================================================
 #                                                                                       C L A S S
+
+    FILE_FILTER_DEFINITION = namedtuple('FILE_FILTER_DEFINITION', ['label', 'extensions'])
 
 #___________________________________________________________________________________________________ openAbout
     @classmethod
@@ -72,21 +75,22 @@ class PyGlassBasicDialogManager(QtCore.QObject):
             dir=defaultPath if defaultPath else os.path.expanduser('~'))
 
         if not out:
-            return out
+            return None
         return FileUtils.cleanupPath(out, isDir=True)
 
 #___________________________________________________________________________________________________ browseForFileOpen
     @classmethod
-    def browseForFileOpen(cls, parent, caption =None, defaultPath =None, allowMultiple =False):
+    def browseForFileOpen(cls, parent, caption =None, defaultPath =None, allowMultiple =False, filterDefs =None):
         QFD = QtGui.QFileDialog
         f = QFD.getOpenFileNames if allowMultiple else QFD.getOpenFileName
         out = f(
             parent,
             caption=caption if caption else u'Select a File',
-            dir=defaultPath if defaultPath else os.path.expanduser('~'))
+            dir=defaultPath if defaultPath else os.path.expanduser('~'),
+            filter=cls.getFileFilterString(filterDefs))
 
         if not out or not out[0]:
-            return out
+            return None
 
         if not allowMultiple:
             return FileUtils.cleanupPath(out[0], isFile=True)
@@ -98,19 +102,57 @@ class PyGlassBasicDialogManager(QtCore.QObject):
 
 #___________________________________________________________________________________________________ browseForFileSave
     @classmethod
-    def browseForFileSave(cls, parent, caption =None, defaultPath =None):
+    def browseForFileSave(cls, parent, caption =None, defaultPath =None, filterDefs =None):
         out = QtGui.QFileDialog.getSaveFileName(
             parent,
             caption=caption if caption else u'Specify File',
             dir=defaultPath if defaultPath else os.path.expanduser('~'),
-            options=QtGui.QFileDialog.AnyFile)
+            options=QtGui.QFileDialog.AnyFile,
+            filter=cls.getFileFilterString(filterDefs))
 
         if not out or not out[0]:
-            return out
+            return None
         return FileUtils.cleanupPath(out[0], isFile=True)
+
+#___________________________________________________________________________________________________ getFileFilterString
+    @classmethod
+    def getFileFilterString(cls, filterDefs =None):
+        """getFileFilterString doc..."""
+        if not filterDefs:
+            return None
+
+        if isinstance(filterDefs, cls.FILE_FILTER_DEFINITION):
+            filterDefs = [filterDefs]
+
+        out = []
+        for fd in filterDefs:
+            result = cls._makeFilterString(fd)
+            if result:
+               out.append(result)
+
+        return ';;'.join(out)
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
+
+#___________________________________________________________________________________________________ _makeFilterString
+    @classmethod
+    def _makeFilterString(cls, filterDef):
+        """_makeFilterString doc..."""
+        extensions = filterDef.extensions
+        if not extensions:
+            return None
+        elif not isinstance(extensions, (list, tuple)):
+            extensions = [extensions]
+
+        for i in range(len(extensions)):
+            extensions[i] = unicode(extensions[i]).strip('.*')
+
+        label = filterDef.label
+        if not label:
+            label = u'Files'
+
+        return u'%s (*.%s)' % (label, ' *.'.join(extensions))
 
 #___________________________________________________________________________________________________ _showMessageDialg
     @classmethod
