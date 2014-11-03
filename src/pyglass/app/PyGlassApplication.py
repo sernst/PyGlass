@@ -153,6 +153,9 @@ class PyGlassApplication(QtCore.QObject):
 #___________________________________________________________________________________________________ run
     def run(self, appArgs =None, **kwargs):
         """Doc..."""
+
+        #-------------------------------------------------------------------------------------------
+        # LOG REDIRECTION
         try:
             if PyGlassEnvironment.isDeployed:
                 logPath = PyGlassEnvironment.getRootLocalResourcePath('logs', isDir=True)
@@ -173,13 +176,12 @@ class PyGlassApplication(QtCore.QObject):
         except Exception, err:
             raise
 
+        #-------------------------------------------------------------------------------------------
+        # RESOURCE DEPLOYMENT
         try:
             if PyGlassEnvironment.isDeployed:
                 resourcePath = PyGlassEnvironment.getRootResourcePath(isDir=True)
                 stampPath = FileUtils.makeFilePath(resourcePath, 'install.stamp')
-                print 'RESOURCE PATH:', resourcePath
-                print 'STAMP PATH:', stampPath
-                print 'INSTALL PATH:', PyGlassEnvironment.getInstallationPath(isDir=True)
                 if not os.path.exists(stampPath) and OsUtils.isWindows():
                     SystemUtils.remove(resourcePath)
                     FileUtils.mergeCopy(
@@ -197,6 +199,10 @@ class PyGlassApplication(QtCore.QObject):
         qApp = QtGui.QApplication(appArgs if appArgs else [])
         self._qApplication = qApp
 
+        # Add the resources path to the search directory
+        QtCore.QDir.addSearchPath('AppResources', self.getAppResourcePath(isDir=True))
+        QtCore.QDir.addSearchPath('LocalAppResources', self.getLocalAppResourcePath(isDir=True))
+
         if self.splashScreenUrl:
             parts = str(self.splashScreenUrl).split(':', 1)
             if len(parts) == 1 or parts[0].lower == 'app':
@@ -210,10 +216,6 @@ class PyGlassApplication(QtCore.QObject):
                 splash.show()
                 self._splashScreen = splash
                 self.updateSplashScreen('Initializing User Interface')
-
-        # Add the resources path to the search directory
-        QtCore.QDir.addSearchPath('AppResources', self.getAppResourcePath(isDir=True))
-        QtCore.QDir.addSearchPath('LocalAppResources', self.getLocalAppResourcePath(isDir=True))
 
         self._runPreMainWindowImpl()
 
