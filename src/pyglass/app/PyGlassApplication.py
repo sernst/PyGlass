@@ -9,7 +9,9 @@ import inspect
 import PySide
 from PySide import QtCore
 from PySide import QtGui
+from pyaid.OsUtils import OsUtils
 from pyaid.file.FileUtils import FileUtils
+from pyaid.system.SystemUtils import SystemUtils
 
 from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 
@@ -168,6 +170,21 @@ class PyGlassApplication(QtCore.QObject):
                 except Exception, err:
                     pass
                 sys.stderr = open(logPath + 'error.log', 'w')
+        except Exception, err:
+            raise
+
+        try:
+            if PyGlassEnvironment.isDeployed:
+                resourcePath = PyGlassEnvironment.getRootResourcePath(isDir=True)
+                stampPath = FileUtils.makeFilePath(resourcePath, 'install.stamp')
+                print 'RESOURCE PATH:', resourcePath
+                print 'STAMP PATH:', stampPath
+                print 'INSTALL PATH:', PyGlassEnvironment.getInstallationPath(isDir=True)
+                if not os.path.exists(stampPath) and OsUtils.isWindows():
+                    SystemUtils.remove(resourcePath)
+                    FileUtils.mergeCopy(
+                        PyGlassEnvironment.getInstallationPath('resource_storage', isDir=True),
+                        resourcePath)
         except Exception, err:
             raise
 

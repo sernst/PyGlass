@@ -6,6 +6,8 @@ import sys
 import os
 import shutil
 import py_compile
+from pyaid.json.JSON import JSON
+from pyaid.time.TimeUtils import TimeUtils
 import requests.utils
 
 from pyaid.ArgsUtils import ArgsUtils
@@ -92,6 +94,10 @@ class ResourceCollector(object):
         for container in resources:
             self._copyResourceFolder(
                 PyGlassEnvironment.getPyGlassResourcePath('..', container), [container])
+
+        # Create a stamp file in resources for comparing on future installations
+        creationStampFile = FileUtils.makeFilePath(self._targetPath, 'install.stamp')
+        JSON.toFile(creationStampFile, {'CTS':TimeUtils.toZuluPreciseTimestamp()})
 
         #-------------------------------------------------------------------------------------------
         # CLEANUP

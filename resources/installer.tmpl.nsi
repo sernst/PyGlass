@@ -20,7 +20,7 @@
 	InstallDirRegKey HKLM "Software\##APP_GROUP_ID##_##APP_ID##" "Install_Dir"
 
 	; Request application privileges for Windows Vista+
-	RequestExecutionLevel admin
+	; RequestExecutionLevel admin
 
 ;--------------------------------
 ;Interface Settings
@@ -51,13 +51,16 @@ Section "##APP_NAME## (required)"
 
   SectionIn RO
 
-  ; Install resource files
-  SetOutPath "$LOCALAPPDATA\##APP_GROUP_ID##\##APP_ID##\resources"
-  File /r "resources\*"
-
   ; Install application files and dependencies
   SetOutPath "$INSTDIR\##APP_NAME##"
   File /r "dist\*"
+
+  ; Install resource files
+  ; SetOutPath "$LOCALAPPDATA\##APP_GROUP_ID##\##APP_ID##\resources"
+  ; File /r "resources\*"
+
+  SetOutPath "$INSTDIR\##APP_NAME##\resource_storage"
+  File /r "resources\*"
 
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\##APP_GROUP_ID##_##APP_ID## "Install_Dir" "$INSTDIR"

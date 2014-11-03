@@ -93,6 +93,15 @@ class PyGlassEnvironment(object):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ getInstallationPath
+    @classmethod
+    def getInstallationPath(cls, *args, **kwargs):
+        """getInstallationPath doc..."""
+        if not cls.isDeployed or not OsUtils.isWindows():
+            return None
+        parts = cls._ENV_PATH.split(os.sep + 'library.zip' + os.sep)
+        return FileUtils.createPath(parts[0], *args, **kwargs)
+
 #___________________________________________________________________________________________________ initializeCreatePathAppSettings
     @classmethod
     def initializeCreatePathAppSettings(cls, *args, **kwargs):
