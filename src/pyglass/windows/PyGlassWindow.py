@@ -198,6 +198,13 @@ class PyGlassWindow(QtGui.QMainWindow):
     def pyGlassApplication(self):
         return self._application if self.isMainWindow else self.mainWindow.pyGlassApplication
 
+#___________________________________________________________________________________________________ GS: application
+    @property
+    def application(self):
+        if self._application is not None:
+            return self._application
+        return self._application if self.isMainWindow else self.mainWindow.application
+
 #___________________________________________________________________________________________________ GS: qApplication
     @property
     def qApplication(self):

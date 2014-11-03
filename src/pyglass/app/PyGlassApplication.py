@@ -35,33 +35,13 @@ class PyGlassApplication(QtCore.QObject):
     def __init__(self, *args, **kwargs):
         """Creates a new instance of PyGlassApplication."""
         QtCore.QObject.__init__(self)
-        self._qApplication = None
-        self._window       = None
-        self._splashScreen = None
+        self._qApplication      = None
+        self._window            = None
+        self._splashScreen      = None
 
-        # Sets a temporary standard out and error for deployed applications in a write allowed
-        # location to prevent failed write results.
-        if PyGlassEnvironment.isDeployed:
-            if appdirs:
-                userDir = appdirs.user_data_dir(self.appID, self.appGroupID)
-            else:
-                userDir = FileUtils.createPath(
-                    os.path.expanduser('~'), '.pyglass', self.appGroupID, self.appID, isDir=True)
-
-            path = FileUtils.createPath(
-                userDir,
-                self.appID + '_out.log', isFile=True)
-            FileUtils.getDirectoryOf(path, createIfMissing=True)
-            sys.stdout = open(path, 'w+')
-
-            FileUtils.createPath(
-                appdirs.user_data_dir(self.appID, self.appGroupID),
-                self.appID + '_error.log',
-                isFile=True)
-            FileUtils.getDirectoryOf(path, createIfMissing=True)
-            sys.stderr = open(path, 'w+')
-
+        self.redirectLogOutputs()
         PyGlassEnvironment.initializeAppSettings(self)
+        self.redirectLogOutputs()
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -112,6 +92,49 @@ class PyGlassApplication(QtCore.QObject):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ redirectLogOutputs
+    def redirectLogOutputs(self, prefix =None, logFolderPath =None):
+        """ Sets a temporary standard out and error for deployed applications in a write allowed
+            location to prevent failed write results. """
+
+        if not PyGlassEnvironment.isDeployed:
+            return
+
+        if not prefix:
+            prefix = self.appID
+
+        if not prefix.endswith('_'):
+            prefix += '_'
+
+        if logFolderPath:
+            logPath = logFolderPath
+        elif PyGlassEnvironment.isInitialized:
+            logPath = PyGlassEnvironment.getRootLocalResourcePath('logs', isDir=True)
+        else:
+            prefix += 'init_'
+            if appdirs:
+                logPath = appdirs.user_data_dir(self.appID, self.appGroupID)
+            else:
+                logPath = FileUtils.createPath(
+                    os.path.expanduser('~'), '.pyglass', self.appGroupID, self.appID, isDir=True)
+
+        FileUtils.getDirectoryOf(logPath, createIfMissing=True)
+        try:
+            sys.stdout.flush()
+            sys.stdout.close()
+        except Exception, err:
+            pass
+        sys.stdout = open(FileUtils.makeFilePath(logPath, prefix + 'out.log'), 'w+')
+
+        try:
+            sys.stderr.flush()
+            sys.stderr.close()
+        except Exception, err:
+            pass
+        sys.stderr = open(FileUtils.makeFilePath(logPath, prefix + 'error.log'), 'w+')
+
+        return True
+
 #___________________________________________________________________________________________________ getAppResourcePath
     def getAppResourcePath(self, *args, **kwargs):
         return PyGlassEnvironment.getRootResourcePath('apps', self.appID, *args, **kwargs)
@@ -142,13 +165,6 @@ class PyGlassApplication(QtCore.QObject):
 #___________________________________________________________________________________________________ run
     def run(self, appArgs =None, **kwargs):
         """Doc..."""
-
-        #-------------------------------------------------------------------------------------------
-        # LOG REDIRECTION
-        try:
-            self._redirectLogging()
-        except Exception, err:
-            raise
 
         #-------------------------------------------------------------------------------------------
         # RESOURCE DEPLOYMENT
@@ -223,24 +239,7 @@ class PyGlassApplication(QtCore.QObject):
     @classmethod
     def _redirectLogging(cls):
         """_redirectLogging doc..."""
-        if not PyGlassEnvironment.isDeployed:
-            return
-
-        logPath = PyGlassEnvironment.getRootLocalResourcePath('logs', isDir=True)
-        if not os.path.exists(logPath):
-            os.makedirs(logPath)
-
-        try:
-            sys.stdout.close()
-        except Exception, err:
-            pass
-        sys.stdout = open(logPath + 'out.log', 'w')
-
-        try:
-            sys.stderr.close()
-        except Exception, err:
-            pass
-        sys.stderr = open(logPath + 'error.log', 'w')
+        pass
 
 #___________________________________________________________________________________________________ _deployResources
     @classmethod

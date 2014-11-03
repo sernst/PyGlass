@@ -41,6 +41,11 @@ class PyGlassEnvironment(object):
 #===================================================================================================
 #                                                                                   G E T / S E T
 
+#___________________________________________________________________________________________________ GS: isInitialized
+    @ClassGetter
+    def isInitialized(cls):
+        return bool(cls._rootLocalResourcePath is not None)
+
 #___________________________________________________________________________________________________ GS: atlasManager
     @ClassGetter
     def atlasManager(cls):
