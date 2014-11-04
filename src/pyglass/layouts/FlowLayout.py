@@ -17,6 +17,7 @@ class FlowLayout(QtGui.QLayout):
         self.setSpacing(spacing)
         self.itemList = []
         self._isCentered = False
+        self._isAlignedPerRow = False
 
 #___________________________________________________________________________________________________ __del__
     def __del__(self):
@@ -27,6 +28,15 @@ class FlowLayout(QtGui.QLayout):
 #===================================================================================================
 #                                                                                   G E T / S E T
 
+#___________________________________________________________________________________________________ GS: isAlignedPerRow
+    @property
+    def isAlignedPerRow(self):
+        return self._isAlignedPerRow
+    @isAlignedPerRow.setter
+    def isAlignedPerRow(self, value):
+        self._isAlignedPerRow = value
+        self.update()
+
 #___________________________________________________________________________________________________ GS: isCentered
     @property
     def isCentered(self):
@@ -34,6 +44,7 @@ class FlowLayout(QtGui.QLayout):
     @isCentered.setter
     def isCentered(self, value):
         self._isCentered = value
+        self.update()
 
 #===================================================================================================
 #                                                                                     P U B L I C
@@ -103,7 +114,8 @@ class FlowLayout(QtGui.QLayout):
         maxWide = rect.right() - margins[2]
         xMax = 0
 
-        items = []
+        row = {'xMax':0, 'items':[]}
+        rowList = [row]
         for item in self.itemList:
             widgetSize = self._getWidgetSize(item)
             nextX = x + widgetSize.width() + spaceX
@@ -112,23 +124,40 @@ class FlowLayout(QtGui.QLayout):
                 y = y + lineHeight + spaceY
                 nextX = x + item.sizeHint().width() + spaceX
                 lineHeight = 0
-            else:
-                xMax = max(xMax, nextX - spaceX)
+
+                row = {'xMax':0, 'items':[]}
+                rowList.append(row)
+
+            row['xMax'] = max(row['xMax'], nextX - spaceX)
+            xMax = max(xMax, nextX - spaceX)
 
             if not testOnly:
                 try:
                     item.widget().setGeometry(QtCore.QRect(QtCore.QPoint(0, 0), widgetSize))
                 except Exception, err:
                     pass
-                items.append((item, x, y, widgetSize))
+                row['items'].append((item, x, y, widgetSize))
 
             x = nextX
             lineHeight = max(lineHeight, widgetSize.height())
 
-        xOffset = int(0.5*float(maxWide - xMax)) if self.isCentered else 0
-        for data in items:
-            data[0].setGeometry(QtCore.QRect(
-                QtCore.QPoint(data[1] + xOffset, data[2]), data[3]))
+        # Skip actual layout if running in test only mode
+        if testOnly:
+            return y + lineHeight - rect.y()
+
+        #-------------------------------------------------------------------------------------------
+        # APPLY LAYOUT
+        #       Use the layout calculations above to apply the layouts to each child item of the
+        #       layout.
+        for row in rowList:
+            if not row['items']:
+                continue
+
+            rowWide = row['xMax'] if self.isAlignedPerRow else xMax
+            xOffset = int(0.5*float(maxWide - rowWide)) if self.isCentered else 0
+            for data in row['items']:
+                data[0].setGeometry(QtCore.QRect(
+                    QtCore.QPoint(data[1] + xOffset, data[2]), data[3]))
 
         return y + lineHeight - rect.y()
 
