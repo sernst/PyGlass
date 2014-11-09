@@ -56,21 +56,18 @@ class WidgetUiCompiler(object):
     def run(self):
         """Doc..."""
 
-        arg = dict()
-        if self._recursive:
-            os.path.walk(self._rootPath, self._compileInFolder, arg)
-        else:
-            self._compileInFolder(arg, self._rootPath, os.listdir(self._rootPath))
+        FileUtils.walkPath(
+            self._rootPath, self._compileInFolder, data=dict(), recursive=self._recursive)
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
 #___________________________________________________________________________________________________ _compileInFolder
-    def _compileInFolder(self, arg, dirname, names):
-        for name in names:
+    def _compileInFolder(self, data):
+        for name in data.files:
             if not name.endswith('.ui'):
                 continue
-            self._compileUiFile(dirname, name)
+            self._compileUiFile(data.folder, name)
 
 #___________________________________________________________________________________________________ _compileUiFile
     def _compileUiFile(self, path, filename):
@@ -98,6 +95,7 @@ class WidgetUiCompiler(object):
             self._log.write('ERROR: Failed to compile %s widget: %s' % (str(source), str(error)))
             return False
 
+        out = StringUtils.toUnicode(out)
         res = WidgetUiCompiler._CLASS_NAME_RE.search(out)
         if not res:
             self._log.write('ERROR: Failed to find widget class name for ' + str(source))

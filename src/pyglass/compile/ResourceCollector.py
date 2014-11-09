@@ -140,7 +140,7 @@ class ResourceCollector(object):
 
 #___________________________________________________________________________________________________ _compilePythonFiles
     def _compilePythonFiles(self, rootPath):
-        os.path.walk(rootPath, self._compileInFolder, dict())
+        FileUtils.walkPath(rootPath, self._compileInFolder, dict())
 
 #___________________________________________________________________________________________________ _compileInFolder
     def _compileInFolder(self, arg, dirname, names):
@@ -150,11 +150,13 @@ class ResourceCollector(object):
 
 #___________________________________________________________________________________________________ _cleanupFiles
     def _cleanupFiles(self, targetPath):
-        os.path.walk(targetPath, self._cleanupInFolder, dict())
+        FileUtils.walkPath(targetPath, self._cleanupInFolder, dict())
 
 #___________________________________________________________________________________________________ _cleanupInFolder
-    def _cleanupInFolder(self, arg, dirname, names):
-        for name in names:
+    def _cleanupInFolder(self, data):
+        dirname = data.folder
+
+        for name in data.names:
             if StringUtils.ends(name, self._compiler.ignoreExtensions):
                 os.remove(FileUtils.createPath(dirname, name, isFile=True))
 

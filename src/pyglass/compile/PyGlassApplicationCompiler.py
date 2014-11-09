@@ -19,6 +19,7 @@ from pyglass.compile.SiteLibraryEnum import SiteLibraryEnum
 from pyglass.compile.ResourceCollector import ResourceCollector
 from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 
+
 #___________________________________________________________________________________________________ PyGlassApplicationCompiler
 class PyGlassApplicationCompiler(object):
     """A class for..."""
@@ -31,6 +32,7 @@ class PyGlassApplicationCompiler(object):
 #___________________________________________________________________________________________________ __init__
     def __init__(self):
         """Creates a new instance of PyGlassApplicationCompiler."""
+        # noinspection PyCallingNonCallable
         self._application = self.applicationClass()
 
 #===================================================================================================
@@ -211,6 +213,7 @@ class PyGlassApplicationCompiler(object):
             return ''
 
         if StringUtils.isStringType(path):
+            path = StringUtils.toUnicode(path)
             if os.path.isabs(path) and os.path.exists(path):
                 return FileUtils.cleanupPath(path)
             else:

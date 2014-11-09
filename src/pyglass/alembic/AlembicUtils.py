@@ -200,8 +200,7 @@ class AlembicUtils(object):
             return []
 
         results = []
-        # noinspection PyTypeChecker
-        os.path.walk(databaseRoot, cls._findAppDatabases, {
+        FileUtils.walkPath(databaseRoot, cls._findAppDatabases, {
             'root':databaseRoot,
             'results':results,
             'appName':appName })
@@ -256,7 +255,10 @@ class AlembicUtils(object):
 
 #___________________________________________________________________________________________________ _findAppDatabases
     @classmethod
-    def _findAppDatabases(cls, args, dirname, names):
+    def _findAppDatabases(cls, data):
+        args    = data.data
+        dirname = data.folder
+
         for item in os.listdir(dirname):
             itemPath = FileUtils.createPath(dirname, item)
             if os.path.isfile(itemPath) and itemPath.endswith('.vdb'):

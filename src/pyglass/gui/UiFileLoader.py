@@ -2,16 +2,19 @@
 # (C)2012-2014
 # Scott Ernst
 
+
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import os
 import sys
+import importlib
+from pyaid.list.ListUtils import ListUtils
 
-if sys.version > '3':
-    import importlib
-else:
+if sys.version < '3':
     # noinspection PyDeprecation
-    import imp as importlib
+    import imp
+else:
+    imp = None
 
 from PySide import QtCore
 from PySide import QtGui
@@ -29,8 +32,6 @@ class UiFileLoader(QtUiTools.QUiLoader):
 
 #===================================================================================================
 #                                                                                       C L A S S
-
-    _WIDGET_EXTENSIONS = ['.ui', '.py', '.pyc']
 
 #___________________________________________________________________________________________________ __init__
     def __init__(self, target):
@@ -82,66 +83,52 @@ class UiFileLoader(QtUiTools.QUiLoader):
 #___________________________________________________________________________________________________ loadWidgetFile
     @classmethod
     def loadWidgetFile(cls, widget, names =None, loadAsWidget =True, target =None):
-        lookups = names if names and names[0] \
-            else [widget.__class__.__name__, 'widget', 'main', 'gui']
+        """ Loads the UI file for the widget from its resource path. """
+
+        widgetName = widget.__class__.__name__
+        lookups = ListUtils.asList(names, allowTuples=False) + [widgetName, 'widget', 'main', 'gui']
 
         if not target:
             target = widget
 
-        widgetPath     = None
-        widgetModified = 0
-        for item in lookups:
-            w = widget.getResourcePath(item, isFile=True)
-            for ext in UiFileLoader._WIDGET_EXTENSIONS:
-                if not os.path.exists(w + ext):
-                    continue
+        try:
+            path = widget.getResourcePath(isDir=True)
+        except Exception:
+            raise IOError('[ERROR]: No widget resource path found for "%s" widget' % (widgetName))
 
-                modTime = os.path.getmtime(w + ext)
-                if modTime >= widgetModified:
-                    widgetPath     = w + ext
-                    widgetModified = modTime
-            if widgetPath:
+        if not os.path.exists(path):
+            raise IOError('[ERROR]: Missing widget resource path [%s]: %s' % (widgetName, path))
+
+        for item in lookups:
+            testPath    = widget.getResourcePath(item, isFile=True)
+            uiPath      = testPath + '.ui'
+            uiModTime   = os.path.getmtime(uiPath) if os.path.exists(uiPath) else 0
+            pyPath      = testPath + '.py'
+            pyModTime   = os.path.getmtime(uiPath) if os.path.exists(uiPath) else 0
+            pycPath     = cls._getCachedPath(pyPath)
+            pycModTime  = os.path.getmtime(pycPath) if os.path.exists(pycPath) else 0
+
+            # If no files exist for the lookup item move on to the next one
+            if uiModTime == 0 and pyModTime == 0 and pycModTime == 0:
+                continue
+
+            if uiModTime > pyModTime:
+                result = cls.loadFileIntoTarget(target if loadAsWidget else None, uiPath)
                 break
 
-        if widgetPath is None:
-            try:
-                path = widget.getResourcePath()
-            except Exception:
-                raise Exception('ERROR: No widget resource path found for "%s" widget' % (
-                    widget.__class__.__name__))
-
-            if not os.path.exists(path):
-                raise Exception('ERROR: Missing widget resource path [%s]: %s' % (
-                    widget.__class__.__name__, path))
-
-            widgetModified = 0
-            for item in os.listdir(widget.getResourcePath()):
-                item = StringUtils.toUnicode(item)
-                if ('.' + item.rsplit('.', 1)[-1]) not in UiFileLoader._WIDGET_EXTENSIONS:
-                    continue
-
-                item    = widget.getResourcePath(item, isFile=True)
-                modTime = os.path.getmtime(item)
-                if modTime >= widgetModified:
-                    widgetModified = modTime
-                    widgetPath     = item
-                if widgetPath:
-                    break
-
-        if widgetPath is None:
-            raise Exception('Error: No UI file found at: ' + widget.getResourcePath())
-
-        if widgetPath.endswith('.ui'):
-            result = cls.loadFileIntoTarget(target if loadAsWidget else None, widgetPath)
-        else:
-            if widgetPath.endswith('.py'):
-                # noinspection PyDeprecation
-                setup = importlib.load_source('PySideUiFileSetup', widgetPath).PySideUiFileSetup()
+            if pyModTime >= pycModTime:
+                setup = cls._importSource(pyPath)
             else:
-                # noinspection PyDeprecation
-                setup = importlib.load_compiled('PySideUiFileSetup', widgetPath).PySideUiFileSetup()
+                setup = cls._importCompiled(pycPath)
+
+            if not setup:
+                continue
             result = target if loadAsWidget else QtGui.QWidget()
-            setup.setupUi(result)
+            setup.PySideUiFileSetup().setupUi(result)
+            break
+
+        if not result:
+            raise Exception('[ERROR]: No UI file found at: ' + path)
 
         if result is not target:
             layout = QtGui.QVBoxLayout()
@@ -158,3 +145,34 @@ class UiFileLoader(QtUiTools.QUiLoader):
             elements = None
 
         return {'widget':result, 'layout':layout, 'elements':elements}
+
+#___________________________________________________________________________________________________ _getCachedPath
+    @classmethod
+    def _getCachedPath(cls, sourcePath):
+        """_getCachedPath doc..."""
+        if sys.version < '3':
+            return sourcePath + 'c'
+        return importlib.util.cache_from_source(sourcePath)
+
+#___________________________________________________________________________________________________ _importSource
+    # noinspection PyDeprecation
+    @classmethod
+    def _importSource(cls, widgetPath):
+        """_importSource doc..."""
+        if imp:
+            pycPath = widgetPath
+            return imp.load_source('PySideUiFileSetup', widgetPath)
+
+        loader = importlib.machinery.SourceFileLoader('PySideUiFileSetup', widgetPath)
+        return loader.load_module()
+
+#___________________________________________________________________________________________________ _importCompiled
+    # noinspection PyDeprecation
+    @classmethod
+    def _importCompiled(cls, widgetPath):
+        """_importCompiled doc..."""
+        if imp:
+            return imp.load_compiled('PySideUiFileSetup', widgetPath)
+
+        loader = importlib.machinery.SourcelessFileLoader('PySideUiFileSetup', widgetPath)
+        return loader.load_module()

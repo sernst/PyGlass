@@ -247,7 +247,7 @@ class PyGlassWidget(PyGlassElement):
 #___________________________________________________________________________________________________ diposeWidgets
     def disposeWidgets(self, *widgetIDs):
         if not widgetIDs:
-            widgetIDs = self._widgets.keys()
+            widgetIDs = list(self._widgets.keys())
 
         for widgetID in widgetIDs:
             widget = self._widgets[widgetID]
