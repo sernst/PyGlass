@@ -2,7 +2,10 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtWebKit
+from pyaid.string.StringUtils import StringUtils
 
 from pyglass.web.PyGlassNetworkManager import PyGlassNetworkManager
 from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
@@ -55,12 +58,12 @@ class PyGlassWebPage(QtWebKit.QWebPage):
         if msg == 'Empty trace item':
             return
 
-        print 'LOG:', msg
-        print '    LINE: #%d OF %s' % (line, source)
+        print('LOG:', msg)
+        print('    LINE: #%d OF %s' % (line, source))
 
 #___________________________________________________________________________________________________ javaScriptAlert
     def javaScriptAlert(self, originatingFrame, msg):
-        print 'ALERT:', msg
+        print('ALERT:', msg)
 
 #===================================================================================================
 #                                                                                 H A N D L E R S
@@ -78,7 +81,7 @@ class PyGlassWebPage(QtWebKit.QWebPage):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

@@ -2,6 +2,8 @@
 # (C)2012
 # Eric David Wills and Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
 
@@ -21,7 +23,7 @@ class ModelPropertySetter(ModelProperty):
                 c = getattr(wrappedSelf.__class__, self._name).property.columns[0]
                 if isinstance(c, Unicode) or isinstance(c, UnicodeText):
                     value = value.decode('utf-8')
-            except Exception, err:
+            except Exception as err:
                 pass
 
         setattr(wrappedSelf, self._name, value)

@@ -2,6 +2,8 @@
 # (C)2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from pyglass.data.PyGlassObject import PyGlassObject
 
 #___________________________________________________________________________________________________ OverlayManager
@@ -62,7 +64,7 @@ class OverlayManager(PyGlassObject):
         try:
             self.getByName(name).show()
             return True
-        except Exception, err:
+        except Exception as err:
             return False
 
 #___________________________________________________________________________________________________ hide
@@ -71,7 +73,7 @@ class OverlayManager(PyGlassObject):
         try:
             self.getByName(name).hide()
             return True
-        except Exception, err:
+        except Exception as err:
             return False
 
 #___________________________________________________________________________________________________ getByName

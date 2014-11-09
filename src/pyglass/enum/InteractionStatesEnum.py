@@ -2,6 +2,8 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 #___________________________________________________________________________________________________ InteractionStatesEnum
 class InteractionStatesEnum(object):
     """A class for..."""
@@ -9,12 +11,12 @@ class InteractionStatesEnum(object):
 #===================================================================================================
 #                                                                                       C L A S S
 
-    NORMAL_MODE   = u'normal'
+    NORMAL_MODE   = 'normal'
 
-    OVER_MODE     = u'over'
+    OVER_MODE     = 'over'
 
-    PRESS_MODE    = u'press'
+    PRESS_MODE    = 'press'
 
-    SELECTED_MODE = u'selected'
+    SELECTED_MODE = 'selected'
 
-    DISABLED_MODE = u'disabled'
+    DISABLED_MODE = 'disabled'

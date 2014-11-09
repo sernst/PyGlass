@@ -2,17 +2,20 @@
 # (C)2012-2013
 # Scott Ernst
 
-from PySide.QtCore import QObject
+from __future__ import print_function, absolute_import, unicode_literals, division
+
+from PySide import QtCore
 
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.debug.Logger import Logger
 from pyaid.decorators.ClassInstanceMethod import ClassInstanceMethod
+from pyaid.string.StringUtils import StringUtils
 
 from pyglass.web.request.RequestThread import RequestThread
 from pyglass.web.request.RequestUtils import RequestUtils
 
 #___________________________________________________________________________________________________ Request
-class Request(QObject):
+class Request(QtCore.QObject):
     """A class for..."""
 
 #===================================================================================================
@@ -25,7 +28,7 @@ class Request(QObject):
         """Creates a new instance of Request."""
         self._localData = ArgsUtils.extract('localData', None, kwargs)
         self._dead      = ArgsUtils.extract('dead', False, kwargs)
-        QObject.__init__(self, parent, **kwargs)
+        super(Request, self).__init__(parent, **kwargs)
         self._url       = url
         self._owner     = parent
         self._log       = parent.log if parent else Logger(self)
@@ -86,7 +89,7 @@ class Request(QObject):
     def json(self):
         try:
             return self._result.json()
-        except Exception, err:
+        except Exception as err:
             return None
 
 #___________________________________________________________________________________________________ GS: error
@@ -122,24 +125,23 @@ class Request(QObject):
 #___________________________________________________________________________________________________ echo
     def echo(self):
         s = '\n\t'.join([
-            u'Request[%s]:' % unicode(self.url),
-            u'SUCCESS: ' + unicode(self.success),
-            u'DEAD: ' + unicode(self.isDead),
-            u'RAW: ' + unicode(self.rawResponse),
-            u'RESULT: ' + unicode(self.result),
-            u'ERROR: ' + unicode(self.error)
+            'Request[%s]:' % StringUtils.toUnicode(self.url),
+            'SUCCESS: ' + StringUtils.toUnicode(self.success),
+            'DEAD: ' + StringUtils.toUnicode(self.isDead),
+            'RAW: ' + StringUtils.toUnicode(self.rawResponse),
+            'RESULT: ' + StringUtils.toUnicode(self.result),
+            'ERROR: ' + StringUtils.toUnicode(self.error)
         ])
-        print s
+        print(s)
         return s
 
 #___________________________________________________________________________________________________ send
     @ClassInstanceMethod
     def send(self, cls, *args, **kwargs):
-        """ Sends an API request to the Vizme servers and handles the response. This can be sent
+        """ Sends an API request to the cloud servers and handles the response. This can be sent
             either synchronously or asynchronously depending on whether or not a callback argument
             is included in the request. Asynchronous requests must be handled within the context
-            of a running PySide application loop, as the threading is managed by PySide.
-        """
+            of a running PySide application loop, as the threading is managed by PySide. """
 
         callback = ArgsUtils.extract('callback', None, kwargs, args, 0)
         if self:
@@ -215,7 +217,7 @@ class Request(QObject):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

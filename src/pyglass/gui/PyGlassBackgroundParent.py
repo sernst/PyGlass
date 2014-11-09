@@ -2,14 +2,15 @@
 # (C)2012-2013
 # Scott Ernst
 
-from PySide.QtGui import QWidget
+from __future__ import print_function, absolute_import, unicode_literals, division
+
+from PySide import QtGui
 
 from pyaid.debug.Logger import Logger
-
-from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
+from pyaid.string.StringUtils import StringUtils
 
 #___________________________________________________________________________________________________ PyGlassBackgroundParent
-class PyGlassBackgroundParent(QWidget):
+class PyGlassBackgroundParent(QtGui.QWidget):
     """A class for..."""
 
 #===================================================================================================
@@ -18,7 +19,7 @@ class PyGlassBackgroundParent(QWidget):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, parent =None, proxy =None):
         """Creates a new instance of PyGlassBackgroundParent."""
-        QWidget.__init__(self, parent)
+        super(PyGlassBackgroundParent, self).__init__(parent)
         self._gui        = proxy if proxy else parent
         self._log        = parent.log if parent and hasattr(parent, 'log') else None
         if not self._log:
@@ -56,7 +57,7 @@ class PyGlassBackgroundParent(QWidget):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

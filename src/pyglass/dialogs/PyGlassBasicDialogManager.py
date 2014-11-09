@@ -2,13 +2,16 @@
 # (C)2012-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from collections import namedtuple
 import os
 
 from PySide import QtCore
 from PySide import QtGui
-
 from pyaid.file.FileUtils import FileUtils
+from pyaid.string.StringUtils import StringUtils
+
 
 #___________________________________________________________________________________________________ PyGlassBasicDialogManager
 class PyGlassBasicDialogManager(QtCore.QObject):
@@ -60,7 +63,7 @@ class PyGlassBasicDialogManager(QtCore.QObject):
             otherwise it returns the string set by the user. """
 
         if defaultText is None:
-            defaultText = u''
+            defaultText = ''
         result = QtGui.QInputDialog.getText(parent, header, message, text=defaultText)
         if not result[-1]:
             return None
@@ -71,7 +74,7 @@ class PyGlassBasicDialogManager(QtCore.QObject):
     def browseForDirectory(cls, parent, caption =None, defaultPath =None):
         out = QtGui.QFileDialog.getExistingDirectory(
             parent,
-            caption=caption if caption else u'Select a Directory',
+            caption=caption if caption else 'Select a Directory',
             dir=defaultPath if defaultPath else os.path.expanduser('~'))
 
         if not out:
@@ -85,7 +88,7 @@ class PyGlassBasicDialogManager(QtCore.QObject):
         f = QFD.getOpenFileNames if allowMultiple else QFD.getOpenFileName
         out = f(
             parent,
-            caption=caption if caption else u'Select a File',
+            caption=caption if caption else 'Select a File',
             dir=defaultPath if defaultPath else os.path.expanduser('~'),
             filter=cls.getFileFilterString(filterDefs))
 
@@ -105,7 +108,7 @@ class PyGlassBasicDialogManager(QtCore.QObject):
     def browseForFileSave(cls, parent, caption =None, defaultPath =None, filterDefs =None):
         out = QtGui.QFileDialog.getSaveFileName(
             parent,
-            caption=caption if caption else u'Specify File',
+            caption=caption if caption else 'Specify File',
             dir=defaultPath if defaultPath else os.path.expanduser('~'),
             options=QtGui.QFileDialog.AnyFile,
             filter=cls.getFileFilterString(filterDefs))
@@ -146,13 +149,13 @@ class PyGlassBasicDialogManager(QtCore.QObject):
             extensions = [extensions]
 
         for i in range(len(extensions)):
-            extensions[i] = unicode(extensions[i]).strip('.*')
+            extensions[i] = StringUtils.toUnicode(extensions[i]).strip('.*')
 
         label = filterDef.label
         if not label:
-            label = u'Files'
+            label = 'Files'
 
-        return u'%s (*.%s)' % (label, ' *.'.join(extensions))
+        return '%s (*.%s)' % (label, ' *.'.join(extensions))
 
 #___________________________________________________________________________________________________ _showMessageDialg
     @classmethod

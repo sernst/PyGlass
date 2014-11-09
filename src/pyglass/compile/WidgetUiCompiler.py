@@ -2,6 +2,8 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import sys
 import os
 import re
@@ -11,6 +13,7 @@ import subprocess
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.debug.Logger import Logger
 from pyaid.file.FileUtils import FileUtils
+from pyaid.string.StringUtils import StringUtils
 
 from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 
@@ -26,8 +29,7 @@ class WidgetUiCompiler(object):
     _SETUP_UI_RE = re.compile('(?<=def setupUi\(self, )(?P<parentName>[a-zA-z0-9_\-]+)(?=\):)')
 
     _RETRANSLATE_RE = re.compile(
-        '(?<=def retranslateUi\(self, )(?P<parentName>[a-zA-z0-9_\-]+)(?=\):)'
-    )
+        '(?<=def retranslateUi\(self, )(?P<parentName>[a-zA-z0-9_\-]+)(?=\):)')
 
     _SELF_RE = re.compile('(?P<self>self\.)(?!retranslateUi\()')
 
@@ -115,9 +117,7 @@ class WidgetUiCompiler(object):
             return False
         out = WidgetUiCompiler._RETRANSLATE_RE.sub('\g<parentName>', out, 1)
 
-        if isinstance(out, unicode):
-            out = out.encode('utf8', 'ignore')
-
+        out = StringUtils.toUnicode(out)
         out = WidgetUiCompiler._SELF_RE.sub(targetName + '.', out)
 
         dest = FileUtils.createPath(path, filename[:-3] + '.py', isFile=True)
@@ -140,7 +140,7 @@ class WidgetUiCompiler(object):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

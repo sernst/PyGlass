@@ -2,11 +2,14 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from collections import namedtuple
+from pyaid.string.StringUtils import StringUtils
 
 import requests
+from requests import exceptions
 from requests import utils as requestUtils
-
 from PySide import QtCore
 
 from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
@@ -54,10 +57,10 @@ class RequestUtils(QtCore.QObject):
                 else:
                     return requests.post(url, data=args)
 
-        except requests.exceptions.SSLError, err:
+        except exceptions.SSLError as err:
             logger.writeError([
-                u'SSL Request Error:',
-                u'Default CA Bundle Path: ' + unicode(requestUtils.DEFAULT_CA_BUNDLE_PATH)
+                'SSL Request Error:',
+                'Default CA Bundle Path: ' + StringUtils.toUnicode(requestUtils.DEFAULT_CA_BUNDLE_PATH)
             ], err)
 
             return cls._createError(
@@ -65,24 +68,24 @@ class RequestUtils(QtCore.QObject):
                 error=err,
                 response=response,
                 requestData=reqData,
-                message=u'Unable to establish secure connection.'
+                message='Unable to establish secure connection.'
             )
 
-        except requests.ConnectionError, err:
+        except requests.ConnectionError as err:
             return cls._createError(
                 ident=RequestUtils.CONNECTION_FAILURE,
                 error=err,
                 response=response,
                 requestData=reqData,
-                message=u'Unable to create connection. No available internet connection was found.'
+                message='Unable to create connection. No available internet connection was found.'
             )
-        except Exception, err:
+        except Exception as err:
             return cls._createError(
                 ident=RequestUtils.ATTEMPT_FAILURE,
                 error=err,
                 response=response,
                 requestData=reqData,
-                message=u'Unable to connect to remote server at this time.'
+                message='Unable to connect to remote server at this time.'
             )
 
 #___________________________________________________________________________________________________ logError
@@ -92,23 +95,23 @@ class RequestUtils(QtCore.QObject):
             return False
 
         echo = [
-            u'ERROR: RequestUtils failure:',
-            u'ID: ' + unicode(error.ident),
-            u'MESSAGE: ' + unicode(error.message),
-            u'ERROR: ' + unicode(error.error),
-            u'RESPONSE: ' + unicode(error.response)
+            'ERROR: RequestUtils failure:',
+            'ID: ' + StringUtils.toUnicode(error.ident),
+            'MESSAGE: ' + StringUtils.toUnicode(error.message),
+            'ERROR: ' + StringUtils.toUnicode(error.error),
+            'RESPONSE: ' + StringUtils.toUnicode(error.response)
         ]
 
         if error.response:
             r = error.response
-            echo.append(u'STATUS_CODE: ' + unicode(getattr(r, 'status_code', u'NONE')))
+            echo.append('STATUS_CODE: ' + StringUtils.toUnicode(getattr(r, 'status_code', 'NONE')))
             try:
                 json = r.json()
                 if len(json) > 525:
-                    json = json[:500] + u'...'
-                echo.append(u'JSON: ' + unicode(json))
-            except Exception, err:
-                echo.append(u'JSON: NONE')
+                    json = json[:500] + '...'
+                echo.append('JSON: ' + StringUtils.toUnicode(json))
+            except Exception as err:
+                echo.append('JSON: NONE')
 
         if error.error:
             logger.writeError(echo, error.error)

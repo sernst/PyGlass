@@ -2,6 +2,8 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from pyglass.web.request.RequestUtils import RequestUtils
 from pyglass.threading.RemoteExecutionThread import RemoteExecutionThread
 
@@ -29,7 +31,7 @@ class RequestThread(RemoteExecutionThread):
                 args=self._args,
                 logger=self._log
             )
-        except Exception, err:
+        except Exception as err:
             self._log.writeError('FAILED: Request attempt.', err)
             return 1
 

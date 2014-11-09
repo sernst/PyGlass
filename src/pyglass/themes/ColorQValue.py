@@ -2,6 +2,8 @@
 # (C)2013-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtGui
 
 from pyaid.color.ColorValue import ColorValue

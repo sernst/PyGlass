@@ -2,9 +2,9 @@
 # (C)2014
 # Scott Ernst
 
-from PySide import QtCore
-from PySide import QtGui
+from __future__ import print_function, absolute_import, unicode_literals, division
 
+from PySide import QtCore
 from pyaid.ArgsUtils import ArgsUtils
 
 from pyglass.overlay.PyGlassOverlay import PyGlassOverlay
@@ -153,7 +153,7 @@ class SideBarOverlay(PyGlassOverlay):
         """_handleAnimFinished doc..."""
         try:
             self._anim.deleteLater()
-        except Exception, err:
+        except Exception as err:
             pass
         self._anim = None
         self.sideWidget.setVisible(self.isOpen)

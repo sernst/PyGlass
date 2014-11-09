@@ -2,15 +2,18 @@
 # (C)2013-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
 import math
 import inspect
 
 from PySide import QtCore
 from PySide import QtGui
-
 from pyaid.ClassUtils import ClassUtils
 from pyaid.file.FileUtils import FileUtils
+from pyaid.string.StringUtils import StringUtils
+
 
 #___________________________________________________________________________________________________ PyGlassGuiUtils
 class PyGlassGuiUtils(QtCore.QObject):
@@ -33,7 +36,7 @@ class PyGlassGuiUtils(QtCore.QObject):
         if not out:
             try:
                 return target.mainWindow.owner
-            except Exception, err:
+            except Exception as err:
                 pass
             return None
 
@@ -70,12 +73,12 @@ class PyGlassGuiUtils(QtCore.QObject):
 
         prefix = ClassUtils.getAttrFromClass(target, cls.RESOURCE_FOLDER_PREFIX, None)
         if prefix:
-            out.extend(prefix.split('/') if isinstance(prefix, basestring) else prefix)
+            out.extend(prefix.split('/') if StringUtils.isStringType(prefix) else prefix)
 
         resourceName = ClassUtils.getAttrFromClass(target, cls.RESOURCE_FOLDER_NAME, None)
         widget = ClassUtils.getAttrFromClass(target, cls.RESOURCE_WIDGET_FILE, None)
         if widget:
-            widget = widget.split('/') if isinstance(widget, basestring) else widget
+            widget = widget.split('/') if StringUtils.isStringType(widget) else widget
             out.extend(widget[:-1])
 
         if resourceName or not widget:

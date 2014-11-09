@@ -2,6 +2,8 @@
 # (C)2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import math
 
 from PySide import QtGui
@@ -162,7 +164,7 @@ class GridListElement(PyGlassElement):
     def getIndexOfWidget(self, widget):
         try:
             return self._widgetItems.index(widget)
-        except Exception, err:
+        except Exception as err:
             return -1
 
 #===================================================================================================

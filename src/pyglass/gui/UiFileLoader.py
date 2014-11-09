@@ -2,25 +2,39 @@
 # (C)2012-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
-import imp
+import sys
+
+if sys.version > '3':
+    import importlib
+else:
+    # noinspection PyDeprecation
+    import imp as importlib
 
 from PySide import QtCore
 from PySide import QtGui
-from PySide.QtUiTools import QUiLoader
 
+try:
+    # Fixes issue in 1.2.2 for Python 3.4 missing this module in the module listing
+    from PySide import QtUiTools
+except Exception:
+    QtUiTools = None
+
+from pyaid.string.StringUtils import StringUtils
 
 #___________________________________________________________________________________________________ UiFileLoader
-class UiFileLoader(QUiLoader):
+class UiFileLoader(QtUiTools.QUiLoader):
 
 #===================================================================================================
 #                                                                                       C L A S S
 
     _WIDGET_EXTENSIONS = ['.ui', '.py', '.pyc']
 
-#___________________________________________________________________________________________________
+#___________________________________________________________________________________________________ __init__
     def __init__(self, target):
-        QUiLoader.__init__(self)
+        super(UiFileLoader, self).__init__()
         self._target = target
 
 #===================================================================================================
@@ -35,7 +49,7 @@ class UiFileLoader(QUiLoader):
         # Otherwise create a new widget
         else:
             # create a new widget for child widgets
-            widget = QUiLoader.createWidget(self, class_name, parent, name)
+            widget = QtUiTools.QUiLoader.createWidget(self, class_name, parent, name)
 
             # Adds attribute for the new child widget on the target to mimic PyQt4.uic.loadUi.
             if self._target:
@@ -92,16 +106,17 @@ class UiFileLoader(QUiLoader):
         if widgetPath is None:
             try:
                 path = widget.getResourcePath()
-            except Exception, err:
-                raise Exception, 'ERROR: No widget resource path found for "%s" widget' % (
-                    widget.__class__.__name__)
+            except Exception:
+                raise Exception('ERROR: No widget resource path found for "%s" widget' % (
+                    widget.__class__.__name__))
 
             if not os.path.exists(path):
-                raise Exception, 'ERROR: Missing widget resource path [%s]: %s' % (
-                    widget.__class__.__name__, path)
+                raise Exception('ERROR: Missing widget resource path [%s]: %s' % (
+                    widget.__class__.__name__, path))
 
             widgetModified = 0
             for item in os.listdir(widget.getResourcePath()):
+                item = StringUtils.toUnicode(item)
                 if ('.' + item.rsplit('.', 1)[-1]) not in UiFileLoader._WIDGET_EXTENSIONS:
                     continue
 
@@ -114,17 +129,17 @@ class UiFileLoader(QUiLoader):
                     break
 
         if widgetPath is None:
-            raise Exception, 'Error: No UI file found at: ' + widget.getResourcePath()
+            raise Exception('Error: No UI file found at: ' + widget.getResourcePath())
 
         if widgetPath.endswith('.ui'):
-            result = cls.loadFileIntoTarget(
-                target if loadAsWidget else None,
-                widgetPath)
+            result = cls.loadFileIntoTarget(target if loadAsWidget else None, widgetPath)
         else:
             if widgetPath.endswith('.py'):
-                setup = imp.load_source('PySideUiFileSetup', widgetPath).PySideUiFileSetup()
+                # noinspection PyDeprecation
+                setup = importlib.load_source('PySideUiFileSetup', widgetPath).PySideUiFileSetup()
             else:
-                setup = imp.load_compiled('PySideUiFileSetup', widgetPath).PySideUiFileSetup()
+                # noinspection PyDeprecation
+                setup = importlib.load_compiled('PySideUiFileSetup', widgetPath).PySideUiFileSetup()
             result = target if loadAsWidget else QtGui.QWidget()
             setup.setupUi(result)
 

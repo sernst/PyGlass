@@ -2,9 +2,13 @@
 # (C)2012-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.dict.DictUtils import DictUtils
+from pyaid.string.StringUtils import StringUtils
 
 from pyglass.elements.PyGlassElement import PyGlassElement
 from pyglass.gui.PyGlassBackgroundParent import PyGlassBackgroundParent
@@ -28,8 +32,8 @@ class PyGlassWidget(PyGlassElement):
     def __init__(self, parent =None, **kwargs):
         """Creates a new instance of PyGlassWidget."""
         PyGlassElement.__init__(self, parent, **kwargs)
-        if kwargs.get('verbos', False):
-            print 'CREATING: %s | PARENTED TO: %s' % (self, parent)
+        if kwargs.get('verbose', False):
+            print('CREATING: %s | PARENTED TO: %s' % (self, parent))
         self.setStyleSheet(self.owner.styleSheetPath)
 
         self._displayCount  = 0
@@ -46,7 +50,7 @@ class PyGlassWidget(PyGlassElement):
 
         if widgetFile:
             parts = self.RESOURCE_WIDGET_FILE
-            if isinstance(parts, basestring):
+            if StringUtils.isStringType(parts):
                 parts = parts.split('/')[-1:]
             elif parts:
                 parts = parts[-1:]
@@ -76,7 +80,7 @@ class PyGlassWidget(PyGlassElement):
     def currentChildWidgetID(self):
         if not self._currentWidget:
             return None
-        for key, widget in self._widgets.iteritems():
+        for key, widget in DictUtils.iter(self._widgets):
             if widget == self._currentWidget:
                 return key
         return None
@@ -120,7 +124,7 @@ class PyGlassWidget(PyGlassElement):
 
 #___________________________________________________________________________________________________ refresh
     def refresh(self, **kwargs):
-        for widgetID, widget in self._widgets.iteritems():
+        for widgetID, widget in DictUtils.iter(self._widgets):
             widget.refresh(**kwargs)
 
 #___________________________________________________________________________________________________ clearActiveWidget
@@ -134,7 +138,7 @@ class PyGlassWidget(PyGlassElement):
 
         try:
             containerWidget.layout().removeWidget(self._currentWidget)
-        except Exception, err:
+        except Exception as err:
             p = self._currentWidget.parent()
             if p:
                 p.layout().removeWidget(self._currentWidget)
@@ -146,13 +150,13 @@ class PyGlassWidget(PyGlassElement):
 #___________________________________________________________________________________________________ setActiveWidget
     def setActiveWidget(self, widgetID, containerWidget =None, force =False, args =None, doneArgs =None):
         if widgetID and not widgetID in self._widgetClasses:
-            print '[WARNING]: Invalid widget ID "%s" in %s' % (widgetID, self)
+            print('[WARNING]: Invalid widget ID "%s" in %s' % (widgetID, self))
             return False
 
         if containerWidget is None:
             containerWidget = self._containerWidget
         if containerWidget is None:
-            print '[WARNING]: %s has no specified container widget' % self
+            print('[WARNING]: %s has no specified container widget' % self)
             return False
 
         if not force and self._currentWidget and self._currentWidget.widgetID == widgetID:
@@ -187,7 +191,7 @@ class PyGlassWidget(PyGlassElement):
     def loadWidgets(self, widgetIdents =None):
         if not widgetIdents:
             widgetIdents = self._widgetClasses.keys()
-        elif isinstance(widgetIdents, basestring):
+        elif StringUtils.isStringType(widgetIdents):
             widgetIdents = [widgetIdents]
 
         if self._widgetParent is None:

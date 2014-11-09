@@ -2,12 +2,15 @@
 # (C)2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from xml.dom import minidom
 from collections import namedtuple
 
 from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.string.StringUtils import StringUtils
 
 from pyglass.elements.icons.IconElement import IconElement
 
@@ -63,7 +66,7 @@ class TextureAtlas(object):
                 if parent.isMainWindow:
                     self._mainWindow = parent
                     return self._mainWindow
-            except Exception, err:
+            except Exception as err:
                 pass
             parent = parent.parent()
 
@@ -168,22 +171,22 @@ class TextureAtlas(object):
 
             try:
                 frameX = int(entry.getAttribute('frameX'))
-            except Exception, err:
+            except Exception as err:
                 frameX = 0
 
             try:
                 frameY = int(entry.getAttribute('frameY'))
-            except Exception, err:
+            except Exception as err:
                 frameY = 0
 
             try:
                 frameWidth = int(entry.getAttribute('frameWidth'))
-            except Exception, err:
+            except Exception as err:
                 frameWidth = width
 
             try:
                 frameHeight = int(entry.getAttribute('frameHeight'))
-            except Exception, err:
+            except Exception as err:
                 frameHeight = height
 
             out[name] = cls.TEXTURE_ATLAS_ENTRY(
@@ -201,7 +204,7 @@ class TextureAtlas(object):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

@@ -2,6 +2,9 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+from pyaid.string.StringUtils import StringUtils
+
 from pyglass.themes.ColorQValue import ColorQValue
 
 #___________________________________________________________________________________________________ ThemeColorBundle
@@ -81,7 +84,7 @@ class ThemeColorBundle(object):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

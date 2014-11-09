@@ -2,6 +2,10 @@
 # (C)2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
+from pyaid.string.StringUtils import StringUtils
+
 #___________________________________________________________________________________________________ PyGlassSignalEvent
 class PyGlassSignalEvent(object):
     """A class for..."""
@@ -36,7 +40,7 @@ class PyGlassSignalEvent(object):
     def get(self, key, defaultValue =None):
         try:
             return self._data[key]
-        except Exception, err:
+        except Exception as err:
             return defaultValue
 
 #===================================================================================================
@@ -48,7 +52,7 @@ class PyGlassSignalEvent(object):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

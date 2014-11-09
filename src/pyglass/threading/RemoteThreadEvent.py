@@ -2,6 +2,8 @@
 # (C)2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from pyglass.event.PyGlassSignalEvent import PyGlassSignalEvent
 
 #___________________________________________________________________________________________________ RemoteThreadEvent
@@ -38,4 +40,4 @@ class RemoteThreadEvent(PyGlassSignalEvent):
         if key in self.data:
             return self.data[key]
 
-        raise KeyError, 'No such key "%s" in event data' % key
+        raise KeyError('No such key "%s" in event data' % key)

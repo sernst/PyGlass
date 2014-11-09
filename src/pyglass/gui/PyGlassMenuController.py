@@ -2,8 +2,12 @@
 # (C)2012
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtCore
 from PySide import QtGui
+
+from pyaid.string.StringUtils import StringUtils
 
 #___________________________________________________________________________________________________ PyGlassMenuController
 class PyGlassMenuController(QtCore.QObject):
@@ -86,7 +90,7 @@ class PyGlassMenuController(QtCore.QObject):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

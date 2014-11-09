@@ -2,12 +2,14 @@
 # (C)2012-2013
 # Scott Ernst
 
-from PySide.QtGui import QListWidgetItem
+from __future__ import print_function, absolute_import, unicode_literals, division
+
+from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
 
 #___________________________________________________________________________________________________ DataListWidgetItem
-class DataListWidgetItem(QListWidgetItem):
+class DataListWidgetItem(QtGui.QListWidgetItem):
     """A class for..."""
 
 #===================================================================================================
@@ -18,7 +20,7 @@ class DataListWidgetItem(QListWidgetItem):
         """Creates a new instance of DataListWidgetItem."""
         self._itemData = ArgsUtils.extract('data', None, kwargs)
         self._itemId   = ArgsUtils.extract('ident', None, kwargs)
-        QListWidgetItem.__init__(self, *args, **kwargs)
+        super(DataListWidgetItem, self).__init__(*args, **kwargs)
 
 #===================================================================================================
 #                                                                                   G E T / S E T

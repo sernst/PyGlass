@@ -2,10 +2,15 @@
 # (C)2012
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtCore
 from PySide import QtGui
 
 #___________________________________________________________________________________________________ SimpleSelectionModel
+from pyaid.string.StringUtils import StringUtils
+
+
 class SimpleSelectionModel(QtGui.QItemSelectionModel):
     """A class for..."""
 
@@ -48,7 +53,7 @@ class SimpleSelectionModel(QtGui.QItemSelectionModel):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

@@ -2,6 +2,8 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import math
 
 from PySide import QtCore
@@ -38,7 +40,7 @@ class PyGlassPushButton(InteractiveButtonBase):
     def __init__(self, parent, *args, **kwargs):
         """Creates a new instance of PyGlassPushButton."""
         super(PyGlassPushButton, self).__init__(parent, **kwargs)
-        labelText               = ArgsUtils.get('text', u'', kwargs, args, 0)
+        labelText               = ArgsUtils.get('text', '', kwargs, args, 0)
         self._size              = ArgsUtils.get('size', SizeEnum.MEDIUM, kwargs)
         self._sizeIndex         = [
             SizeEnum.SMALL, SizeEnum.MEDIUM, SizeEnum.LARGE, SizeEnum.XLARGE

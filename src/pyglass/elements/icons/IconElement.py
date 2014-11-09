@@ -2,16 +2,18 @@
 # (C)2013-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtGui
 from PySide import QtCore
-
 from pyaid.ArgsUtils import ArgsUtils
-from pyaid.OsUtils import OsUtils
 from pyaid.dict.DictUtils import DictUtils
+from pyaid.string.StringUtils import StringUtils
 
 from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 from pyglass.elements.PyGlassElement import PyGlassElement
 from pyglass.themes.ColorQValue import ColorQValue
+
 
 #___________________________________________________________________________________________________ IconElement
 class IconElement(PyGlassElement):
@@ -124,7 +126,7 @@ class IconElement(PyGlassElement):
 
 #___________________________________________________________________________________________________ echo
     def echo(self):
-        return unicode(self) + u': ' + DictUtils.prettyPrint({
+        return StringUtils.toUnicode(self) + ': ' + DictUtils.prettyPrint({
             'DEF':self._definition,
             'NAME':self.name,
             'SIZE':(self.size().width(), self.size().height()) })

@@ -2,15 +2,16 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import site
-import sys
 import os
 from collections import namedtuple
 
-from pyaid.OsUtils import OsUtils
 from pyaid.file.FileUtils import FileUtils
 
 from pyglass.compile.SiteLibraryEnum import SiteLibraryEnum
+
 
 _EXTERNAL_SOURCE_NT = namedtuple('EXTERNAL_SOURCE_NT', ['id', 'packages', 'includes', 'dataFiles'])
 
@@ -19,7 +20,7 @@ _EXTERNAL_SOURCE_NT = namedtuple('EXTERNAL_SOURCE_NT', ['id', 'packages', 'inclu
 pySideDataFiles  = []
 try:
     sitePackagePaths = site.getusersitepackages() + site.getsitepackages()
-except Exception, err:
+except Exception as err:
     sitePackagePaths = [site.getusersitepackages()] + site.getsitepackages()
 
 for path in sitePackagePaths:

@@ -2,6 +2,8 @@
 # (C)2012-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
@@ -70,7 +72,7 @@ class PyGlassElement(VisibilityElement):
                     return False
                 if parent.isBackgroundParent:
                     return False
-            except Exception, err:
+            except Exception as err:
                 pass
             parent = parent.parent()
 
@@ -259,9 +261,8 @@ class PyGlassElement(VisibilityElement):
             for item in out:
                 try:
                     item.deleteLater()
-                except Exception, err:
-                    print u'[WARNING]: Delete later faliure %s -> %s' % (
-                        self.__class__.__name__, item)
+                except Exception as err:
+                    print('[WARNING]: Delete later faliure %s -> %s' % (cls.__name__, item))
             return []
         return out
 
@@ -313,8 +314,8 @@ class PyGlassElement(VisibilityElement):
                 if cleanupForceRemoval:
                     child.deleteLater()
         elif layout:
-            print '[WARNING]: Invalid layout change attempt on %s in %s with %s -> %s' % (
-                targetWidget, self, layoutClass, layout)
+            print('[WARNING]: Invalid layout change attempt on %s in %s with %s -> %s' % (
+                targetWidget, self, layoutClass, layout))
             return layout
 
         if not layoutClass:

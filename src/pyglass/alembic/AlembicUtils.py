@@ -2,8 +2,17 @@
 # (C)2012
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
-import ConfigParser
+import sys
+from pyaid.string.StringUtils import StringUtils
+
+if sys.version > '3':
+    import configparser
+else:
+    import ConfigParser as configparser
+
 from collections import namedtuple
 
 try:
@@ -13,7 +22,7 @@ try:
     import alembic.script as alembicScript
     import alembic.environment as alembicEnv
     ALEMBIC_SUPPORTED = True
-except Exception, err:
+except Exception:
     ALEMBIC_SUPPORTED = False
 
 from pyaid.decorators.ClassGetter import ClassGetter
@@ -61,9 +70,9 @@ class AlembicUtils(object):
     @classmethod
     def getConfig(cls, databaseUrl, writeCallback =None):
         logger = Logger(
-            databaseUrl.replace(u'://', u'~').replace(u'/', u'--').replace(u'.vdb', u''),
-            useStorageBuffer=True
-        )
+            databaseUrl.replace('://', '~').replace('/', '--').replace('.vdb', ''),
+            useStorageBuffer=True)
+
         if writeCallback is not None:
             logger.addWriteCallback(writeCallback)
 
@@ -72,18 +81,15 @@ class AlembicUtils(object):
 
         config.set_main_option(
             'script_location',
-            migrationPath
-        )
+            migrationPath)
 
         config.set_main_option(
             'sqlalchemy.url',
-            PyGlassModelUtils.getEngineUrl(databaseUrl)
-        )
+            PyGlassModelUtils.getEngineUrl(databaseUrl))
 
         config.set_main_option(
             'url',
-            PyGlassModelUtils.getEngineUrl(databaseUrl)
-        )
+            PyGlassModelUtils.getEngineUrl(databaseUrl))
 
         return config
 
@@ -157,7 +163,7 @@ class AlembicUtils(object):
 
         alembicCmd.revision(
             config=config,
-            message=unicode(len(previousRevisions)) + u': ' + message
+            message=StringUtils.toUnicode(len(previousRevisions)) + ': ' + message
         )
         if not info:
             return True
@@ -171,18 +177,17 @@ class AlembicUtils(object):
         if not scriptPath:
             return True
 
-        if not isinstance(info, unicode):
-            info = info.decode('utf8', 'ignore')
+        info = StringUtils.toUnicode(info)
 
         f      = open(scriptPath, 'r+')
-        script = f.read().decode('utf8', 'ignore')
+        script = StringUtils.toUnicode(f.read())
         f.close()
 
         index   = script.find('"""')
         index   = script.find('"""', index + 1)
-        script  = script[:index] + info + u'\n' + script[index:]
+        script  = script[:index] + info + '\n' + script[index:]
         f       = open(scriptPath, 'w+')
-        f.write(script.encode('utf8', 'ignore'))
+        f.write(StringUtils.toStr2(script))
         f.close()
 
         return True
@@ -195,6 +200,7 @@ class AlembicUtils(object):
             return []
 
         results = []
+        # noinspection PyTypeChecker
         os.path.walk(databaseRoot, cls._findAppDatabases, {
             'root':databaseRoot,
             'results':results,
@@ -234,7 +240,7 @@ class AlembicUtils(object):
         )
 
         # Refresh config with proper settings
-        cp = ConfigParser.ConfigParser()
+        cp = configparser.ConfigParser()
         cp.read(configPath)
         cp.set('alembic', 'sqlalchemy.url', PyGlassModelUtils.getEngineUrl(databaseUrl))
 
@@ -254,9 +260,8 @@ class AlembicUtils(object):
         for item in os.listdir(dirname):
             itemPath = FileUtils.createPath(dirname, item)
             if os.path.isfile(itemPath) and itemPath.endswith('.vdb'):
-                name = itemPath.replace(args['root'], u'')[:-4]
+                name = itemPath.replace(args['root'], '')[:-4]
                 args['results'].append(cls.DATABASE_ITEM_NT(
                     path=itemPath,
                     name=name,
-                    databaseUrl=args['appName'] + u'://' + name
-                ))
+                    databaseUrl=args['appName'] + '://' + name ))

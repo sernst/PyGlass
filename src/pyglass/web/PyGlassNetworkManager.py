@@ -2,6 +2,8 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtNetwork
 
 from pyglass.web.ResourceCustomNetworkReply import ResourceCustomNetworkReply

@@ -2,6 +2,8 @@
 # (C)2012-2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
 import re
 import zipfile
@@ -11,6 +13,7 @@ from pyaid.debug.Logger import Logger
 from pyaid.decorators.ClassGetter import ClassGetter
 
 #AS NEEDED: pyglass.alembic.AlembicUtils import AlembicUtils
+from pyaid.string.StringUtils import StringUtils
 from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 
 #___________________________________________________________________________________________________ ModelUtils
@@ -81,34 +84,34 @@ class PyGlassModelUtils(object):
                     if AlembicUtils.hasAlembic:
                         AlembicUtils.stampDatabase(c.DATABASE_URL)
                         cls._logger.write(
-                            u'CREATED: ' + unicode(c) + u' ' + unicode(c.__table__)
-                            + u' [STAMPED head]' )
-            except Exception, err:
+                            'CREATED: ' + StringUtils.toUnicode(c) + ' ' + StringUtils.toUnicode(c.__table__)
+                            + ' [STAMPED head]' )
+            except Exception as err:
                 cls._logger.writeError([
-                    u'MODEL INITIALIZATION FAILURE:',
-                    u'INIT PATH: ' + unicode(initPath),
-                    u'INIT NAME: ' + unicode(initName),
-                    u'MODULE IMPORT: ' + unicode(m),
-                    u'IMPORT CLASS: ' + unicode(n),
-                    u'IMPORT RESULT: ' + unicode(r),
-                    u'CLASS RESULT: ' + unicode(c) ], err)
+                    'MODEL INITIALIZATION FAILURE:',
+                    'INIT PATH: ' + StringUtils.toUnicode(initPath),
+                    'INIT NAME: ' + StringUtils.toUnicode(initName),
+                    'MODULE IMPORT: ' + StringUtils.toUnicode(m),
+                    'IMPORT CLASS: ' + StringUtils.toUnicode(n),
+                    'IMPORT RESULT: ' + StringUtils.toUnicode(r),
+                    'CLASS RESULT: ' + StringUtils.toUnicode(c) ], err)
 
         return out
 
 #___________________________________________________________________________________________________ getMigrationPathFromDatabaseUrl
     @classmethod
     def getMigrationPathFromDatabaseUrl(cls, databaseUrl, root =False):
-        urlParts = databaseUrl.split(u'://')
-        if urlParts[0].lower() == u'shared':
-            path = [u'shared', u'migration']
+        urlParts = databaseUrl.split('://')
+        if urlParts[0].lower() == 'shared':
+            path = ['shared', 'migration']
         else:
-            path = [u'apps', urlParts[0], u'migration']
+            path = ['apps', urlParts[0], 'migration']
 
         if not root:
-            path += urlParts[-1].split(u'/')
+            path += urlParts[-1].split('/')
 
             # Remove the extension
-            if path[-1].endswith(u'.vdb'):
+            if path[-1].endswith('.vdb'):
                 path[-1] = path[-1][:-4]
 
         return PyGlassEnvironment.getRootResourcePath(*path)
@@ -116,17 +119,17 @@ class PyGlassModelUtils(object):
 #___________________________________________________________________________________________________ getPathFromDatabaseUrl
     @classmethod
     def getPathFromDatabaseUrl(cls, databaseUrl):
-        urlParts = databaseUrl.split(u'://')
+        urlParts = databaseUrl.split('://')
 
         # Determine the sqlite database path
-        if urlParts[0].lower() == u'shared':
-            path = [u'shared', u'data']
+        if urlParts[0].lower() == 'shared':
+            path = ['shared', 'data']
         else:
-            path = [u'apps', urlParts[0], u'data']
+            path = ['apps', urlParts[0], 'data']
 
-        path += urlParts[1].strip(u'/').split(u'/')
-        if not path[-1].endswith(u'.vdb'):
-            path[-1] += u'.vdb'
+        path += urlParts[1].strip('/').split('/')
+        if not path[-1].endswith('.vdb'):
+            path[-1] += '.vdb'
 
         return PyGlassEnvironment.getRootLocalResourcePath(*path)
 
@@ -153,12 +156,12 @@ class PyGlassModelUtils(object):
         # Windows compatibility requires an additional slash before the drive letter to conform
         # to a unix type root path.
         if PyGlassEnvironment.isWindows:
-            if not databasePath.startswith(u'/'):
-                databasePath = u'/' + databasePath
-            return u'sqlite://' + databasePath
+            if not databasePath.startswith('/'):
+                databasePath = '/' + databasePath
+            return 'sqlite://' + databasePath
 
         # On unix file systems an additional slash is required before specifying the path element
-        return u'sqlite:///' + databasePath
+        return 'sqlite:///' + databasePath
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -167,5 +170,5 @@ class PyGlassModelUtils(object):
     @classmethod
     def _getEngineUrlPath(cls, engineUrl):
         if PyGlassEnvironment.isWindows:
-            return engineUrl.split(u'://')[-1]
-        return engineUrl.split(u':///')[-1]
+            return engineUrl.split('://')[-1]
+        return engineUrl.split(':///')[-1]

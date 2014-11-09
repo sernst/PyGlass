@@ -2,6 +2,8 @@
 # (C)2013-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import sys
 import os
 import inspect
@@ -18,7 +20,7 @@ from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 
 try:
     import appdirs
-except Exception, err:
+except Exception as err:
     appdirs = None
 
 #___________________________________________________________________________________________________ PyGlassApplication
@@ -28,7 +30,7 @@ class PyGlassApplication(QtCore.QObject):
 #===================================================================================================
 #                                                                                       C L A S S
 
-    _MIN_PYSIDE_VERSION = u'1.2.1'
+    _MIN_PYSIDE_VERSION = '1.2.1'
     _LOCATION_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 
 #___________________________________________________________________________________________________ __init__
@@ -122,14 +124,14 @@ class PyGlassApplication(QtCore.QObject):
         try:
             sys.stdout.flush()
             sys.stdout.close()
-        except Exception, err:
+        except Exception as err:
             pass
         sys.stdout = open(FileUtils.makeFilePath(logPath, prefix + 'out.log'), 'w+')
 
         try:
             sys.stderr.flush()
             sys.stderr.close()
-        except Exception, err:
+        except Exception as err:
             pass
         sys.stderr = open(FileUtils.makeFilePath(logPath, prefix + 'error.log'), 'w+')
 
@@ -170,26 +172,26 @@ class PyGlassApplication(QtCore.QObject):
         # RESOURCE DEPLOYMENT
         try:
             self._deployResources()
-        except Exception, err:
+        except Exception as err:
             raise
 
         # Checks the version of the PySide library being used. If the version is out-of-date,
         # raise a runtime error.
-        minVersion = self._MIN_PYSIDE_VERSION.split(u'.')
+        minVersion = self._MIN_PYSIDE_VERSION.split('.')
         version = PySide.__version__.split('.')
         if int(version[0]) < int(minVersion[0]):
             if int(version[1]) < int(minVersion[1]):
                 if int(version[2]) < minVersion[2]:
-                    raise RuntimeError, (
-                        u'[ERROR]: The installed PySide version of %s is below PyGlass\''
-                        + u' minimum required version of %s.%s.%s. Please update the library.') % (
-                        version, minVersion[0], minVersion[1], minVersion[2])
+                    raise RuntimeError((
+                        '[ERROR]: The installed PySide version of %s is below PyGlass\''
+                        + ' minimum required version of %s.%s.%s. Please update the library.') % (
+                        version, minVersion[0], minVersion[1], minVersion[2]))
 
         # Test for compatible Qt version installation and raise an error if an unsupported version
         # is being used
         qtVersion = QtCore.__version_info__
         if qtVersion[0] < 4 or qtVersion[1] < 8:
-            raise Exception, u'ERROR: Unsupported Qt Version "%s"' % QtCore.__version__
+            raise Exception('ERROR: Unsupported Qt Version "%s"' % QtCore.__version__)
 
         qApp = QtGui.QApplication(appArgs if appArgs else [])
         self._qApplication = qApp
@@ -205,10 +207,10 @@ class PyGlassApplication(QtCore.QObject):
 
         windowClass = self.mainWindowClass
         if windowClass is None:
-            raise RuntimeError, u'No Main Window Class was specified in your application class.'
+            raise RuntimeError('No Main Window Class was specified in your application class.')
 
         assert inspect.isclass(windowClass), (
-            u'%s.mainWindowClass getter must return a class for your main window' %
+            '%s.mainWindowClass getter must return a class for your main window' %
             self.__class__.__name__)
 
         self._window = windowClass(
@@ -264,7 +266,7 @@ class PyGlassApplication(QtCore.QObject):
             storageData   = JSON.fromFile(storageStampPath)
             if resousrceData['CTS'] == storageData['CTS']:
                 return False
-        except Exception, err:
+        except Exception as err:
             pass
 
         SystemUtils.remove(resourcePath)
@@ -321,10 +323,6 @@ class PyGlassApplication(QtCore.QObject):
 #___________________________________________________________________________________________________ __repr__
     def __repr__(self):
         return self.__str__()
-
-#___________________________________________________________________________________________________ __unicode__
-    def __unicode__(self):
-        return unicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

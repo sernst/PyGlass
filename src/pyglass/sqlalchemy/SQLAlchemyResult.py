@@ -2,6 +2,8 @@
 # (C) 2012
 # Eric David Wills and Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import time
 
 from sqlalchemy import exc
@@ -31,14 +33,14 @@ class SQLAlchemyResult(object):
     def scalar(self):
         try:
             return self._getResult(self._query.scalar, exc.MultipleResultsFound)
-        except Exception, err:
+        except Exception as err:
             return None
 
 #___________________________________________________________________________________________________ one
     def one(self):
         try:
             return self._getResult(self._query.one, (exc.NoResultFound, exc.MultipleResultsFound))
-        except Exception, err:
+        except Exception as err:
             return None
 
 #___________________________________________________________________________________________________ first
@@ -68,9 +70,9 @@ class SQLAlchemyResult(object):
                     else:
                         result = result.with_lockmode("read")
                 return result
-            except passErrors, err:
+            except passErrors as err:
                 raise err
-            except Exception, err:
+            except Exception as err:
                 stackData = Logger.getStackData()
                 self._modelClass._log.writeError('[%s] BAD CURSOR ACTION: %s'
                                                  % (str(i), str(function)), err)
@@ -87,9 +89,9 @@ class SQLAlchemyResult(object):
                 else:
                     result = result.with_lockmode("read")
             return result
-        except passErrors, err:
+        except passErrors as err:
             raise err
-        except Exception, err:
+        except Exception as err:
             stackData = Logger.getStackData()
             self._modelClass._log.writeError('FAILED CURSOR ACTION: %s'% str(function), err)
 

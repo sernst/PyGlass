@@ -2,12 +2,17 @@
 # (C)2012-2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtCore
 from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
 
 #___________________________________________________________________________________________________ PyGlassDialog
+from pyaid.string.StringUtils import StringUtils
+
+
 class PyGlassDialog(QtGui.QDialog):
     """A class for..."""
 
@@ -146,7 +151,7 @@ class PyGlassDialog(QtGui.QDialog):
                 if cleanupForceRemoval:
                     child.deleteLater()
         elif layout:
-            print 'WARNING: Invalid layout change attempt:', targetWidget, layoutClass, layout
+            print('WARNING: Invalid layout change attempt:', targetWidget, layoutClass, layout)
             return layout
 
         if not layoutClass:
@@ -166,7 +171,7 @@ class PyGlassDialog(QtGui.QDialog):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

@@ -2,12 +2,13 @@
 # (C) 2014
 # Scott Ernst
 
-import math
+from __future__ import print_function, absolute_import, unicode_literals, division
 
 from PySide import QtCore
 from PySide import QtGui
 
 from pyglass.elements.PyGlassElement import PyGlassElement
+
 
 #___________________________________________________________________________________________________ FixedAspectImage
 class FixedAspectImage(PyGlassElement):

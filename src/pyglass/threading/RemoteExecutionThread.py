@@ -2,6 +2,8 @@
 # (C)2012-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import warnings
 
 from PySide import QtCore
@@ -143,7 +145,7 @@ class RemoteExecutionThread(QtCore.QThread):
         if self._logBuffer:
             b = self._logBuffer
             self._logBuffer = []
-            self.dispatchEvent(self.logSignal, 'log', {'message':u'\n'.join(b)})
+            self.dispatchEvent(self.logSignal, 'log', {'message':'\n'.join(b)})
 
 #===================================================================================================
 #                                                                               P R O T E C T E D

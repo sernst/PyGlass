@@ -2,11 +2,14 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtCore
 from PySide import QtGui
 from PySide import QtWebKit
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.string.StringUtils import StringUtils
 
 from pyglass.web.PyGlassWebPage import PyGlassWebPage
 from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
@@ -101,8 +104,8 @@ class PyGlassWebView(QtWebKit.QWebView):
 #___________________________________________________________________________________________________ openLocalWebUrl
     def openLocalWebUrl(self, url):
         """Doc..."""
-        if isinstance(url, basestring):
-            url = url.split(u'/')
+        if StringUtils.isStringType(url):
+            url = url.split('/')
 
         url = self.mainWindow.getRootResourcePath('web', *url)
         self.load(QtCore.QUrl('file:///' + url))
@@ -133,7 +136,7 @@ class PyGlassWebView(QtWebKit.QWebView):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

@@ -2,7 +2,11 @@
 # (C)2012-2013
 # Eric David Wills and Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import datetime
+from pyaid.dict.DictUtils import DictUtils
+from pyaid.string.StringUtils import StringUtils
 
 from sqlalchemy import Column
 from sqlalchemy import DateTime
@@ -31,7 +35,7 @@ class PyGlassModelsDefault(object):
     _i         = Column(Integer, primary_key=True)
     _upts      = Column(DateTime, default=datetime.datetime.utcnow())
     _cts       = Column(DateTime, default=datetime.datetime.utcnow())
-    _json_data = Column(UnicodeText, default=u'')
+    _json_data = Column(UnicodeText, default='')
 
 #___________________________________________________________________________________________________ __init__
     def __init__(self, **kwargs):
@@ -52,7 +56,7 @@ class PyGlassModelsDefault(object):
     @json_data.setter
     def json_data(self, value):
         if value is None:
-            self.json_data = u''
+            self.json_data = ''
             return
 
         self.json_data = JSON.asString(value)
@@ -113,10 +117,9 @@ class PyGlassModelsDefault(object):
     def _parseTimestamp(cls, value):
         if value is None:
             return datetime.datetime.utcnow()
-        elif isinstance(value, basestring):
+        elif StringUtils.isStringType(value):
             return TimeUtils.secondsToDatetime(
-                Base64.from64(value) + PyGlassEnvironment.BASE_UNIX_TIME
-            )
+                Base64.from64(value) + PyGlassEnvironment.BASE_UNIX_TIME)
         return value
 
 #===================================================================================================
@@ -130,20 +133,20 @@ class PyGlassModelsDefault(object):
     def __unicode__(self):
         modelInfo = self._getPrintAttrs()
         if isinstance(modelInfo, dict):
-            out = u''
-            for n,v in modelInfo.iteritems():
-                out += u' ' + unicode(n) + u'[' + unicode(v) + u']'
+            out = ''
+            for n,v in DictUtils.iter(modelInfo):
+                out += ' ' + StringUtils.toUnicode(n) + '[' + StringUtils.toUnicode(v) + ']'
             modelInfo = out
         elif modelInfo:
-            modelInfo = u' ' + unicode(modelInfo)
+            modelInfo = ' ' + StringUtils.toUnicode(modelInfo)
         else:
-            modelInfo = u''
+            modelInfo = ''
 
-        return u'<%s[%s] cts[%s] upts[%s]%s>' % (
+        return '<%s[%s] cts[%s] upts[%s]%s>' % (
             self.__class__.__name__,
-            unicode(self.i),
-            unicode(self.cts.strftime('%m-%d-%y %H:%M:%S') if self.cts else u'None'),
-            unicode(self.upts.strftime('%m-%d-%y %H:%M:%S') if self.upts  else u'None'),
+            StringUtils.toUnicode(self.i),
+            StringUtils.toUnicode(self.cts.strftime('%m-%d-%y %H:%M:%S') if self.cts else 'None'),
+            StringUtils.toUnicode(self.upts.strftime('%m-%d-%y %H:%M:%S') if self.upts  else 'None'),
             modelInfo
         )
 

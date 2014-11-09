@@ -2,12 +2,15 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
+from pyaid.string.StringUtils import StringUtils
 
 
 try:
     import appdirs
-except Exception, err:
+except Exception as err:
     appdirs = None
 
 import requests.utils
@@ -79,7 +82,7 @@ class PyGlassEnvironment(object):
                 elif OsUtils.isMac():
                     cls._isDeployed = cls._ENV_PATH.find(os.sep + 'site-packages.zip' + os.sep) != -1
             return cls._isDeployed
-        except Exception, err:
+        except Exception as err:
             return True
 
 #___________________________________________________________________________________________________ GS: isWindows
@@ -176,7 +179,7 @@ class PyGlassEnvironment(object):
             rootPath = application.debugRootResourcePath
             if not rootPath:
                 return None
-            elif isinstance(rootPath, basestring):
+            elif StringUtils.isStringType(rootPath):
                 rootPath = rootPath.replace('\\', '/').strip('/').split('/')
 
             out = FileUtils.createPath(
@@ -197,7 +200,7 @@ class PyGlassEnvironment(object):
             rootPath = application.debugRootResourcePath
             if not rootPath:
                 return None
-            elif isinstance(rootPath, basestring):
+            elif StringUtils.isStringType(rootPath):
                 rootPath = rootPath.replace('\\', '/').strip('/').split('/')
 
             out = FileUtils.createPath(
@@ -215,7 +218,7 @@ class PyGlassEnvironment(object):
             settings = dict()
             cls._ENV_SETTINGS = settings
 
-        if isinstance(key, basestring):
+        if StringUtils.isStringType(key):
             key = [key]
 
         src = settings
@@ -231,8 +234,8 @@ class PyGlassEnvironment(object):
         f = open(envPath, 'w+')
         try:
             f.write(JSON.asString(cls._ENV_SETTINGS))
-        except Exception, err:
-            print 'ERROR: Unable to write environmental settings file at: ' + envPath
+        except Exception:
+            print('ERROR: Unable to write environmental settings file at: ' + envPath)
             return False
         finally:
             f.close()
@@ -244,23 +247,23 @@ class PyGlassEnvironment(object):
     def _getEnvValue(cls, key, defaultValue =None, refresh =False, error =False):
         if cls._ENV_SETTINGS is None or refresh:
             if not cls.settingsFileExists():
-                print 'WARNING: No environmental settings file found.'
+                print('WARNING: No environmental settings file found.')
                 return defaultValue
 
             envPath = cls.getRootLocalResourcePath(cls._GLOBAL_SETTINGS_FILE, isFile=True)
             f = open(envPath, 'r+')
             try:
                 res = f.read()
-            except Exception, err:
-                print 'ERROR: Unable to read the environmental settings file at: ' + envPath
+            except Exception:
+                print('ERROR: Unable to read the environmental settings file at: ' + envPath)
                 return
             finally:
                 f.close()
 
             try:
                 settings = JSON.fromString(res)
-            except Exception, err:
-                print 'ERROR: Unable to parse environmental settings file at: ' + envPath
+            except Exception:
+                print('ERROR: Unable to parse environmental settings file at: ' + envPath)
                 return
 
             cls._ENV_SETTINGS = settings
@@ -270,7 +273,7 @@ class PyGlassEnvironment(object):
         if key is None:
             return settings
 
-        if isinstance(key, basestring):
+        if StringUtils.isStringType(key):
             key = [key]
         value = settings
         for k in key:
@@ -278,7 +281,7 @@ class PyGlassEnvironment(object):
                 value = value[k]
             else:
                 if error:
-                    raise Exception, 'Missing environmental setting: ' + str(key)
+                    raise Exception('Missing environmental setting: ' + str(key))
                 return defaultValue
 
         return value

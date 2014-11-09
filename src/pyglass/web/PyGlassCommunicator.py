@@ -2,11 +2,16 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtCore
 
 from pyaid.json.JSON import JSON
 
 #___________________________________________________________________________________________________ PyGlassCommunicator
+from pyaid.string.StringUtils import StringUtils
+
+
 class PyGlassCommunicator(QtCore.QObject):
     """A class for..."""
 
@@ -47,18 +52,18 @@ class PyGlassCommunicator(QtCore.QObject):
 #___________________________________________________________________________________________________ callInitialize
     def callInitialize(self):
         self.scriptFrame.addToJavaScriptWindowObject(self.javaScriptID, self)
-        self.callJavascript(u'initialize' + self.javaScriptID)
+        self.callJavascript('initialize' + self.javaScriptID)
 
 #___________________________________________________________________________________________________ callUpdate
     def callUpdate(self):
-        self.callJavascript(u'update' + self.javaScriptID)
+        self.callJavascript('update' + self.javaScriptID)
 
 #___________________________________________________________________________________________________ callJavascript
     def callJavascript(self, function, data =None):
         frame = self._webView.page().mainFrame()
         frame.addToJavaScriptWindowObject(self.javaScriptID, self)
         frame.evaluateJavaScript(
-            u'try{ window.%s(%s); } catch (e) {}' % (function, JSON.asString(data) if data else u'')
+            'try{ window.%s(%s); } catch (e) {}' % (function, JSON.asString(data) if data else '')
         )
 
 #===================================================================================================
@@ -71,7 +76,7 @@ class PyGlassCommunicator(QtCore.QObject):
 
         try:
             return JSON.fromString(data)
-        except Exception, err:
+        except Exception as err:
             return data
 
 #___________________________________________________________________________________________________ _createSuccessResult
@@ -108,7 +113,7 @@ class PyGlassCommunicator(QtCore.QObject):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

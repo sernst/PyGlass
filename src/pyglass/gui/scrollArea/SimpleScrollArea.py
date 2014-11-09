@@ -2,9 +2,9 @@
 # (C)2013-2014
 # Scott Ernst
 
-from PySide import QtCore
-from PySide import QtGui
+from __future__ import print_function, absolute_import, unicode_literals, division
 
+from PySide import QtGui
 from pyaid.ArgsUtils import ArgsUtils
 
 from pyglass.widgets.PyGlassWidget import PyGlassWidget
@@ -82,8 +82,8 @@ class SimpleScrollArea(PyGlassWidget):
 #___________________________________________________________________________________________________ _updateStyle
     def _updateStyle(self):
         styles = [
-            u'background-color:transparent',
-            u'border: 1px solid ' + (self._borderColor if self._borderColor else u'transparent')]
+            'background-color:transparent',
+            'border: 1px solid ' + (self._borderColor if self._borderColor else 'transparent')]
 
-        s = u"SimpleScrollArea, SimpleScrollerInternal, SimpleScrollerQWidget { %s; }" % u'; '.join(styles)
+        s = u"SimpleScrollArea, SimpleScrollerInternal, SimpleScrollerQWidget { %s; }" % '; '.join(styles)
         self.setStyleSheet(s)

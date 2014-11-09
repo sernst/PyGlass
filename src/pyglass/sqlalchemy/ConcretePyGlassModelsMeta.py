@@ -2,6 +2,9 @@
 # (C)2012-2013
 # Scott Ernst and Eric D. Wills
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
+from pyaid.string.StringUtils import StringUtils
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -33,58 +36,58 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
 
             try:
                 sourceUrl = getattr(res, 'DATABASE_URL')
-            except Exception, err:
+            except Exception as err:
                 PyGlassModelUtils.logger.writeError([
-                    u'ERROR: Unable to get DATABASE_URL from %s.__init__.py' % package,
-                    u'NAME: ' + unicode(name) ], err)
+                    'ERROR: Unable to get DATABASE_URL from %s.__init__.py' % package,
+                    'NAME: ' + StringUtils.toUnicode(name) ], err)
                 raise
 
             try:
                 url = PyGlassModelUtils.getEngineUrl(sourceUrl)
-            except Exception, err:
+            except Exception as err:
                 PyGlassModelUtils.logger.writeError([
-                    u'ERROR: Unable to get url from database url',
-                    u'DATABASE URL: ' + unicode(sourceUrl) ], err)
+                    'ERROR: Unable to get url from database url',
+                    'DATABASE URL: ' + StringUtils.toUnicode(sourceUrl) ], err)
                 raise
 
             try:
                 engine = create_engine(url, echo=False)
-            except Exception, err:
+            except Exception as err:
                 PyGlassModelUtils.logger.writeError([
-                    u'DATABASE FAILURE: Unable to create engine for database',
-                    u'URL: ' + unicode(url),
-                    u'NAME: ' + unicode(name)
+                    'DATABASE FAILURE: Unable to create engine for database',
+                    'URL: ' + StringUtils.toUnicode(url),
+                    'NAME: ' + StringUtils.toUnicode(name)
                 ], err)
                 raise
 
             try:
                 Session = scoped_session(sessionmaker(bind=engine))
-            except Exception, err:
+            except Exception as err:
                 PyGlassModelUtils.logger.writeError([
-                    u'DATABASE FAILURE: Unable to create bound Session.',
-                    u'URL: ' + unicode(url),
-                    u'ENGINE: ' + unicode(engine)
+                    'DATABASE FAILURE: Unable to create bound Session.',
+                    'URL: ' + StringUtils.toUnicode(url),
+                    'ENGINE: ' + StringUtils.toUnicode(engine)
                 ], err)
                 raise
 
             try:
                 Base = declarative_base(bind=engine)
-            except Exception, err:
+            except Exception as err:
                 PyGlassModelUtils.logger.writeError([
-                    u'DATABASE FAILURE: Unable to create database engine Base.',
-                    u'URL: ' + unicode(url),
-                    u'ENGINE: ' + unicode(engine)
+                    'DATABASE FAILURE: Unable to create database engine Base.',
+                    'URL: ' + StringUtils.toUnicode(url),
+                    'ENGINE: ' + StringUtils.toUnicode(engine)
                 ], err)
                 raise
 
             try:
                 Base.metadata.create_all(engine)
-            except Exception, err:
+            except Exception as err:
                 PyGlassModelUtils.logger.writeError([
-                    u'DATABASE FAILURE: Unable to create models.'
-                    u'URL: ' + unicode(url),
-                    u'ENGINE: ' + unicode(engine),
-                    u'BASE: ' + unicode(Base)
+                    'DATABASE FAILURE: Unable to create models.'
+                    'URL: ' + StringUtils.toUnicode(url),
+                    'ENGINE: ' + StringUtils.toUnicode(engine),
+                    'BASE: ' + StringUtils.toUnicode(Base)
                 ], err)
                 raise
 
@@ -109,7 +112,7 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
         declaredBase = (binding['BaseClass'],)
         try:
             bases = bases + declaredBase
-        except Exception, err:
+        except Exception as err:
             bases = declaredBase
 
         out = AbstractPyGlassModelsMeta.__new__(mcs, name, bases, attrs)
@@ -144,11 +147,11 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
     def createQuery(cls, session, *args):
         try:
             return session.createQuery(*args if args else [cls])
-        except Exception, err:
+        except Exception as err:
             ConcretePyGlassModelsMeta._logger.writeError([
-                'Query Creation Failure: ' + unicode(cls.__name__)
-                + '\nMETA: ' + unicode(cls.__base__.metadata)
-                + '\nREGISTRY: ' + unicode(cls.__base__._decl_class_registry)
+                'Query Creation Failure: ' + StringUtils.toUnicode(cls.__name__)
+                + '\nMETA: ' + StringUtils.toUnicode(cls.__base__.metadata)
+                + '\nREGISTRY: ' + StringUtils.toUnicode(cls.__base__._decl_class_registry)
             ], err)
             raise err
 
@@ -160,5 +163,5 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
     def echoAll(cls):
         session = cls.createSession()
         for res in session.query(cls).all():
-            PyGlassModelUtils.logger.write(unicode(res))
+            PyGlassModelUtils.logger.write(StringUtils.toUnicode(res))
         session.close()

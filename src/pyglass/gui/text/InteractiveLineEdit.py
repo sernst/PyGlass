@@ -2,8 +2,13 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtCore
 from PySide import QtGui
+
+
+from pyaid.string.StringUtils import StringUtils
 
 #___________________________________________________________________________________________________ InteractiveLineEdit
 class InteractiveLineEdit(QtGui.QLineEdit):
@@ -64,8 +69,7 @@ class InteractiveLineEdit(QtGui.QLineEdit):
         self.eventSignal.emit({
             'type':eventEnum,
             'target':self,
-            'data':data
-        })
+            'data':data })
 
 #___________________________________________________________________________________________________ _triggerEventImpl
     def _triggerEventImpl(self, eventEnum, data):
@@ -87,7 +91,7 @@ class InteractiveLineEdit(QtGui.QLineEdit):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

@@ -2,14 +2,15 @@
 # (C)2013
 # Scott Ernst
 
-import sys
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
 import shutil
 import py_compile
+
 from pyaid.json.JSON import JSON
 from pyaid.time.TimeUtils import TimeUtils
 import requests.utils
-
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.OsUtils import OsUtils
 from pyaid.debug.Logger import Logger
@@ -18,6 +19,7 @@ from pyaid.string.StringUtils import StringUtils
 
 from pyglass.compile.WidgetUiCompiler import WidgetUiCompiler
 from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
+
 
 #___________________________________________________________________________________________________ ResourceCollector
 class ResourceCollector(object):
@@ -172,7 +174,7 @@ class ResourceCollector(object):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

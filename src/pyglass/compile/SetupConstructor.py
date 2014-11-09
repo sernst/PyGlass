@@ -2,6 +2,8 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
 import sys
 from glob import glob
@@ -138,7 +140,7 @@ class SetupConstructor(object):
                 dllPath = path
                 break
         if dllPath is None:
-            raise Exception, "Unable to find Microsoft Visual Studio 9.0 installation."
+            raise Exception("Unable to find Microsoft Visual Studio 9.0 installation.")
 
         sys.path.append(dllPath)
         return [("Microsoft.VC90.CRT", glob(dllPath + r'\*.*'))]
@@ -149,10 +151,6 @@ class SetupConstructor(object):
 #___________________________________________________________________________________________________ __repr__
     def __repr__(self):
         return self.__str__()
-
-#___________________________________________________________________________________________________ __unicode__
-    def __unicode__(self):
-        return unicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

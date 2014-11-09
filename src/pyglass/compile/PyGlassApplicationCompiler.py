@@ -2,6 +2,8 @@
 # (C)2013-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
 import shutil
 import inspect
@@ -115,8 +117,8 @@ class PyGlassApplicationCompiler(object):
 
         result = SystemUtils.executeCommand(cmd, remote=False, wait=True)
         if result['code']:
-            print 'COMPILATION ERROR:'
-            print result['error']
+            print('COMPILATION ERROR:')
+            print(result['error'])
             return False
 
         if self.appFilename and OsUtils.isWindows():
@@ -126,10 +128,10 @@ class PyGlassApplicationCompiler(object):
             os.rename(source, dest)
 
         if OsUtils.isWindows() and not self._createWindowsInstaller(binPath):
-            print 'Installer Creation Failed'
+            print('Installer Creation Failed')
             return False
         elif OsUtils.isMac() and not self._createMacDmg(binPath):
-            print 'DMG Creation Failed'
+            print('DMG Creation Failed')
             return False
 
         # Remove the resources path once compilation is complete
@@ -154,7 +156,7 @@ class PyGlassApplicationCompiler(object):
 
 #___________________________________________________________________________________________________ _createMacDmg
     def _createMacDmg(self, binPath):
-        print 'CREATING Mac DMG'
+        print('CREATING Mac DMG')
         target   = FileUtils.createPath(binPath, self.application.appID + '.dmg', isFile=True)
         tempTarget = FileUtils.createPath(binPath, 'pack.tmp.dmg', isFile=True)
         distPath = FileUtils.createPath(binPath, 'dist', isDir=True, noTail=True)
@@ -167,8 +169,8 @@ class PyGlassApplicationCompiler(object):
 
         result = SystemUtils.executeCommand(cmd, wait=True)
         if result['code']:
-            print 'Failed Command Execution:'
-            print result
+            print('Failed Command Execution:')
+            print(result)
             return False
 
         cmd = ['hdiutil', 'convert', "%s" % tempTarget, '-format', 'UDZO', '-imagekey',
@@ -179,8 +181,8 @@ class PyGlassApplicationCompiler(object):
 
         result = SystemUtils.executeCommand(cmd)
         if result['code']:
-            print 'Failed Command Execution:'
-            print result
+            print('Failed Command Execution:')
+            print(result)
             return False
 
         SystemUtils.remove(tempTarget)
@@ -192,12 +194,12 @@ class PyGlassApplicationCompiler(object):
 
         nsisPath = 'C:\\Program Files (x86)\\NSIS\\makensis.exe'
         if os.path.exists(nsisPath):
-            print 'PACKAGING: NSIS Installer'
+            print('PACKAGING: NSIS Installer')
             result = SystemUtils.executeCommand('"%s" "%s"' % (
                 nsisPath, FileUtils.createPath(binPath, 'installer.nsi', isFile=True)))
             if result['code']:
-                print 'PACKAGING ERROR:'
-                print result['error']
+                print('PACKAGING ERROR:')
+                print(result['error'])
                 return False
 
         return True
@@ -208,7 +210,7 @@ class PyGlassApplicationCompiler(object):
         if not path:
             return ''
 
-        if isinstance(path, basestring):
+        if StringUtils.isStringType(path):
             if os.path.isabs(path) and os.path.exists(path):
                 return FileUtils.cleanupPath(path)
             else:
@@ -272,9 +274,9 @@ class PyGlassApplicationCompiler(object):
 
         result = SystemUtils.executeCommand(cmd)
         if result['code'] or not os.path.exists(targetPath):
-            print 'FAILED:'
-            print result['command']
-            print result['error']
+            print('FAILED:')
+            print(result['command'])
+            print(result['error'])
             return ''
 
         return targetPath
@@ -290,8 +292,8 @@ class PyGlassApplicationCompiler(object):
             f      = open(sourcePath, 'r+')
             source = f.read()
             f.close()
-        except Exception, err:
-            print err
+        except Exception as err:
+            print(err)
             return None
 
         try:
@@ -309,8 +311,8 @@ class PyGlassApplicationCompiler(object):
             ).replace(
                 '##SAFE_APP_NAME##', self.appDisplayName.replace(' ', '_') ))
             f.close()
-        except Exception, err:
-            print err
+        except Exception as err:
+            print(err)
             return None
 
         return path
@@ -325,8 +327,8 @@ class PyGlassApplicationCompiler(object):
             f = open(sourcePath, 'r+')
             source = f.read()
             f.close()
-        except Exception, err:
-            print err
+        except Exception as err:
+            print(err)
             return None
 
         try:
@@ -340,8 +342,8 @@ class PyGlassApplicationCompiler(object):
             ).replace(
                 '##SAFE_APP_NAME##', self.appDisplayName.replace(' ', '_') ))
             f.close()
-        except Exception, err:
-            print err
+        except Exception as err:
+            print(err)
             return None
 
         return path
@@ -355,7 +357,7 @@ class PyGlassApplicationCompiler(object):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

@@ -2,6 +2,8 @@
 # (C)2012
 # Eric David Wills and Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 #___________________________________________________________________________________________________ ModelProperty
 class ModelProperty(object):
 

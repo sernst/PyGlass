@@ -2,6 +2,8 @@
 # (C)2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -134,7 +136,7 @@ class FlowLayout(QtGui.QLayout):
             if not testOnly:
                 try:
                     item.widget().setGeometry(QtCore.QRect(QtCore.QPoint(0, 0), widgetSize))
-                except Exception, err:
+                except Exception as err:
                     pass
                 row['items'].append((item, x, y, widgetSize))
 

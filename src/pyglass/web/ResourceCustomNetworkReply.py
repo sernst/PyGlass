@@ -2,13 +2,16 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
 
 from PySide import QtCore
 from PySide import QtNetwork
-
+from pyaid.dict.DictUtils import DictUtils
 from pyaid.enum.MimeTypeEnum import MIME_TYPES
 from pyaid.file.FileUtils import FileUtils
+from pyaid.string.StringUtils import StringUtils
 
 from pyglass.web.HttpsRemoteExecutionThread import HttpsRemoteExecutionThread
 
@@ -90,7 +93,7 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
             self.content = f.read()
             f.close()
         else:
-            print 'WARNING: Resource URL does not exist ->', path
+            print('WARNING: Resource URL does not exist ->', path)
             self.content = ''
 
         self._finalize()
@@ -121,7 +124,7 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
 #___________________________________________________________________________________________________ _finalize
     def _finalize(self):
         self.setHeader(QtNetwork.QNetworkRequest.ContentLengthHeader, len(self.content))
-        self.setError(QtNetwork.QNetworkReply.NoError, u'')
+        self.setError(QtNetwork.QNetworkReply.NoError, '')
         self.open(self.ReadOnly | self.Unbuffered)
         QtCore.QTimer.singleShot(0, self, QtCore.SIGNAL("readyRead()"))
         QtCore.QTimer.singleShot(0, self, QtCore.SIGNAL("finished()"))
@@ -130,7 +133,7 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
     def _buildHttpsReply(self, parent, request, url, operation, data, page):
         headers = dict()
         for header in request.rawHeaderList():
-            headers[unicode(header)] = unicode(request.rawHeader(header))
+            headers[StringUtils.toUnicode(header)] = StringUtils.toUnicode(request.rawHeader(header))
         if data:
             data = data.readAll()
 
@@ -152,7 +155,7 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
         result = threadResult['output']
 
         self.content = result.content
-        for headerName, headerValue in result.headers.iteritems():
+        for headerName, headerValue in DictUtils.iter(result.headers):
             if headerName in ['content-length', 'connection', 'content-encoding']:
                 continue
             self.setRawHeader(headerName, headerValue)

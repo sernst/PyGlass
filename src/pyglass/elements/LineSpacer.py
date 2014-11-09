@@ -2,8 +2,10 @@
 # (C)2014
 # Scott Ernst
 
-from PySide import QtCore
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtGui
+from pyaid.string.StringUtils import StringUtils
 
 #___________________________________________________________________________________________________ LineSpacer
 class LineSpacer(QtGui.QWidget):
@@ -100,7 +102,7 @@ class LineSpacer(QtGui.QWidget):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

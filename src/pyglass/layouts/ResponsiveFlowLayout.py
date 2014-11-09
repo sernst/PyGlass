@@ -2,6 +2,8 @@
 # (C)2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from pyglass.layouts.FlowLayout import FlowLayout
 
 #___________________________________________________________________________________________________ ResponsiveFlowLayout
@@ -37,7 +39,7 @@ class ResponsiveFlowLayout(FlowLayout):
 
         try:
             widget = widgetItem.widget()
-        except Exception, err:
+        except Exception as err:
             return super(ResponsiveFlowLayout, self)._getWidgetSize(widgetItem)
 
         w = self.itemWidth
@@ -45,7 +47,7 @@ class ResponsiveFlowLayout(FlowLayout):
             return super(ResponsiveFlowLayout, self)._getWidgetSize(widget)
         try:
             return widget.getSizeForWidth(self.itemWidth)
-        except Exception, err:
+        except Exception as err:
             pass
 
         return super(ResponsiveFlowLayout, self)._getWidgetSize(widget)

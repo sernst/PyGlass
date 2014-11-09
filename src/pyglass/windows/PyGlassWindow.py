@@ -2,16 +2,18 @@
 # (C)2012-2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import sys
 import os
 
 from PySide import QtCore
 from PySide import QtGui
-
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.OsUtils import OsUtils
 from pyaid.debug.Logger import Logger
 from pyaid.decorators.ClassGetter import ClassGetter
+from pyaid.dict.DictUtils import DictUtils
 from pyaid.file.FileUtils import FileUtils
 from pyaid.string.StringUtils import StringUtils
 from pyaid.time.TimeUtils import TimeUtils
@@ -24,7 +26,7 @@ from pyglass.gui.PyGlassBackgroundParent import PyGlassBackgroundParent
 from pyglass.gui.PyGlassGuiUtils import PyGlassGuiUtils
 from pyglass.gui.UiFileLoader import UiFileLoader
 from pyglass.widgets.ApplicationLevelWidget import ApplicationLevelWidget
-from pyglass.widgets.LoadingWidget import LoadingWidget
+
 
 #___________________________________________________________________________________________________ PyGlassWindow
 class PyGlassWindow(QtGui.QMainWindow):
@@ -359,7 +361,7 @@ class PyGlassWindow(QtGui.QMainWindow):
 
 #___________________________________________________________________________________________________ refreshWidgets
     def refreshWidgets(self, **kwargs):
-        for name, widget in self._widgets.iteritems():
+        for name, widget in DictUtils.iter(self._widgets):
             widget.refresh(**kwargs)
         self.refreshGui()
 
@@ -424,7 +426,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         if not w:
             return
 
-        for wid, widget in self._appLevelWidgets.iteritems():
+        for wid, widget in DictUtils.iter(self._appLevelWidgets):
             if wid == widgetID:
                 widget.setVisible(True)
                 widget.activateWidgetDisplay(**kwargs)
@@ -438,7 +440,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         if not w:
             return
 
-        for wid, widget in self._appLevelWidgets.iteritems():
+        for wid, widget in DictUtils.iter(self._appLevelWidgets):
             if wid == widgetID:
                 widget.setVisible(False)
                 widget.deactivateWidgetDisplay(**kwargs)
@@ -517,7 +519,7 @@ class PyGlassWindow(QtGui.QMainWindow):
     def loadWidgets(self, widgetIdents =None):
         if not widgetIdents:
             widgetIdents = self._widgetClasses.keys()
-        elif isinstance(widgetIdents, basestring):
+        elif StringUtils.isStringType(widgetIdents):
             widgetIdents = [widgetIdents]
 
         for widgetID in widgetIdents:
@@ -532,7 +534,7 @@ class PyGlassWindow(QtGui.QMainWindow):
                 widget = self._widgetClasses[widgetID](
                     parent=self._widgetParent, flags=self._widgetFlags, widgetID=widgetID)
                 self._widgets[widgetID] = widget
-            except Exception, err:
+            except Exception as err:
                 self._log.write('ERROR: Failed to load widget with id: "%s" ->' % widgetID)
                 raise
 
@@ -667,7 +669,7 @@ class PyGlassWindow(QtGui.QMainWindow):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

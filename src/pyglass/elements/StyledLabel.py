@@ -2,9 +2,12 @@
 # (C)2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from PySide import QtGui
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.string.StringUtils import StringUtils
 from pyglass.themes.ColorQValue import ColorQValue
 
 #___________________________________________________________________________________________________ StyledLabel
@@ -197,7 +200,7 @@ class StyledLabel(QtGui.QLabel):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):
