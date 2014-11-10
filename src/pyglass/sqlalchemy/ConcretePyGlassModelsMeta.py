@@ -32,7 +32,8 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
             # resides.
             module  = attrs['__module__']
             package = module[:module.rfind('.')]
-            res     = __import__(package, globals(), locals(), ['DATABASE_URL'])
+            res = __import__(package, globals(), locals(), [
+                StringUtils.toStr2('DATABASE_URL')])
 
             try:
                 sourceUrl = getattr(res, 'DATABASE_URL')

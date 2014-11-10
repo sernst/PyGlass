@@ -104,7 +104,7 @@ class UiFileLoader(QtUiTools.QUiLoader):
             uiPath      = testPath + '.ui'
             uiModTime   = os.path.getmtime(uiPath) if os.path.exists(uiPath) else 0
             pyPath      = testPath + '.py'
-            pyModTime   = os.path.getmtime(uiPath) if os.path.exists(uiPath) else 0
+            pyModTime   = os.path.getmtime(pyPath) if os.path.exists(pyPath) else 0
             pycPath     = cls._getCachedPath(pyPath)
             pycModTime  = os.path.getmtime(pycPath) if os.path.exists(pycPath) else 0
 
@@ -160,8 +160,7 @@ class UiFileLoader(QtUiTools.QUiLoader):
     def _importSource(cls, widgetPath):
         """_importSource doc..."""
         if imp:
-            pycPath = widgetPath
-            return imp.load_source('PySideUiFileSetup', widgetPath)
+            return imp.load_source('PySideUiFileSetup', StringUtils.toStr2(widgetPath))
 
         loader = importlib.machinery.SourceFileLoader('PySideUiFileSetup', widgetPath)
         return loader.load_module()
@@ -172,7 +171,7 @@ class UiFileLoader(QtUiTools.QUiLoader):
     def _importCompiled(cls, widgetPath):
         """_importCompiled doc..."""
         if imp:
-            return imp.load_compiled('PySideUiFileSetup', widgetPath)
+            return imp.load_compiled('PySideUiFileSetup', StringUtils.toStr2(widgetPath))
 
         loader = importlib.machinery.SourcelessFileLoader('PySideUiFileSetup', widgetPath)
         return loader.load_module()
