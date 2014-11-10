@@ -5,13 +5,10 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from PySide import QtCore
-
 from pyaid.json.JSON import JSON
-
-#___________________________________________________________________________________________________ PyGlassCommunicator
 from pyaid.string.StringUtils import StringUtils
 
-
+#___________________________________________________________________________________________________ PyGlassCommunicator
 class PyGlassCommunicator(QtCore.QObject):
     """A class for..."""
 
@@ -63,8 +60,7 @@ class PyGlassCommunicator(QtCore.QObject):
         frame = self._webView.page().mainFrame()
         frame.addToJavaScriptWindowObject(self.javaScriptID, self)
         frame.evaluateJavaScript(
-            'try{ window.%s(%s); } catch (e) {}' % (function, JSON.asString(data) if data else '')
-        )
+            'try{ window.%s(%s); } catch (e) {}' % (function, JSON.asString(data) if data else ''))
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -84,8 +80,7 @@ class PyGlassCommunicator(QtCore.QObject):
         return JSON.asString(dict(
             success=True,
             error=False,
-            payload=payload
-        ))
+            payload=payload ))
 
 #___________________________________________________________________________________________________ _createErrorResult
     def _createErrorResult(self, code =None, info =None, data=None):
@@ -94,8 +89,7 @@ class PyGlassCommunicator(QtCore.QObject):
             error=True,
             code=code if code else 'COMMUNICATOR_ERROR',
             info=info if info else 'Unknown error occurred.',
-            data=data
-        )
+            data=data )
 
         # Keep errors to the 50 most recent to prevent memory overloads on long sessions.
         while len(self._errors) > 49:
@@ -110,10 +104,6 @@ class PyGlassCommunicator(QtCore.QObject):
 #___________________________________________________________________________________________________ __repr__
     def __repr__(self):
         return self.__str__()
-
-#___________________________________________________________________________________________________ __unicode__
-    def __unicode__(self):
-        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

@@ -126,8 +126,7 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
         self.setHeader(QtNetwork.QNetworkRequest.ContentLengthHeader, len(self.content))
         self.setError(QtNetwork.QNetworkReply.NoError, '')
         self.open(self.ReadOnly | self.Unbuffered)
-        QtCore.QTimer.singleShot(0, self, QtCore.SIGNAL("readyRead()"))
-        QtCore.QTimer.singleShot(0, self, QtCore.SIGNAL("finished()"))
+        QtCore.QTimer.singleShot(0, self._handleReadyToRead)
 
 #___________________________________________________________________________________________________
     def _buildHttpsReply(self, parent, request, url, operation, data, page):
@@ -142,8 +141,7 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
             operation=operation,
             data=data,
             headers=headers,
-            url=url.toString()
-        )
+            url=url.toString())
         thread.completeSignal.signal.connect(self._handleHttpsResult)
         thread.start()
 
@@ -162,4 +160,10 @@ class ResourceCustomNetworkReply(QtNetwork.QNetworkReply):
 
         self._finalize()
         return
+
+#___________________________________________________________________________________________________ _handleReadyToRead
+    def _handleReadyToRead(self):
+        """_handleReadyToRead doc..."""
+        self.readyRead.emit()
+        self.finished.emit()
 

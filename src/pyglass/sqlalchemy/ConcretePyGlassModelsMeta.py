@@ -30,17 +30,23 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
 
             # Retrieve the database URL from the __init__.py for the package in which the model class
             # resides.
-            module  = attrs['__module__']
-            package = module[:module.rfind('.')]
-            res = __import__(package, globals(), locals(), [
-                StringUtils.toStr2('DATABASE_URL')])
+            try:
+                module  = attrs['__module__']
+                package = module[:module.rfind('.')]
+                res = __import__(package, globals(), locals(), [
+                    StringUtils.toStr2('DATABASE_URL')])
+            except Exception as err:
+                PyGlassModelUtils.logger.writeError([
+                    'ERROR: Unable to initialize model',
+                    'NAME: %s' % name ])
+                raise
 
             try:
                 sourceUrl = getattr(res, 'DATABASE_URL')
             except Exception as err:
                 PyGlassModelUtils.logger.writeError([
                     'ERROR: Unable to get DATABASE_URL from %s.__init__.py' % package,
-                    'NAME: ' + StringUtils.toUnicode(name) ], err)
+                    'NAME: %s' % name ], err)
                 raise
 
             try:
@@ -98,7 +104,7 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
                 'BaseClass':Base,
                 'url':url,
                 'databaseUrl':sourceUrl }
-            ConcretePyGlassModelsMeta._engines[name] = binding
+            mcs._engines[name] = binding
 
         attrs['ENGINE']        = binding['engine']
         attrs['SESSION_CLASS'] = binding['SessionClass']

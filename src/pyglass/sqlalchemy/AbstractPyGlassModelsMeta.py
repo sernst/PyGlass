@@ -3,6 +3,8 @@
 # Scott Ernst and Eric David Wills
 
 from __future__ import print_function, absolute_import, unicode_literals, division
+from pyaid.dict.DictUtils import DictUtils
+from pyaid.string.StringUtils import StringUtils
 
 from sqlalchemy import Column
 from sqlalchemy import orm
@@ -28,9 +30,11 @@ class AbstractPyGlassModelsMeta(DeclarativeMeta):
 
 #___________________________________________________________________________________________________ __new__
     def __new__(cls, name, bases, attrs):
-        for n, v in attrs.items():
+        name = StringUtils.toStr2(name)
+
+        for n, v in list(attrs.items()):
             attrName = n[1:]
-            if isinstance(v, Column) and n.startswith('_') and not attrs.has_key(attrName):
+            if isinstance(v, Column) and n.startswith('_') and not attrName in attrs:
                 v.key  = attrName
                 v.name = attrName
 

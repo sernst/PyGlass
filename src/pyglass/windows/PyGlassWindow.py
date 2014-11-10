@@ -377,10 +377,10 @@ class PyGlassWindow(QtGui.QMainWindow):
             self.statusBar().setVisible(True)
 
 #___________________________________________________________________________________________________ getWidgetFromID
-    def getWidgetFromID(self, widgetID):
-        if widgetID in self._widgets:
-            return self._widgets[widgetID]
-        return None
+    def getWidgetFromID(self, widgetID, createIfMissing =True):
+        if widgetID not in self._widgets and createIfMissing:
+            self.loadWidgets(widgetID)
+        return self._widgets.get(widgetID, None)
 
 #___________________________________________________________________________________________________ getSharedResourcePath
     def getSharedResourcePath(self, *args, **kwargs):

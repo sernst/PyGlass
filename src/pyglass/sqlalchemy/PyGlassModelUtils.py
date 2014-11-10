@@ -83,18 +83,16 @@ class PyGlassModelUtils(object):
                     from pyglass.alembic.AlembicUtils import AlembicUtils
                     if AlembicUtils.hasAlembic:
                         AlembicUtils.stampDatabase(c.DATABASE_URL)
-                        cls._logger.write(
-                            'CREATED: ' + StringUtils.toUnicode(c) + ' ' + StringUtils.toUnicode(c.__table__)
-                            + ' [STAMPED head]' )
+                        cls._logger.write('CREATED: %s %s [STAMPED head]' % (c, c.__table__))
             except Exception as err:
                 cls._logger.writeError([
                     'MODEL INITIALIZATION FAILURE:',
-                    'INIT PATH: ' + StringUtils.toUnicode(initPath),
-                    'INIT NAME: ' + StringUtils.toUnicode(initName),
-                    'MODULE IMPORT: ' + StringUtils.toUnicode(m),
-                    'IMPORT CLASS: ' + StringUtils.toUnicode(n),
-                    'IMPORT RESULT: ' + StringUtils.toUnicode(r),
-                    'CLASS RESULT: ' + StringUtils.toUnicode(c) ], err)
+                    'INIT PATH: %s' % initPath,
+                    'INIT NAME: %s' % initName,
+                    'MODULE IMPORT: %s' % m,
+                    'IMPORT CLASS: %s' % n,
+                    'IMPORT RESULT: %s' % r,
+                    'CLASS RESULT: %s' % c ], err)
 
         return out
 

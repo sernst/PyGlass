@@ -22,13 +22,15 @@ from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 from pyglass.sqlalchemy.AbstractPyGlassModelsMeta import AbstractPyGlassModelsMeta
 from pyglass.sqlalchemy.PyGlassModelUtils import PyGlassModelUtils
 
+import six
+
 #___________________________________________________________________________________________________ PyGlassModelsDefault
+@six.add_metaclass(AbstractPyGlassModelsMeta)
 class PyGlassModelsDefault(object):
 
 #===================================================================================================
 #                                                                                       C L A S S
 
-    __metaclass__  = AbstractPyGlassModelsMeta
     __abstract__   = True
     __table_args__ = {'sqlite_autoincrement': True}
 
@@ -39,7 +41,7 @@ class PyGlassModelsDefault(object):
 
 #___________________________________________________________________________________________________ __init__
     def __init__(self, **kwargs):
-        super(PyGlassModelsDefault, self).__init__(**kwargs)
+        super(PyGlassModelsDefault, self).__init__()
         self.ormInit()
 
 #___________________________________________________________________________________________________ ormInit

@@ -134,10 +134,6 @@ class PyGlassWebView(QtWebKit.QWebView):
     def __repr__(self):
         return self.__str__()
 
-#___________________________________________________________________________________________________ __unicode__
-    def __unicode__(self):
-        return StringUtils.toUnicode(self.__str__())
-
 #___________________________________________________________________________________________________ __str__
     def __str__(self):
         return '<%s>' % self.__class__.__name__
