@@ -6,6 +6,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 from PySide import QtCore
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.string.StringUtils import StringUtils
 
 from pyglass.overlay.PyGlassOverlay import PyGlassOverlay
 
@@ -101,7 +102,7 @@ class SideBarOverlay(PyGlassOverlay):
             self._anim = None
 
         self.sideWidget.show()
-        anim = QtCore.QPropertyAnimation(self.sideWidget, "pos")
+        anim = QtCore.QPropertyAnimation(self.sideWidget, StringUtils.toStr2('pos'))
         anim.setDuration(250)
 
         if self.dockOnLeft:
