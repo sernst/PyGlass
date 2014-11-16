@@ -36,6 +36,8 @@ class RemoteExecutionThread(QtCore.QThread):
         self._log              = Logger(self)
         self._log.trace        = True
         self._log.addPrintCallback(self._handleLogWritten)
+        self._logger           = self._log
+
         self._maxLogBufferSize = 0
         self._logBuffer        = []
         self._returnCode         = None
@@ -60,6 +62,11 @@ class RemoteExecutionThread(QtCore.QThread):
 #___________________________________________________________________________________________________ GS: log
     @property
     def log(self):
+        return self._log
+
+#___________________________________________________________________________________________________ GS: logger
+    @property
+    def logger(self):
         return self._log
 
 #___________________________________________________________________________________________________ GS: response

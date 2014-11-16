@@ -31,6 +31,7 @@ class PyGlassModelUtils(object):
 #                                                                                   G E T / S E T
 
 #___________________________________________________________________________________________________ logger
+    # noinspection PyMethodParameters
     @ClassGetter
     def logger(cls):
         return cls._logger
@@ -63,7 +64,7 @@ class PyGlassModelUtils(object):
 
             parts    = module.rsplit('.', 1)
             parts[0] = parts[0].rsplit(os.sep, 1)[-1]
-            if not parts[-1].startswith('py') or parts[0] in items:
+            if not parts[-1].startswith(StringUtils.toStr2('py')) or parts[0] in items:
                 continue
             items.append(parts[0])
 
@@ -75,7 +76,7 @@ class PyGlassModelUtils(object):
                 n = module.rsplit('.', 1)[0]
                 m = initName + '.' + n
                 r = __import__(m, locals(), globals(), [n])
-                c = getattr(r, n)
+                c = getattr(r, StringUtils.toText(n))
                 out[n] = c
                 if not c.__table__.exists(c.ENGINE):
                     c.__table__.create(c.ENGINE, True)

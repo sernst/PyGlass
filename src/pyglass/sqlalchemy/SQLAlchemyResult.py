@@ -93,6 +93,7 @@ class SQLAlchemyResult(object):
             raise err
         except Exception as err:
             stackData = Logger.getStackData()
+            # noinspection PyProtectedMember
             self._modelClass._log.writeError('FAILED CURSOR ACTION: %s'% str(function), err)
 
         return None

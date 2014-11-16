@@ -8,7 +8,9 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import os
 import sys
 import importlib
+
 from pyaid.list.ListUtils import ListUtils
+from pyaid.string.StringUtils import StringUtils
 
 if sys.version < '3':
     # noinspection PyDeprecation
@@ -24,8 +26,6 @@ try:
     from PySide import QtUiTools
 except Exception:
     QtUiTools = None
-
-from pyaid.string.StringUtils import StringUtils
 
 #___________________________________________________________________________________________________ UiFileLoader
 class UiFileLoader(QtUiTools.QUiLoader):
@@ -80,6 +80,37 @@ class UiFileLoader(QtUiTools.QUiLoader):
         QtCore.QMetaObject.connectSlotsByName(widget)
         return widget
 
+#___________________________________________________________________________________________________ loadUiFile
+    @classmethod
+    def loadUiFile(cls, target, pathNoExtension, loadAsWidget =True):
+        """loadUiFile doc..."""
+        testPath    = pathNoExtension
+        uiPath      = testPath + '.ui'
+        uiModTime   = os.path.getmtime(uiPath) if os.path.exists(uiPath) else 0
+        pyPath      = testPath + '.py'
+        pyModTime   = os.path.getmtime(pyPath) if os.path.exists(pyPath) else 0
+        pycPath     = cls._getCachedPath(pyPath)
+        pycModTime  = os.path.getmtime(pycPath) if os.path.exists(pycPath) else 0
+
+        # If no files exist for the lookup item move on to the next one
+        if uiModTime == 0 and pyModTime == 0 and pycModTime == 0:
+            return None
+
+        if uiModTime > pyModTime:
+            return cls.loadFileIntoTarget(target if loadAsWidget else None, uiPath)
+
+        if pyModTime >= pycModTime:
+            setup = cls._importSource(pyPath)
+        else:
+            setup = cls._importCompiled(pycPath)
+
+        if not setup:
+            return None
+
+        result = target if loadAsWidget else QtGui.QWidget()
+        setup.PySideUiFileSetup().setupUi(result)
+        return result
+
 #___________________________________________________________________________________________________ loadWidgetFile
     @classmethod
     def loadWidgetFile(cls, widget, names =None, loadAsWidget =True, target =None):
@@ -99,33 +130,14 @@ class UiFileLoader(QtUiTools.QUiLoader):
         if not os.path.exists(path):
             raise IOError('[ERROR]: Missing widget resource path [%s]: %s' % (widgetName, path))
 
+        result = None
         for item in lookups:
-            testPath    = widget.getResourcePath(item, isFile=True)
-            uiPath      = testPath + '.ui'
-            uiModTime   = os.path.getmtime(uiPath) if os.path.exists(uiPath) else 0
-            pyPath      = testPath + '.py'
-            pyModTime   = os.path.getmtime(pyPath) if os.path.exists(pyPath) else 0
-            pycPath     = cls._getCachedPath(pyPath)
-            pycModTime  = os.path.getmtime(pycPath) if os.path.exists(pycPath) else 0
-
-            # If no files exist for the lookup item move on to the next one
-            if uiModTime == 0 and pyModTime == 0 and pycModTime == 0:
-                continue
-
-            if uiModTime > pyModTime:
-                result = cls.loadFileIntoTarget(target if loadAsWidget else None, uiPath)
+            result = cls.loadUiFile(
+                target=target,
+                pathNoExtension=widget.getResourcePath(item, isFile=True),
+                loadAsWidget=loadAsWidget)
+            if result:
                 break
-
-            if pyModTime >= pycModTime:
-                setup = cls._importSource(pyPath)
-            else:
-                setup = cls._importCompiled(pycPath)
-
-            if not setup:
-                continue
-            result = target if loadAsWidget else QtGui.QWidget()
-            setup.PySideUiFileSetup().setupUi(result)
-            break
 
         if not result:
             raise Exception('[ERROR]: No UI file found at: ' + path)

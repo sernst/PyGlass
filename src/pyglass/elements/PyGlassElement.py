@@ -5,8 +5,6 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from PySide import QtGui
-
-from pyaid.ArgsUtils import ArgsUtils
 from pyaid.file.FileUtils import FileUtils
 
 from pyglass.elements.VisibilityElement import VisibilityElement
@@ -28,9 +26,9 @@ class PyGlassElement(VisibilityElement):
         self._initialized         = False
         self._mainWindow          = None
         self._isWidgetActive      = False
-        self._id                  = ArgsUtils.get('id', self.__class__.__name__, kwargs)
-        self._widgetID            = ArgsUtils.get('widgetID', self._id, kwargs)
-        self._userData            = ArgsUtils.get('userData', None, kwargs)
+        self._id                  = kwargs.get('id', self.__class__.__name__)
+        self._widgetID            = kwargs.get('widgetID', self._id)
+        self._userData            = kwargs.get('userData', None)
         self._resourceFolderParts = PyGlassGuiUtils.getResourceFolderParts(self)
         self._isPainting          = False
 
@@ -72,7 +70,7 @@ class PyGlassElement(VisibilityElement):
                     return False
                 if parent.isBackgroundParent:
                     return False
-            except Exception as err:
+            except Exception:
                 pass
             parent = parent.parent()
 
@@ -233,6 +231,7 @@ class PyGlassElement(VisibilityElement):
         self._isWidgetActive = False
 
 #___________________________________________________________________________________________________ getOwnerOf
+    # noinspection PyMethodMayBeStatic
     def getOwnerOf(self, target):
         return PyGlassGuiUtils.getOwner(target)
 
@@ -261,8 +260,8 @@ class PyGlassElement(VisibilityElement):
             for item in out:
                 try:
                     item.deleteLater()
-                except Exception as err:
-                    print('[WARNING]: Delete later faliure %s -> %s' % (cls.__name__, item))
+                except Exception:
+                    print('[WARNING]: Delete later failure %s -> %s' % (cls.__name__, item))
             return []
         return out
 

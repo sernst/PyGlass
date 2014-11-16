@@ -3,14 +3,12 @@
 # Scott Ernst and Eric David Wills
 
 from __future__ import print_function, absolute_import, unicode_literals, division
-from pyaid.dict.DictUtils import DictUtils
-from pyaid.string.StringUtils import StringUtils
 
+from pyaid.string.StringUtils import StringUtils
 from sqlalchemy import Column
 from sqlalchemy import orm
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.ext.hybrid import hybrid_property
-
 from pyaid.debug.Logger import Logger
 
 from pyglass.sqlalchemy.ExternalKeyProperty import ExternalKeyProperty
@@ -29,7 +27,7 @@ class AbstractPyGlassModelsMeta(DeclarativeMeta):
     _logger   = Logger('Models')
 
 #___________________________________________________________________________________________________ __new__
-    def __new__(cls, name, bases, attrs):
+    def __new__(mcs, name, bases, attrs):
         name = StringUtils.toStr2(name)
 
         for n, v in list(attrs.items()):
@@ -52,7 +50,7 @@ class AbstractPyGlassModelsMeta(DeclarativeMeta):
                     attrs[info['get']] = property(
                         ExternalKeyProperty(attrName, info['model'], columnName))
 
-        return DeclarativeMeta.__new__(cls, name, bases, attrs)
+        return DeclarativeMeta.__new__(mcs, name, bases, attrs)
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -71,6 +69,7 @@ class AbstractPyGlassModelsMeta(DeclarativeMeta):
 #                                                                                     P U B L I C
 
 #___________________________________________________________________________________________________ getModel
+    # noinspection PyUnusedLocal
     def getModel(cls, modelType =None):
         this = AbstractPyGlassModelsMeta
         name = cls.__name__ + '_Master'
@@ -90,6 +89,9 @@ class AbstractPyGlassModelsMeta(DeclarativeMeta):
                 'ormReconstructor':orm.reconstructor(reconstructor) })
 
         return this._registry[name]
+
+#===================================================================================================
+#                                                                               I N T R I N S I C
 
 #___________________________________________________________________________________________________ __str__
     def __str__(cls):

@@ -5,8 +5,6 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from PySide import QtGui
-
-from pyaid.ArgsUtils import ArgsUtils
 from pyaid.dict.DictUtils import DictUtils
 from pyaid.string.StringUtils import StringUtils
 
@@ -37,28 +35,29 @@ class PyGlassWidget(PyGlassElement):
         self.setStyleSheet(self.owner.styleSheetPath)
 
         self._displayCount  = 0
-        self._widgetClasses = ArgsUtils.getAsDict('widgets', kwargs)
+        self._widgetClasses = kwargs.get('widgets', dict())
         self._widgetParent  = None
         self._currentWidget = None
         self._widgets       = dict()
-        self._widgetFlags   = ArgsUtils.get('widgetFlags', None, kwargs)
-        self._widgetID      = ArgsUtils.get('widgetID', None, kwargs)
+        self._widgetFlags   = kwargs.get('widgetFlags')
+        self._widgetID      = kwargs.get('widgetID')
         self._lastChildWidgetID  = None
         self._lastPeerWidgetID   = None
 
-        widgetFile = ArgsUtils.get('widgetFile', True, kwargs)
+        widgetFile = kwargs.get('widgetFile', True)
 
         if widgetFile:
             parts = self.RESOURCE_WIDGET_FILE
-            if StringUtils.isStringType(parts):
-                parts = parts.split('/')[-1:]
-            elif parts:
-                parts = parts[-1:]
+            if parts:
+                if StringUtils.isStringType(parts):
+                    parts = parts.split('/')[-1:]
+                elif parts:
+                    parts = parts[-1:]
             self._widgetData = UiFileLoader.loadWidgetFile(self, names=parts)
         else:
             self._widgetData = None
 
-        name = ArgsUtils.get('containerWidgetName', None, kwargs)
+        name = kwargs.get('containerWidgetName')
         self._containerWidget = getattr(self, name) if name and hasattr(self, name) else None
 
 #===================================================================================================
@@ -138,7 +137,7 @@ class PyGlassWidget(PyGlassElement):
 
         try:
             containerWidget.layout().removeWidget(self._currentWidget)
-        except Exception as err:
+        except Exception:
             p = self._currentWidget.parent()
             if p:
                 p.layout().removeWidget(self._currentWidget)
@@ -205,6 +204,7 @@ class PyGlassWidget(PyGlassElement):
                 self._log.write(
                     'ERROR: Unrecognized widgetID "%s" in %s' % (str(widgetID), str(self)) )
 
+            # noinspection PyCallingNonCallable
             widget = self._widgetClasses[widgetID](
                 self._widgetParent, flags=self._widgetFlags, widgetID=widgetID)
             self._widgets[widgetID] = widget
@@ -220,7 +220,7 @@ class PyGlassWidget(PyGlassElement):
         if self._isWidgetActive:
             return
 
-        self._lastPeerWidgetID = ArgsUtils.get('lastPeerWidgetID', None, kwargs)
+        self._lastPeerWidgetID = kwargs.get('lastPeerWidgetID')
 
         self._displayCount += 1
         self._activateWidgetDisplayImpl(**kwargs)
@@ -244,7 +244,7 @@ class PyGlassWidget(PyGlassElement):
 
         self._isWidgetActive = False
 
-#___________________________________________________________________________________________________ diposeWidgets
+#___________________________________________________________________________________________________ disposeWidgets
     def disposeWidgets(self, *widgetIDs):
         if not widgetIDs:
             widgetIDs = list(self._widgets.keys())

@@ -130,6 +130,7 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
 
 #___________________________________________________________________________________________________ createSession
     def createSession(cls):
+        # noinspection PyUnresolvedReferences
         return cls.SESSION_CLASS()
 
 #___________________________________________________________________________________________________ query
@@ -155,11 +156,11 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
         try:
             return session.createQuery(*args if args else [cls])
         except Exception as err:
+            # noinspection PyProtectedMember
             ConcretePyGlassModelsMeta._logger.writeError([
-                'Query Creation Failure: ' + StringUtils.toUnicode(cls.__name__)
-                + '\nMETA: ' + StringUtils.toUnicode(cls.__base__.metadata)
-                + '\nREGISTRY: ' + StringUtils.toUnicode(cls.__base__._decl_class_registry)
-            ], err)
+                'Query Creation Failure: %s' % cls.__name__,
+                'META: %s' % cls.__base__.metadata,
+                'REGISTRY: %s' % cls.__base__._decl_class_registry ], err)
             raise err
 
 #___________________________________________________________________________________________________ createResult
