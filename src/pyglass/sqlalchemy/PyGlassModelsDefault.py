@@ -8,10 +8,7 @@ import datetime
 from pyaid.dict.DictUtils import DictUtils
 from pyaid.string.StringUtils import StringUtils
 
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import Integer
-from sqlalchemy import UnicodeText
+import sqlalchemy as sqla
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from pyaid.json.JSON import JSON
@@ -34,10 +31,10 @@ class PyGlassModelsDefault(object):
     __abstract__   = True
     __table_args__ = {'sqlite_autoincrement': True}
 
-    _i         = Column(Integer, primary_key=True)
-    _upts      = Column(DateTime, default=datetime.datetime.utcnow())
-    _cts       = Column(DateTime, default=datetime.datetime.utcnow())
-    _json_data = Column(UnicodeText, default='')
+    _i         = sqla.Column(sqla.Integer, primary_key=True)
+    _upts      = sqla.Column(sqla.DateTime, default=datetime.datetime.utcnow())
+    _cts       = sqla.Column(sqla.DateTime, default=datetime.datetime.utcnow())
+    _json_data = sqla.Column(sqla.UnicodeText, default='')
 
 #___________________________________________________________________________________________________ __init__
     def __init__(self, **kwargs):
@@ -69,7 +66,7 @@ class PyGlassModelsDefault(object):
         return self._upts
     @upts.setter
     def upts(self, value):
-        self._upts = self.__class__._parseTimestamp(value)
+        self._upts = self._parseTimestamp(value)
 
 #___________________________________________________________________________________________________ GS: cts
     @hybrid_property
@@ -77,7 +74,15 @@ class PyGlassModelsDefault(object):
         return self._cts
     @cts.setter
     def cts(self, value):
-        self._cts = self.__class__._parseTimestamp(value)
+        self._cts = self._parseTimestamp(value)
+
+#___________________________________________________________________________________________________ GS: mySession
+    @property
+    def mySession(self):
+        try:
+            return sqla.inspect(self).session
+        except Exception:
+            return None
 
 #___________________________________________________________________________________________________ GS: _log
     @property

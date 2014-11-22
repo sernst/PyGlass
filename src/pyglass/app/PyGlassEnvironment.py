@@ -1,5 +1,5 @@
 # PyGlassEnvironment.py
-# (C)2013
+# (C)2013-2014
 # Scott Ernst
 
 from __future__ import print_function, absolute_import, unicode_literals, division
@@ -121,6 +121,36 @@ class PyGlassEnvironment(object):
     @classmethod
     def initializeCurrentPathAppSettings(cls):
         cls.initializeCreatePathAppSettings(os.path.abspath(os.curdir), isDir=True)
+
+#___________________________________________________________________________________________________ initializeFromInternalPath
+    @classmethod
+    def initializeFromInternalPath(cls, referencePath, force =False):
+        """ Used to explicitly initialiize the pyglass environment when running inside the source
+            code respository with a standard structure where the repository root has a src and
+            a resources folder. """
+
+        if cls.isInitialized and not force:
+            return True
+
+        path = FileUtils.cleanupPath(referencePath, noTail=True)
+        if os.path.isfile(path):
+            path = FileUtils.getDirectoryOf(referencePath, noTail=True)
+
+        rootPath = None
+        while path:
+            srcPath = FileUtils.makeFolderPath(path, 'src', isDir=True)
+            resPath = FileUtils.makeFolderPath(path, 'resources', isDir=True)
+            if os.path.exists(srcPath) and os.path.exists(resPath):
+                rootPath = path
+                break
+            path = FileUtils.getDirectoryOf(path, noTail=True)
+
+        if not rootPath:
+            return False
+
+        cls._rootResourcePath       = FileUtils.makeFolderPath(rootPath, 'resources')
+        cls._rootLocalResourcePath  = FileUtils.makeFolderPath(rootPath, 'resources', 'local')
+        return True
 
 #___________________________________________________________________________________________________ initializeExplicitAppSettings
     @classmethod
