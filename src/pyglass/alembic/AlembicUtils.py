@@ -103,10 +103,9 @@ class AlembicUtils(object):
         # These options are overridden during loading to prevent issues of absolute path corruption
         # when running in different deployment modes and when installed on different computers
         config.set_main_option('url', engineUrl)
-        section = config.get_section('alembic')
-        section['script_location'] = migrationPath
-        section['sqlalchemy.url'] = engineUrl
-        section['url'] = engineUrl
+        config.set_section_option('alembic', 'script_location', migrationPath)
+        config.set_section_option('alembic', 'sqlalchemy.url', migrationPath)
+        config.set_section_option('alembic', 'url', migrationPath)
 
         return config
 
@@ -121,7 +120,11 @@ class AlembicUtils(object):
                 databaseUrl=databaseUrl,
                 resourcesPath=resourcesPath,
                 localResourcesPath=localResourcesPath)
-        result = alembicScript.ScriptDirectory.from_config(config)
+        try:
+            result = alembicScript.ScriptDirectory.from_config(config)
+        except Exception as err:
+            print('[ERROR]: Unable to retrieve scripts data', config)
+            raise
         return result
 
 #___________________________________________________________________________________________________ getCurrentDatabaseRevision
