@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
+from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 from pyglass.sqlalchemy.SQLAlchemyResult import SQLAlchemyResult
 from pyglass.sqlalchemy.AbstractPyGlassModelsMeta import AbstractPyGlassModelsMeta
 from pyglass.sqlalchemy.PyGlassModelUtils import PyGlassModelUtils
@@ -33,8 +34,7 @@ class ConcretePyGlassModelsMeta(AbstractPyGlassModelsMeta):
             try:
                 module  = attrs['__module__']
                 package = module[:module.rfind('.')]
-                res = __import__(package, globals(), locals(), [
-                    StringUtils.toStr2('DATABASE_URL')])
+                res = __import__(package, globals(), locals(), [StringUtils.toStr2('DATABASE_URL')])
             except Exception as err:
                 PyGlassModelUtils.logger.writeError([
                     'ERROR: Unable to initialize model',

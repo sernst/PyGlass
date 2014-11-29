@@ -149,7 +149,9 @@ class PyGlassWidget(PyGlassElement):
 #___________________________________________________________________________________________________ setActiveWidget
     def setActiveWidget(self, widgetID, containerWidget =None, force =False, args =None, doneArgs =None):
         if widgetID and not widgetID in self._widgetClasses:
-            print('[WARNING]: Invalid widget ID "%s" in %s' % (widgetID, self))
+            print(StringUtils.dedent("""
+                [WARNING]: Invalid widget ID "%s" in %s. No such widget assigned
+                """ % (widgetID, self)))
             return False
 
         if containerWidget is None:

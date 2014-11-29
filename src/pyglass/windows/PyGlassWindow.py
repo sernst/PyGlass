@@ -38,7 +38,7 @@ class PyGlassWindow(QtGui.QMainWindow):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, **kwargs):
         """Creates a new instance of PyGlassWindow."""
-        parent = ArgsUtils.extract('parent', None, kwargs)
+        parent                  = ArgsUtils.extract('parent', None, kwargs)
         self._application       = ArgsUtils.extract('pyGlassApp', None, kwargs)
         self._qApplication      = ArgsUtils.extract('qApp', None, kwargs)
         self._isMainWindow      = ArgsUtils.extract('isMainWindow', bool(parent is None), kwargs)
@@ -68,22 +68,9 @@ class PyGlassWindow(QtGui.QMainWindow):
             prefix=self.__class__.__name__,
             suffix=StringUtils.getRandomString(8))
 
-        self._styleSheet = ArgsUtils.get('styleSheet', None, kwargs)
+        self._styleSheet = kwargs.get('styleSheet', None)
         if self._styleSheet:
             self.setStyleSheet(self.styleSheetPath)
-
-        self._appWrappingWidget = VisibilityElement(self)
-        layout = QtGui.QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        self._appWrappingWidget.setLayout(layout)
-        self.setCentralWidget(self._appWrappingWidget)
-
-        self._contentWrappingWidget = self.addApplicationLevelWidget('main')
-        layout = QtGui.QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        self._contentWrappingWidget.setLayout(layout)
 
         if self._keyboardCallback is not None:
             self.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -95,7 +82,7 @@ class PyGlassWindow(QtGui.QMainWindow):
             self._resourceFolderParts = PyGlassGuiUtils.getResourceFolderParts(self)
 
             icon = PyGlassGuiUtils.createIcon(
-                ArgsUtils.get('iconsPath', self.getAppResourcePath('icons', isDir=True), kwargs) )
+                kwargs.get('iconsPath', self.getAppResourcePath('icons', isDir=True)) )
             if icon:
                 self.setWindowIcon(icon)
 
@@ -104,32 +91,62 @@ class PyGlassWindow(QtGui.QMainWindow):
             if icon:
                 self.setWindowIcon(icon)
 
+        self._appWrappingWidget = VisibilityElement(self)
+        layout = QtGui.QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self._appWrappingWidget.setLayout(layout)
+
+        self._contentWrappingWidget = self.addApplicationLevelWidget('main')
+        layout = QtGui.QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self._contentWrappingWidget.setLayout(layout)
+
         # Loads the ui file if it exists
-        hasWindowFile = ArgsUtils.get('mainWindowFile', False, kwargs)
-        if hasWindowFile:
+        externalCentralParent = None
+        hasWindowFile = kwargs.get('mainWindowFile', False)
+        if hasWindowFile == self:
+            UiFileLoader.loadWidgetFile(self)
+            externalCentralParent = getattr(self, 'windowContainer')
+            if externalCentralParent:
+                externalLayout = externalCentralParent.layout()
+                if not externalLayout:
+                    externalLayout = QtGui.QVBoxLayout()
+                    externalLayout.setContentsMargins(0, 0, 0, 0)
+                    externalLayout.setSpacing(0)
+                    externalCentralParent.setLayout(externalLayout)
+
+        if externalCentralParent:
+            self._appWrappingWidget.setParent(externalCentralParent)
+            externalLayout.addWidget(self._appWrappingWidget)
+        else:
+            self.setCentralWidget(self._appWrappingWidget)
+
+        # Sets a non-standard central widget
+        centralWidgetName = kwargs.get('centralWidgetName')
+        if centralWidgetName and hasattr(self, centralWidgetName):
+            self._centerWidget = getattr(self, centralWidgetName)
+        elif hasWindowFile and not hasWindowFile == self:
             if not self._centerWidget:
                 self._createCentralWidget()
             UiFileLoader.loadWidgetFile(self, target=self._centerWidget)
-
-        # Sets a non-standard central widget
-        centralWidgetName = ArgsUtils.get('centralWidgetName', None, kwargs)
-        if centralWidgetName and hasattr(self, centralWidgetName):
-            self._centerWidget = getattr(self, centralWidgetName)
         elif not hasWindowFile:
             self._centerWidget = None
-            if ArgsUtils.get('defaultCenterWidget', True, kwargs):
-                self._createCentralWidget()
+
+        if not self._centerWidget and kwargs.get('defaultCenterWidget', True):
+            self._createCentralWidget()
 
         self._lastChildWidgetID  = None
         self._widgetParent  = None
         self._widgets       = None
         self._widgetFlags   = None
 
-        self._widgetClasses = ArgsUtils.getAsDict('widgets', kwargs)
+        self._widgetClasses = kwargs.get('widgets', dict())
         if self._widgetClasses:
             self._initializeWidgetChildren()
 
-        self.setWindowTitle(ArgsUtils.get('title', self._createTitleFromClass(), kwargs))
+        self.setWindowTitle(kwargs.get('title', self._createTitleFromClass()))
         self.updateStatusBar()
 
 #===================================================================================================
@@ -548,10 +565,6 @@ class PyGlassWindow(QtGui.QMainWindow):
 
 #___________________________________________________________________________________________________ initialize
     def initialize(self, *args, **kwargs):
-        if AlembicUtils.hasAlembic:
-            self.pyGlassApplication.updateSplashScreen('Conforming internal data')
-            AlembicUtils.upgradeAppDatabases(self.appID)
-
         self._initializeImpl(*args, **kwargs)
 
 #___________________________________________________________________________________________________ initializeComplete

@@ -138,6 +138,11 @@ class PyGlassModelsDefault(object):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
+        """__unicode__ doc..."""
+        return StringUtils.toText(self.__str__())
+
+#___________________________________________________________________________________________________ __str__
+    def __str__(self):
         modelInfo = self._getPrintAttrs()
         if isinstance(modelInfo, dict):
             out = ''
@@ -154,9 +159,4 @@ class PyGlassModelsDefault(object):
             StringUtils.toUnicode(self.i),
             StringUtils.toUnicode(self.cts.strftime('%m-%d-%y %H:%M:%S') if self.cts else 'None'),
             StringUtils.toUnicode(self.upts.strftime('%m-%d-%y %H:%M:%S') if self.upts  else 'None'),
-            modelInfo
-        )
-
-#___________________________________________________________________________________________________ __str__
-    def __str__(self):
-        return self.__unicode__().encode('utf8', 'ignore')
+            modelInfo).decode('utf8', 'ignore')

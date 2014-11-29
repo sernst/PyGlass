@@ -11,10 +11,12 @@ import zipfile
 from pyaid.OsUtils import OsUtils
 from pyaid.debug.Logger import Logger
 from pyaid.decorators.ClassGetter import ClassGetter
+from pyaid.file.FileUtils import FileUtils
+from pyaid.string.StringUtils import StringUtils
+
+from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 
 #AS NEEDED: pyglass.alembic.AlembicUtils import AlembicUtils
-from pyaid.string.StringUtils import StringUtils
-from pyglass.app.PyGlassEnvironment import PyGlassEnvironment
 
 #___________________________________________________________________________________________________ ModelUtils
 class PyGlassModelUtils(object):
@@ -23,7 +25,8 @@ class PyGlassModelUtils(object):
 #===================================================================================================
 #                                                                                       C L A S S
 
-    _ZIP_FIND = os.sep + OsUtils.getPerOsValue('library', 'site-packages', 'fictional') + '.zip' + os.sep
+    _ZIP_FIND = '%s%s.zip%s' % (
+        os.sep, OsUtils.getPerOsValue('library', 'site-packages', 'fictional'), os.sep)
 
     _logger = Logger('SQLAlchemyModels', printOut=True)
 
@@ -39,15 +42,29 @@ class PyGlassModelUtils(object):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ upgradeDatabase
+    @classmethod
+    def upgradeDatabase(cls, databaseUrl):
+        """upgradeDatabase doc..."""
+        from pyglass.alembic.AlembicUtils import AlembicUtils
+        if not AlembicUtils.hasAlembic:
+            return False
+
+        AlembicUtils.upgradeDatabase(
+            databaseUrl=databaseUrl,
+            resourcesPath=PyGlassEnvironment.getRootResourcePath(isDir=True),
+            localResourcesPath=PyGlassEnvironment.getRootLocalResourcePath(isDir=True))
+        return True
+
 #___________________________________________________________________________________________________ modelsInit
     @classmethod
-    def modelsInit(cls, initPath, initName):
+    def modelsInit(cls, databaseUrl, initPath, initName):
         out = dict()
-        zipIndex = initPath[0].find(PyGlassModelUtils._ZIP_FIND)
+        zipIndex = initPath[0].find(cls._ZIP_FIND)
         if  zipIndex == -1:
             moduleList = os.listdir(initPath[0])
         else:
-            splitIndex = zipIndex+len(PyGlassModelUtils._ZIP_FIND)
+            splitIndex = zipIndex+len(cls._ZIP_FIND)
             zipPath    = initPath[0][:splitIndex-1]
             modulePath = initPath[0][splitIndex:]
             z          = zipfile.ZipFile(zipPath)
@@ -56,6 +73,18 @@ class PyGlassModelUtils(object):
                 item = os.sep.join(item.split('/'))
                 if item.startswith(modulePath):
                     moduleList.append(item.rsplit(os.sep, 1)[-1])
+
+        # Warn if module initialization occurs before pyglass environment initialization and
+        # then attempt to initialize the environment automatically to prevent errors
+        if not PyGlassEnvironment.isInitialized:
+            cls.logger.write(StringUtils.dedent("""
+                [WARNING]: Database initialization called before PyGlassEnvironment initialization.
+                Attempting automatic initialization to prevent errors."""))
+            PyGlassEnvironment.initializeFromInternalPath(initPath)
+
+        if not cls.upgradeDatabase(databaseUrl):
+            cls.logger.write(StringUtils.dedent("""
+                [WARNING]: No alembic support detected. Migration support disabled."""))
 
         items = []
         for module in moduleList:
@@ -80,11 +109,6 @@ class PyGlassModelUtils(object):
                 out[n] = c
                 if not c.__table__.exists(c.ENGINE):
                     c.__table__.create(c.ENGINE, True)
-
-                    from pyglass.alembic.AlembicUtils import AlembicUtils
-                    if AlembicUtils.hasAlembic:
-                        AlembicUtils.stampDatabase(c.DATABASE_URL)
-                        cls._logger.write('CREATED: %s %s [STAMPED head]' % (c, c.__table__))
             except Exception as err:
                 cls._logger.writeError([
                     'MODEL INITIALIZATION FAILURE:',
@@ -99,12 +123,12 @@ class PyGlassModelUtils(object):
 
 #___________________________________________________________________________________________________ getMigrationPathFromDatabaseUrl
     @classmethod
-    def getMigrationPathFromDatabaseUrl(cls, databaseUrl, root =False):
+    def getMigrationPathFromDatabaseUrl(cls, databaseUrl, root =False, resourcesPath =None):
         urlParts = databaseUrl.split('://')
         if urlParts[0].lower() == 'shared':
-            path = ['shared', 'migration']
+            path = ['shared', 'alembic']
         else:
-            path = ['apps', urlParts[0], 'migration']
+            path = ['apps', urlParts[0], 'alembic']
 
         if not root:
             path += urlParts[-1].split('/')
@@ -113,11 +137,14 @@ class PyGlassModelUtils(object):
             if path[-1].endswith('.vdb'):
                 path[-1] = path[-1][:-4]
 
-        return PyGlassEnvironment.getRootResourcePath(*path)
+        if resourcesPath:
+            return FileUtils.makeFolderPath(resourcesPath, *path, isDir=True)
+
+        return PyGlassEnvironment.getRootResourcePath(*path, isDir=True)
 
 #___________________________________________________________________________________________________ getPathFromDatabaseUrl
     @classmethod
-    def getPathFromDatabaseUrl(cls, databaseUrl):
+    def getPathFromDatabaseUrl(cls, databaseUrl, localResourcesPath =None):
         urlParts = databaseUrl.split('://')
 
         # Determine the sqlite database path
@@ -130,7 +157,10 @@ class PyGlassModelUtils(object):
         if not path[-1].endswith('.vdb'):
             path[-1] += '.vdb'
 
-        return PyGlassEnvironment.getRootLocalResourcePath(*path)
+        if localResourcesPath:
+            return FileUtils.makeFilePath(localResourcesPath, *path)
+
+        return PyGlassEnvironment.getRootLocalResourcePath(*path, isFile=True)
 
 #___________________________________________________________________________________________________ getPathFromDatabaseUrl
     @classmethod
@@ -138,15 +168,26 @@ class PyGlassModelUtils(object):
         out = cls._getEngineUrlPath(engineUrl)
 
         # On Windows the extra slash added to the beginning of the path must be removed
-        if PyGlassEnvironment.isWindows and re.compile('^/.{1}:').match(out):
+        if PyGlassEnvironment.isWindows and re.compile('^/.:').match(out):
             return out[1:]
 
         return out
 
+#___________________________________________________________________________________________________ getRelativeEngineUrl
+    @classmethod
+    def getRelativeEngineUrl(cls, databaseUrl, localResourcesPath =None):
+        """getRelativeEngineUrl doc..."""
+        if not localResourcesPath:
+            localResourcesPath = PyGlassEnvironment.getRootLocalResourcePath(isDir=True)
+        url = cls.getEngineUrl(databaseUrl=databaseUrl, localResourcesPath=localResourcesPath)
+        return url.replace(localResourcesPath, '')
+
 #___________________________________________________________________________________________________ getEngineUrl
     @classmethod
-    def getEngineUrl(cls, databaseUrl):
-        databasePath = cls.getPathFromDatabaseUrl(databaseUrl)
+    def getEngineUrl(cls, databaseUrl, localResourcesPath =None):
+        databasePath = cls.getPathFromDatabaseUrl(
+            databaseUrl=databaseUrl,
+            localResourcesPath=localResourcesPath)
 
         d = os.path.dirname(databasePath)
         if not os.path.exists(d):

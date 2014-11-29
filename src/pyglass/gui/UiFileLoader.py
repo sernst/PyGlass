@@ -54,7 +54,13 @@ class UiFileLoader(QtUiTools.QUiLoader):
 
             # Adds attribute for the new child widget on the target to mimic PyQt4.uic.loadUi.
             if self._target:
-                setattr(self._target, name, widget)
+                try:
+                    setattr(self._target, name, widget)
+                except AttributeError:
+                    print(StringUtils.dedent("""
+                        [ERROR]: Load UI file attempt encountered existing attribute "%s" with
+                        the same name as an element in the source file. """ % name))
+                    raise
 
             return widget
 
