@@ -35,7 +35,7 @@ except Exception:
 
 #___________________________________________________________________________________________________ AlembicUtils
 class AlembicUtils(object):
-    """ A utility class for Alembic migration management within PyGlass applications """
+    """ A utility class for Alembic migration management within PyGlass applications. """
 
 #===================================================================================================
 #                                                                                       C L A S S
@@ -129,9 +129,7 @@ class AlembicUtils(object):
 
 #___________________________________________________________________________________________________ getCurrentDatabaseRevision
     @classmethod
-    def getCurrentDatabaseRevision(
-            cls, databaseUrl, resourcesPath =None, localResourcesPath =None, config =None
-    ):
+    def getCurrentDatabaseRevision(cls, databaseUrl, localResourcesPath =None):
         url = PyGlassModelUtils.getEngineUrl(
             databaseUrl=databaseUrl,
             localResourcesPath=localResourcesPath)
@@ -145,15 +143,16 @@ class AlembicUtils(object):
 
 #___________________________________________________________________________________________________ getCurrentDatabaseRevision
     @classmethod
-    def getHeadDatabaseRevision(
-            cls, databaseUrl, resourcesPath =None, localResourcesPath =None, config =None):
+    def getHeadDatabaseRevision(cls, databaseUrl, resourcesPath =None, config =None):
+        """ Returns the Alembic revision string for the head of the specified database with an
+            Alembic migration environment located within the specified app resource path. """
         scripts = cls.getScriptsData(databaseUrl, resourcesPath=resourcesPath, config=config)
         result = scripts.get_current_head()
         return result
 
 #___________________________________________________________________________________________________ getRevisionList
     @classmethod
-    def getRevisionList(cls, databaseUrl, resourcesPath =None, localResourcesPath =None, config =None):
+    def getRevisionList(cls, databaseUrl, resourcesPath =None, config =None):
         if not cls.hasMigrationEnvironment(databaseUrl, resourcesPath=resourcesPath):
             return []
 
@@ -211,13 +210,10 @@ class AlembicUtils(object):
 
         current = cls.getCurrentDatabaseRevision(
             databaseUrl=databaseUrl,
-            resourcesPath=resourcesPath,
-            localResourcesPath=localResourcesPath,
-            config=config)
+            localResourcesPath=localResourcesPath)
 
         head = cls.getHeadDatabaseRevision(
             databaseUrl=databaseUrl,
-            localResourcesPath=localResourcesPath,
             resourcesPath=resourcesPath,
             config=config)
 
@@ -240,7 +236,6 @@ class AlembicUtils(object):
         previousRevisions = cls.getRevisionList(
             databaseUrl=databaseUrl,
             resourcesPath=resourcesPath,
-            localResourcesPath=localResourcesPath,
             config=config)
 
         alembicCmd.revision(
