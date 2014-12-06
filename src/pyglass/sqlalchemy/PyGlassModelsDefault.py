@@ -154,9 +154,9 @@ class PyGlassModelsDefault(object):
         else:
             modelInfo = ''
 
-        return '<%s[%s] cts[%s] upts[%s]%s>' % (
+        return StringUtils.toStr2('<%s[%s] cts[%s] upts[%s]%s>' % (
             self.__class__.__name__,
             StringUtils.toUnicode(self.i),
             StringUtils.toUnicode(self.cts.strftime('%m-%d-%y %H:%M:%S') if self.cts else 'None'),
             StringUtils.toUnicode(self.upts.strftime('%m-%d-%y %H:%M:%S') if self.upts  else 'None'),
-            modelInfo).decode('utf8', 'ignore')
+            modelInfo))
