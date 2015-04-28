@@ -4,6 +4,7 @@
 
 from __future__ import print_function, absolute_import, unicode_literals, division
 
+import sys
 import os
 import shutil
 import inspect
@@ -112,14 +113,18 @@ class PyGlassApplicationCompiler(object):
 
         ResourceCollector(self, verbose=True).run()
 
-        cmd = 'python %s %s > %s' % (
-            self._createSetupFile(binPath),
-            'py2exe' if OsUtils.isWindows() else 'py2app',
-            self.getBinPath('setup.log', isFile=True) )
+        cmd = [
+            FileUtils.makeFilePath(sys.prefix, 'bin', 'python'),
+            '"%s"' % self._createSetupFile(binPath),
+            OsUtils.getPerOsValue('py2exe', 'py2app'), '>',
+            '"%s"' % self.getBinPath('setup.log', isFile=True)]
 
+        print('[COMPILING]: Executing %s' % OsUtils.getPerOsValue('py2exe', 'py2app'))
+        print('[COMMAND]: %s' % ' '.join(cmd))
         result = SystemUtils.executeCommand(cmd, remote=False, wait=True)
         if result['code']:
             print('COMPILATION ERROR:')
+            print(result['out'])
             print(result['error'])
             return False
 

@@ -80,7 +80,7 @@ class PyGlassModelUtils(object):
             cls.logger.write(StringUtils.dedent("""
                 [WARNING]: Database initialization called before PyGlassEnvironment initialization.
                 Attempting automatic initialization to prevent errors."""))
-            PyGlassEnvironment.initializeFromInternalPath(initPath)
+            PyGlassEnvironment.initializeFromInternalPath(initPath[0])
 
         if not cls.upgradeDatabase(databaseUrl):
             cls.logger.write(StringUtils.dedent("""
