@@ -104,7 +104,7 @@ class AlembicUtils(object):
         # when running in different deployment modes and when installed on different computers
         config.set_main_option('url', engineUrl)
         config.set_section_option('alembic', 'script_location', migrationPath)
-        config.set_section_option('alembic', 'sqlalchemy.url', migrationPath)
+        config.set_section_option('alembic', 'sqlalchemy.url', engineUrl)
         config.set_section_option('alembic', 'url', migrationPath)
 
         return config
