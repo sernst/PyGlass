@@ -75,4 +75,10 @@ class PyGlassElementUtils(object):
             owner.mainWindow.appConfig.set(configSetting, target.isChecked())
 
         if callback is not None:
-            callback(target, state)
+            try:
+                callback(target, state)
+            except TypeError as err:
+                print(
+                    '[ERROR]: Incorrect arguments in "%s"'
+                    % callback.__name__)
+                raise

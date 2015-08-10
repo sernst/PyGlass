@@ -11,6 +11,7 @@ from PySide import QtCore
 from PySide import QtGui
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.OsUtils import OsUtils
+from pyaid.config.ConfigsDict import ConfigsDict
 from pyaid.debug.Logger import Logger
 from pyaid.decorators.ClassGetter import ClassGetter
 from pyaid.dict.DictUtils import DictUtils
@@ -47,6 +48,7 @@ class PyGlassWindow(QtGui.QMainWindow):
         self._centerWidget      = None
         self._hasShown          = False
         self._isHighDpi         = OsUtils.isHighDpiScaledScreen()
+        self._settings          = ConfigsDict()
 
         self._appLevelWidgets              = dict()
         self._appLevelWidgetDisplayHistory = []
@@ -151,6 +153,11 @@ class PyGlassWindow(QtGui.QMainWindow):
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: settings
+    @property
+    def settings(self):
+        return self._settings
 
 #___________________________________________________________________________________________________ GS: isHighDpi
     @property

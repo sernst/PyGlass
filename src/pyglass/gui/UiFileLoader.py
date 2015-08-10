@@ -8,6 +8,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import os
 import sys
 import importlib
+from pyaid.file.FileUtils import FileUtils
 
 from pyaid.list.ListUtils import ListUtils
 from pyaid.string.StringUtils import StringUtils
@@ -129,18 +130,26 @@ class UiFileLoader(QtUiTools.QUiLoader):
             target = widget
 
         try:
-            path = widget.getResourcePath(isDir=True)
+            path = widget.getResourcePath(isDir=True, inApp=True)
         except Exception:
             raise IOError('[ERROR]: No widget resource path found for "%s" widget' % (widgetName))
 
         if not os.path.exists(path):
-            raise IOError('[ERROR]: Missing widget resource path [%s]: %s' % (widgetName, path))
+            try:
+                path = widget.getResourcePath(isDir=True)
+            except Exception:
+                raise IOError(
+                    '[ERROR]: No widget resource path found for "%s" widget' % (widgetName))
+
+            if not os.path.exists(path):
+                raise IOError(
+                    '[ERROR]: Missing widget resource path [%s]: %s' % (widgetName, path))
 
         result = None
         for item in lookups:
             result = cls.loadUiFile(
                 target=target,
-                pathNoExtension=widget.getResourcePath(item, isFile=True),
+                pathNoExtension=FileUtils.makeFilePath(path, item, isFile=True),
                 loadAsWidget=loadAsWidget)
             if result:
                 break

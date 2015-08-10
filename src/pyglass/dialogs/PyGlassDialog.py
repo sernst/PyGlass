@@ -27,6 +27,7 @@ class PyGlassDialog(QtGui.QDialog):
             # By default the close button is hidden (only title shows)
             flags = QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint
 
+        self.data      = ArgsUtils.extract('data', None, kwargs)
         title          = ArgsUtils.extract('title', 'Dialog', kwargs)
         modal          = ArgsUtils.extract('modal', True, kwargs)
         widgetClass    = ArgsUtils.extract('widget', None, kwargs)

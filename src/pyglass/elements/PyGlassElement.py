@@ -92,6 +92,10 @@ class PyGlassElement(VisibilityElement):
 #___________________________________________________________________________________________________ GS: mainWindow
     @property
     def mainWindow(self):
+        """
+        :rtype: PyGlassWindow
+        """
+
         if self._mainWindow is None:
             self._mainWindow = PyGlassGuiUtils.getMainWindow(self)
         return self._mainWindow
@@ -201,6 +205,9 @@ class PyGlassElement(VisibilityElement):
 #___________________________________________________________________________________________________ getResourcePath
     def getResourcePath(self, *args, **kwargs):
         """Doc..."""
+        inApp = kwargs.get('inApp', False)
+        if inApp:
+            return self.getAppResourcePath('widget', self._resourceFolderParts, *args, **kwargs)
         return FileUtils.createPath(
             self.mainWindow.rootResourcePath, 'widget', self._resourceFolderParts, *args, **kwargs )
 
